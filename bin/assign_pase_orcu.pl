@@ -9,6 +9,7 @@
 ##########################################################################
 use strict;
 use Trate::Lib::Rule;
+use Trate::Lib::LimitRule;
 use Trate::Lib::GroupRule;
 use Trate::Lib::Vehiculo;
 
@@ -22,18 +23,25 @@ if ($num_args != 3) {
 
 my ($pase,$camion,$litros) = @ARGV;
 my $rule = Trate::Lib::Rule->new();
+my $limitRule = Trate::Lib::LimitRule->new();
 my $groupRule = Trate::Lib::GroupRule->new();
 my $mean = Trate::Lib::Vehiculo->new();
 
-#Agregar la regla de límite de combustible
+#Agregar la definicion de la regla
 $rule->id($pase);
 $rule->ruleId($pase);
 $rule->ruleType(1);
 $rule->name($pase . "P" . $litros . "Litros");
 $rule->description($rule->name());
 $rule->status(2);
-$rule->contentSummary("Límite: Tipo: Volumen; Simple:" . $litros . ";");
+$rule->contentSummary("Limit: Type:Volume; Single:" . $litros . ";");
 print $rule->insertarOrcu() . "\n";
+
+#Agregar la regla de límite de combustible
+$limitRule->id($pase);
+$limitRule->single($litros);
+$limitRule->type(1);
+$limitRule->insertarOrcu() . "\n";
 
 #Agregar la regla de grupo
 $groupRule->id($pase + 10000000);
