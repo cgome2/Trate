@@ -36,71 +36,85 @@ sub new
 
 sub transactionId {
         my ($self) = @_;
+        if (@_) { $self->{TRANSACTION_ID} = shift }
         return $self->{TRANSACTION_ID};
 }
 
 sub transactionTimestamp {
         my ($self) = @_;
+        if (@_) { $self->{TRANSACTION_TIMESTAMP} = shift }
         return $self->{TRANSACTION_TIMESTAMP};
 }
 
 sub transactionDispensedQuantity {
         my ($self) = @_;
+        if (@_) { $self->{TRANSACTION_DISPENSED_QUANTITY} = shift }
         return $self->{TRANSACTION_DISPENSED_QUANTITY};
 }
 
 sub transactionPpv {
         my ($self) = @_;
+        if (@_) { $self->{TRANSACTION_PPV} = shift }
         return $self->{TRANSACTION_PPV};
 }
 
 sub transactionTotalPrice {
         my ($self) = @_;
+        if (@_) { $self->{TRANSACTION_TOTAL_PRICE} = shift }
         return $self->{TRANSACTION_TOTAL_PRICE};
 }
 
 sub transactionIva {
         my ($self) = @_;
+        if (@_) { $self->{TRANSACTION_IVA} = shift }
         return $self->{TRANSACTION_IVA};
 }
 
 sub transactionIeps {
         my ($self) = @_;
+        if (@_) { $self->{TRANSACTION_IEPS} = shift }
         return $self->{TRANSACTION_IEPS};
 }
 
 sub transactionPumpHeadExternalCode {
         my ($self) = @_;
+        if (@_) { $self->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE} = shift }
         return $self->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE};
 }
 
 sub returnTimestamp {
         my ($self) = @_;
+        if (@_) { $self->{RETURN_TIMESTAMP} = shift }
         return $self->{RETURN_TIMESTAMP};
 }
 
 sub returnTotalPrice {
         my ($self) = @_;
+        if (@_) { $self->{RETURN_TOTAL_PRICE} = shift }
         return $self->{RETURN_TOTAL_PRICE};
 }
 
 sub returnTankObjectId {
         my ($self) = @_;
+        if (@_) { $self->{RETURN_TANK_OBJECT_ID} = shift }
         return $self->{RETURN_TANK_OBJECT_ID};
 }
 
 sub returnDate {
         my ($self) = @_;
+        if (@_) { $self->{RETURN_DATE} = shift }
         return $self->{RETURN_DATE};
 }
 
 sub returnTime {
         my ($self) = @_;
+        if (@_) { $self->{RETURN_TIME} = shift }
         return $self->{RETURN_TIME};
 }
 
 sub statusCode {
         my ($self) = @_;
+        if (@_) { $self->{STATUS_CODE} = shift }
         return $self->{STATUS_CODE};
 }
 

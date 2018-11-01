@@ -11,13 +11,13 @@ package Trate::Lib::ConnectorInformix;
 
 use DBI;
 use strict;
+use Trate::Lib::Constants qw(DRIVER_INFORMIX DATABASE_INFORMIX DSN_INFORMIX USER_INFORMIX PASSWORD_INFORMIX);
 
-
-my $DRIVER = "Informix";
-my $DATABASE = "master";
-my $DSN = "DBI:$DRIVER:$DATABASE";
-my $USER = "trateusr";
-my $PASSWORD = "t1710e";
+my $DRIVER = DRIVER_INFORMIX;
+my $DATABASE = DATABASE_INFORMIX;
+my $DSN = DSN_INFORMIX;
+my $USER = USER_INFORMIX;
+my $PASSWORD = PASSWORD_INFORMIX;
 
 sub new
 {

@@ -8,9 +8,44 @@
 # Version: 
 ##########################################################################
 use strict;
+use Trate::Lib::Rule;
+use Trate::Lib::GroupRule;
+use Trate::Lib::Vehiculo;
 
-sub main {
-	system ("echo \"asignar saldo en orcu\" >> /tmp/logfile.log");
+# (1) salir a menos que envien los 3 argumentos
+my $num_args = $#ARGV + 1;
+system("echo \"Executing with $num_args arguments pase: $ARGV[0] camion: $ARGV[1] litros: $ARGV[2]\" >> /tmp/logfile.log");
+if ($num_args != 3) {
+    print "\nUso: assign_pase_orcu.pl pase camion litros\n";
+    exit;
 }
 
-main();
+my ($pase,$camion,$litros) = @ARGV;
+my $rule = Trate::Lib::Rule->new();
+my $groupRule = Trate::Lib::GroupRule->new();
+my $mean = Trate::Lib::Vehiculo->new();
+
+#Agregar la regla de límite de combustible
+$rule->id($pase);
+$rule->ruleId($pase);
+$rule->ruleType(1);
+$rule->name($pase . "P" . $litros . "Litros");
+$rule->description($rule->name());
+$rule->status(2);
+$rule->contentSummary("Límite: Tipo: Volumen; Simple:" . $litros . ";");
+print $rule->insertarOrcu() . "\n";
+
+#Agregar la regla de grupo
+$groupRule->id($pase + 10000000);
+$groupRule->limits($pase);
+$groupRule->visits(0);
+$groupRule->fuel(0);
+$groupRule->name($rule->name());
+$groupRule->description($rule->description());
+$groupRule->contentSummary($rule->contentSummary());
+print $groupRule->insertarOrcu() . "\n";
+
+#Asignar regla de grupo a vehículo (mean)
+$mean->name($camion);
+$mean->rule($groupRule->id());
+print $mean->assignRuleToVehicleOrcu();

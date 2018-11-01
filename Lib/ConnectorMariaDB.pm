@@ -11,13 +11,13 @@ package Trate::Lib::ConnectorMariaDB;
 
 use DBI;
 use strict;
+use Trate::Lib::Constants qw(DRIVER_MARIADB DATABASE_MARIADB DSN_MARIADB USER_MARIADB PASSWORD_MARIADB);
 
-
-my $DRIVER = "mysql";
-my $DATABASE = "orpak";
-my $DSN = "DBI:$DRIVER:database=$DATABASE";
-my $USER = "root";
-my $PASSWORD = "maacsaco";
+my $DRIVER = DRIVER_MARIADB;
+my $DATABASE = DATABASE_MARIADB;
+my $DSN = DSN_MARIADB;
+my $USER = USER_MARIADB;
+my $PASSWORD = PASSWORD_MARIADB;
 
 sub new
 {

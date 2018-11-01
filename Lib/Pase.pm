@@ -14,7 +14,7 @@ use Trate::Lib::ConnectorMariaDB;
 
 sub new
 {
-	my $self;
+	my $self = {};
 	$self->{FECHA_SOLICITUD} = undef;
 	$self->{PASE} = undef;
 	$self->{VIAJE} = undef;
@@ -122,7 +122,6 @@ sub insertarPaseMariaDB {
 	my $cmdb = Trate::Lib::ConnectorMariaDB->new();
 	my $dbh = $cmdb->dbh;
 
-	print $self . "\n";
 	my $preps = 	"INSERT INTO ci_pases VALUES(NULL,'" .
 												$self->{FECHA_SOLICITUD} . "','" .
 												$self->{PASE} . "','" .
@@ -139,7 +138,7 @@ sub insertarPaseMariaDB {
 												$self->{OBSERVACIONES} . "'," .
 												$self->{ULTIMA_MODIFICACION} .
 											")";
-	print $preps . "\n";
+	print ref($self) . " " . $preps . "\n";
 	my $sth = $dbh->prepare($preps);
 	$sth->execute() or die $DBI::errstr;
 
