@@ -12,6 +12,7 @@ use strict;
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::RemoteExecutor;
+use Trate::Lib::Constants qw(LOGGER);
 
 sub new
 {
@@ -104,9 +105,18 @@ sub insertarOrcu {
 										$self->{SENT_TO_FHO} . "','" .
 										$self->{SENT_TO_DHO} . "','" .
 										$self->{DISCOVERED} . "')";
+	LOGGER->debug($query);
 	$remex->remoteQuery($query);
 
 	return 1;
+}
+
+sub borraOrcu {
+	my $self = shift;
+	my $remex = Trate::Lib::RemoteExecutor->new();
+	my $query = "DELETE FROM rules WHERE rule_id = '" . $self->{RULE_ID} . "'";
+	LOGGER->debug($query);
+	$remex->remoteQuery($query);	
 }
 
 1;

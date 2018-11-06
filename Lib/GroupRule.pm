@@ -10,6 +10,7 @@ package Trate::Lib::GroupRule;
 #########################################################
 use strict;
 use Trate::Lib::RemoteExecutor;
+use Trate::Lib::Constants qw(LOGGER);
 
 sub new
 {
@@ -126,6 +127,17 @@ sub insertarOrcu {
 										$self->{SENT_TO_DHO} . "','" .
 										$self->{DISCOVERED} . "','" .
 										$self->{DRY} . "')";
+	LOGGER->debug("Ejecutando $query");
+	$remex->remoteQuery($query);
+
+	return 1;
+}
+
+sub borrarOrcu {
+	my $self = shift;
+	my $remex = Trate::Lib::RemoteExecutor->new();
+	my $query = "DELETE FROM group_rules WHERE id = '" . $self->{ID} . "'";
+	LOGGER->debug("Ejecutando $query");
 	$remex->remoteQuery($query);
 
 	return 1;

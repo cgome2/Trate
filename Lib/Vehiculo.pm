@@ -11,7 +11,7 @@ package Trate::Lib::Vehiculo;
 
 use strict;
 use Trate::Lib::RemoteExecutor;
-use Trate::Lib::Constants qw(DEFAULT_FLEET_ID DEFAULT_DEPT_ID);
+use Trate::Lib::Constants qw(DEFAULT_FLEET_ID DEFAULT_DEPT_ID LOGGER);
 
 sub new
 {
@@ -363,13 +363,19 @@ sub assignRuleToVehicleOrcu() {
 	my $self = shift;
 	my $remex = Trate::Lib::RemoteExecutor->new();
 	my $query = "UPDATE means SET rule='" . $self->{RULE} . "' WHERE NAME='" . $self->{NAME} . "'";
-	system("echo $query >> /tmp/logfile.log");
-	$remex->remoteQuery($query);
+	LOGGER->debug($query);
+	$remex->remoteQuery($query) or die LOGGER->fatal("Error al ejecutar la consulta $query");
 	return 1;	
 }
 
-
-#ssh root@192.168.1.105 -p22 'sqlite3 /usr/local/orpak/BOS/DB/DATA.DB "update means set rule=\"200000001\" where NAME=\"AutoTag\";"'
+sub assignNoFuelRuleToVehicleOrcu() {
+	my $self = shift;
+	my $remex = Trate::Lib::RemoteExecutor->new();
+	my $query = "UPDATE means SET rule='1' WHERE NAME='" . $self->{NAME} . "'";
+	LOGGER->debug($query);
+	$remex->remoteQuery($query) or die LOGGER->fatal("Error al ejecutar la consulta $query");
+	return 1;	
+}
 
 1;
 #EOF

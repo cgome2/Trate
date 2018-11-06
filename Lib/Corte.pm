@@ -11,6 +11,7 @@ package Trate::Lib::Corte;
 
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
+use Trate::Lib::Constants qw(LOGGER);
 use strict;
 
 sub new

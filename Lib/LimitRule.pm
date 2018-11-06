@@ -12,6 +12,7 @@ use strict;
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::RemoteExecutor;
+use Trate::Lib::Constants qw(LOGGER);
 
 sub new
 {
@@ -80,7 +81,18 @@ sub insertarOrcu {
 										$self->{MONTH} . "','" .
 										$self->{TYPE} . "','" .
 										$self->{YEAR} . "')";
-	$remex->remoteQuery($query);
+	LOGGER->debug("Ejecutando $query");
+	$remex->remoteQuery($query) or die LOGGER->fatal("Error al ejecutar el comando $query");
+
+	return 1;
+}
+
+sub borrarOrcu {
+	my $self = shift;
+	my $remex = Trate::Lib::RemoteExecutor->new();
+	my $query = "DELETE FROM limits_rules WHERE id = '" . $self->{ID} . "'";
+	LOGGER->debug("Ejecutando $query");
+	$remex->remoteQuery($query) or die LOGGER->fatal("Error al ejecutar el comando $query");
 
 	return 1;
 }

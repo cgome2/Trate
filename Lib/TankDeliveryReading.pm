@@ -10,6 +10,7 @@ package Trate::Lib::TankDeliveryReading;
 #########################################################
 
 use strict;
+use Trate::Lib::Constants qw(LOGGER);
 
 sub new
 {

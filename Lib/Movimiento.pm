@@ -1,3 +1,5 @@
+package Trate::Lib::Movimiento;
+
 #########################################################
 #Movimiento - Clase Movimiento							#
 #                                                       #
@@ -7,10 +9,10 @@
 #                                                       #
 #########################################################
 
-package Trate::Lib::Movimiento;
 
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
+use Trate::Lib::Constants qw(LOGGER);
 use strict;
 
 sub new
@@ -172,6 +174,166 @@ sub transaction_id {
         my ($self) = @_;
         if (@_) { $self->{TRANSACTION_ID} = shift }
         return $self->{TRANSACTION_ID};
+}
+
+sub insertaMDB{
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "
+		INSERT INTO ci_movimientos VALUES('"  .
+			$self->{FECHA_HORA} . "','" .
+			$self->{ESTACION} . "','" .
+			$self->{DISPENSADOR} . "','" . 
+			$self->{SUPERVISOR} . "','" . 
+			$self->{DESPACHADOR} . "','" . 
+			$self->{VIAJE} . "','" . 
+			$self->{CAMION} . "','" .
+			$self->{CHOFER} . "','" .
+			$self->{SELLO} . "','" .
+			$self->{TIPO_REFERENCIA} . "','" .
+			$self->{SERIE} . "','" .
+			$self->{REFERENCIA} . "','" .
+			$self->{MOVIMIENTO} . "','" .
+			$self->{LITROS_ESP} . "','" .
+			$self->{LITROS_REAL} . "','" .
+			$self->{COSTO_ESP} . "','" .
+			$self->{COSTO_REAL} . "','" .
+			$self->{IVA} . "','" .
+			$self->{IEPS} . "','" .
+			$self->{STATUS} . "','" .
+			$self->{PROCESADA} . "','" .
+			$self->{TRANSACTION_ID} . "')";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$connector->destroy();
+}
+
+sub insertaInf{
+	my $connector = Trate::Lib::Informix->new();
+	my $preps = "
+		INSERT INTO ci_movimientos VALUES('"  .
+			$self->{FECHA_HORA} . "','" .
+			$self->{ESTACION} . "','" .
+			$self->{DISPENSADOR} . "','" . 
+			$self->{SUPERVISOR} . "','" . 
+			$self->{DESPACHADOR} . "','" . 
+			$self->{VIAJE} . "','" . 
+			$self->{CAMION} . "','" .
+			$self->{CHOFER} . "','" .
+			$self->{SELLO} . "','" .
+			$self->{TIPO_REFERENCIA} . "','" .
+			$self->{SERIE} . "','" .
+			$self->{REFERENCIA} . "','" .
+			$self->{MOVIMIENTO} . "','" .
+			$self->{LITROS_ESP} . "','" .
+			$self->{LITROS_REAL} . "','" .
+			$self->{COSTO_ESP} . "','" .
+			$self->{COSTO_REAL} . "','" .
+			$self->{IVA} . "','" .
+			$self->{IEPS} . "','" .
+			$self->{STATUS} . "','" .
+			$self->{PROCESADA} . "','" .
+			$self->{TRANSACTION_ID} . "')";
+	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+	$connector->destroy();	
+}
+
+sub actualizaMDB{
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "
+				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
+					"estacion='" . $self->{ESTACION} . "'," .
+					"dispensador='" . $self->{DISPENSADOR} . "'," .
+					"supervisor='" . $self->{SUPERVISOR} . "'," .
+					"despachador='" . $self->{DESPACHADOR} . "'," .
+					"viaje='" . $self->{VIAJE} . "'," .
+					"camion='" . $self->{CAMION} . "'," .
+					"chofer='" . $self->{CHOFER} . "'," .
+					"sello='" . $self->{SELLO} . "'," .
+					"tipo_referencia='" . $self->{TIPO_REFERENCIA} . "'," .
+					"serie='" . $self->{SERIE} . "'," .
+					"referencia='" . $self->{REFERENCIA} . "'," . 
+					"movimiento='" . $self->{MOVIMIENTO} . "'," .
+					"litros_esp='" . $self->{LITROS_ESP} . "'," .
+					"litros_real='" . $self->{LITROS_REAL} . "'," .
+					"costo_esp='" . $self->{COSTO_ESP} . "'," .
+					"costo_real='" . $self->{COSTO_REAL} . "'," .
+					"iva='" . $self->{IVA} . "'," .
+					"ieps='" . $self->{IEPS} . "'," .
+					"status='" . $self->{STATUS} . "'," .
+					"procesada='" . $self->{PROCESADA} . "'," .
+					"transaction_id='" . $self->{TRANSACTION_ID} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$connector->destroy();	
+}
+
+sub actualizaInf{
+	my $connector = Trate::Lib::Informix->new();
+	my $preps = "
+				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
+					"estacion='" . $self->{ESTACION} . "'," .
+					"dispensador='" . $self->{DISPENSADOR} . "'," .
+					"supervisor='" . $self->{SUPERVISOR} . "'," .
+					"despachador='" . $self->{DESPACHADOR} . "'," .
+					"viaje='" . $self->{VIAJE} . "'," .
+					"camion='" . $self->{CAMION} . "'," .
+					"chofer='" . $self->{CHOFER} . "'," .
+					"sello='" . $self->{SELLO} . "'," .
+					"tipo_referencia='" . $self->{TIPO_REFERENCIA} . "'," .
+					"serie='" . $self->{SERIE} . "'," .
+					"referencia='" . $self->{REFERENCIA} . "'," . 
+					"movimiento='" . $self->{MOVIMIENTO} . "'," .
+					"litros_esp='" . $self->{LITROS_ESP} . "'," .
+					"litros_real='" . $self->{LITROS_REAL} . "'," .
+					"costo_esp='" . $self->{COSTO_ESP} . "'," .
+					"costo_real='" . $self->{COSTO_REAL} . "'," .
+					"iva='" . $self->{IVA} . "'," .
+					"ieps='" . $self->{IEPS} . "'," .
+					"status='" . $self->{STATUS} . "'," .
+					"procesada='" . $self->{PROCESADA} . "'," .
+					"transaction_id='" . $self->{TRANSACTION_ID} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
+	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+	$connector->destroy();	
+	
+}
+
+sub borraMDB{
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "DELETE FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$connector->destroy();		
+}
+
+sub borraInf{
+	my $connector = Trate::Lib::Informix->new();
+	my $preps = "DELETE FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+	$connector->destroy();		
+}
+
+sub inserta{
+	insertaMDB();
+	insertaInf();
+}
+
+sub actualiza{
+	actualizaMDB();
+	actualizaInf();
+}
+
+sub borra{
+	borraMDB();
+	borraInf();	
 }
 
 1;

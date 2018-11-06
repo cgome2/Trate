@@ -10,7 +10,7 @@ package Trate::Lib::RemoteExecutor;
 #########################################################
 
 use strict;
-use Trate::Lib::Constants qw(ORCU_ADDRESS SQLITE_DATABASE);
+use Trate::Lib::Constants qw(ORCU_ADDRESS SQLITE_DATABASE LOGGER);
 
 sub new
 {
@@ -33,9 +33,7 @@ sub remoteQuery {
 	my $self = shift;
 	$self->{QUERY} = shift;
 	$self->{COMMAND} = "ssh " . $self->{ORCU} . " \"sqlite3 " . $self->{SQLITE_DATABASE} . " \\\"" . $self->{QUERY} . ";\\\" \\\".exit\\\"\"";
-	#print $self->{COMMAND} . "\n";
-	#my $comando = $self->{COMMAND};
-	#system("echo $comando >> /tmp/logfile.log");
+	LOGGER->info($self->{COMMAND});
 	my $response = `$self->{COMMAND}`;
 	my @responseArray = split(/\n/,$response);
 	print "TOTAL DE RESULTADOS: [" . @responseArray . "]\n";

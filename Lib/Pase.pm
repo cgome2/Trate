@@ -11,6 +11,7 @@ package Trate::Lib::Pase;
 use strict;
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
+use Trate::Lib::Constants qw(LOGGER);
 
 sub new
 {
@@ -138,7 +139,7 @@ sub insertarPaseMariaDB {
 												$self->{OBSERVACIONES} . "'," .
 												$self->{ULTIMA_MODIFICACION} .
 											")";
-	print ref($self) . " " . $preps . "\n";
+	LOGGER->debug(ref($self) . " " . $preps);
 	my $sth = $dbh->prepare($preps);
 	$sth->execute() or die $DBI::errstr;
 
@@ -151,6 +152,23 @@ sub insertarPaseMariaDB {
 sub insertarPaseInformix {
 	#PLEASE IMPLEMENT ME
 }
+
+sub actualizaPaseMariaDB{
+	#PLEASE IMPLEMENT ME	
+}
+
+sub actualizaPaseInformix{
+	#PLEASE IMPLEMENT ME
+}
+
+sub borraPaseMariaDB{
+	#PLEASE IMPLEMENT ME
+}
+
+sub borraPaseInformix{
+	#PLEASE IMPLEMENT ME
+}
+
 
 1;
 #EOF

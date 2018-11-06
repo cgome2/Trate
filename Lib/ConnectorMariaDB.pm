@@ -11,7 +11,7 @@ package Trate::Lib::ConnectorMariaDB;
 
 use DBI;
 use strict;
-use Trate::Lib::Constants qw(DRIVER_MARIADB DATABASE_MARIADB DSN_MARIADB USER_MARIADB PASSWORD_MARIADB);
+use Trate::Lib::Constants qw(DRIVER_MARIADB DATABASE_MARIADB DSN_MARIADB USER_MARIADB PASSWORD_MARIADB LOGGER);
 
 my $DRIVER = DRIVER_MARIADB;
 my $DATABASE = DATABASE_MARIADB;
@@ -30,7 +30,7 @@ sub new
 sub dbh {
 	my $self = shift;
 	if(@_) { $self->{DBH} = shift }
-	$self->{DBH} = DBI->connect($DSN, $USER, $PASSWORD) or die $DBI::errstr;
+	$self->{DBH} = DBI->connect($DSN, $USER, $PASSWORD) or die LOGGER->fatal("Error fatal, no se pudo conectar con el servidor MariaDB" . $DBI::errstr);
 	return $self->{DBH};
 }
 
