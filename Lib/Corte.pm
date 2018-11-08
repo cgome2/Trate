@@ -142,6 +142,160 @@ sub procesada {
         return $self->{PROCESADA};
 }
 
+sub insertaMDB{
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "
+		INSERT INTO ci_movimientos VALUES('"  .
+			$self->{FECHA_HORA} . "','" .
+			$self->{ESTACION} . "','" .
+			$self->{DISPENSADOR} . "','" . 
+			$self->{ENTREGA_TURNO} . "','" . 
+			$self->{RECIBE_TURNO} . "','" . 
+			$self->{FECHA_HORA_RECEP} . "','" . 
+			$self->{INVENTARIO_RECIBIDO_LTS} . "','" . 
+			$self->{MOVTOS_TURNO_LTS} . "','" . 
+			$self->{INVENTARIO_ENTREGADO_LTS} . "','" . 
+			$self->{DIFERENCIA_LTS} . "','" . 
+			$self->{INVENTARIO_RECIBIDO_CTO} . "','" . 
+			$self->{MOVTOS_TURNO_CTO} . "','" . 
+			$self->{INVENTARIO_ENTREGADO_CTO} . "','" . 
+			$self->{DIFERENCIA_CTO} . "','" . 
+			$self->{AUTORIZO_DIF} . "','" . 
+			$self->{CONTADOR_INICIAL} . "','" . 
+			$self->{FOLIO} . "','" . 
+			$self->{CONTADOR_FINAL} . "','" . 
+			$self->{VSERIE} . "','" . 
+			$self->{PROCESADA} . "')";
+	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$connector->destroy();
+}
+
+sub insertaInf {
+	my $connector = Trate::Lib::Informix->new();
+	my $preps = "
+		INSERT INTO ci_movimientos VALUES('"  .
+			$self->{FECHA_HORA} . "','" .
+			$self->{ESTACION} . "','" .
+			$self->{DISPENSADOR} . "','" . 
+			$self->{ENTREGA_TURNO} . "','" . 
+			$self->{RECIBE_TURNO} . "','" . 
+			$self->{FECHA_HORA_RECEP} . "','" . 
+			$self->{INVENTARIO_RECIBIDO_LTS} . "','" . 
+			$self->{MOVTOS_TURNO_LTS} . "','" . 
+			$self->{INVENTARIO_ENTREGADO_LTS} . "','" . 
+			$self->{DIFERENCIA_LTS} . "','" . 
+			$self->{INVENTARIO_RECIBIDO_CTO} . "','" . 
+			$self->{MOVTOS_TURNO_CTO} . "','" . 
+			$self->{INVENTARIO_ENTREGADO_CTO} . "','" . 
+			$self->{DIFERENCIA_CTO} . "','" . 
+			$self->{AUTORIZO_DIF} . "','" . 
+			$self->{CONTADOR_INICIAL} . "','" . 
+			$self->{FOLIO} . "','" . 
+			$self->{CONTADOR_FINAL} . "','" . 
+			$self->{VSERIE} . "','" . 
+			$self->{PROCESADA} . "')";
+	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+	$connector->destroy();	
+	
+}
+
+sub actualizaMDB{
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "
+				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
+					"estacion='" . $self->{ESTACION} . "'," .
+					"dispensador='" . $self->{DISPENSADOR} . "'," .
+					"entrega_turno='" . $self->{ENTREGA_TURNO} . "'," . 
+					"recibe_turno='" . $self->{RECIBE_TURNO} . "'," . 
+					"fecha_hora_recep='" . $self->{FECHA_HORA_RECEP} . "'," . 
+					"inventario_recibido_lts='" . $self->{INVENTARIO_RECIBIDO_LTS} . "'," . 
+					"movtos_turno_lts='" . $self->{MOVTOS_TURNO_LTS} . "'," . 
+					"inventario_entregado_lts='" . $self->{INVENTARIO_ENTREGADO_LTS} . "'," . 
+					"diferencia_lts='" . $self->{DIFERENCIA_LTS} . "'," . 
+					"inventario_recibido_cto='" . $self->{INVENTARIO_RECIBIDO_CTO} . "'," . 
+					"movtos_turno_cto='" . $self->{MOVTOS_TURNO_CTO} . "'," . 
+					"inventario_entregado_cto='" . $self->{INVENTARIO_ENTREGADO_CTO} . "'," . 
+					"diferencia_cto='" . $self->{DIFERENCIA_CTO} . "'," . 
+					"autorizo_dif='" . $self->{AUTORIZO_DIF} . "'," . 
+					"contador_inicial='" . $self->{CONTADOR_INICIAL} . "'," . 
+					"folio='" . $self->{FOLIO} . "'," . 
+					"contador_final='" . $self->{CONTADOR_FINAL} . "'," . 
+					"vserie='" . $self->{VSERIE} . "'," . 
+					"procesada='" . $self->{PROCESADA} . "' WHERE id = '" . $self->{ID} . "'";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$connector->destroy();	
+}
+
+sub actualizaInf{
+	my $connector = Trate::Lib::Informix->new();
+	my $preps = "
+				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
+					"estacion='" . $self->{ESTACION} . "'," .
+					"dispensador='" . $self->{DISPENSADOR} . "'," .
+					"supervisor='" . $self->{SUPERVISOR} . "'," .
+					"despachador='" . $self->{DESPACHADOR} . "'," .
+					"viaje='" . $self->{VIAJE} . "'," .
+					"camion='" . $self->{CAMION} . "'," .
+					"chofer='" . $self->{CHOFER} . "'," .
+					"sello='" . $self->{SELLO} . "'," .
+					"tipo_referencia='" . $self->{TIPO_REFERENCIA} . "'," .
+					"serie='" . $self->{SERIE} . "'," .
+					"referencia='" . $self->{REFERENCIA} . "'," . 
+					"movimiento='" . $self->{MOVIMIENTO} . "'," .
+					"litros_esp='" . $self->{LITROS_ESP} . "'," .
+					"litros_real='" . $self->{LITROS_REAL} . "'," .
+					"costo_esp='" . $self->{COSTO_ESP} . "'," .
+					"costo_real='" . $self->{COSTO_REAL} . "'," .
+					"iva='" . $self->{IVA} . "'," .
+					"ieps='" . $self->{IEPS} . "'," .
+					"status='" . $self->{STATUS} . "'," .
+					"procesada='" . $self->{PROCESADA} . "'," .
+					"transaction_id='" . $self->{TRANSACTION_ID} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
+	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+	$connector->destroy();	
+	
+}
+
+sub borraMDB{
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "DELETE FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$connector->destroy();		
+}
+
+sub borraInf{
+	my $connector = Trate::Lib::Informix->new();
+	my $preps = "DELETE FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+	$connector->destroy();		
+}
+
+sub inserta{
+	insertaMDB();
+	insertaInf();
+}
+
+sub actualiza{
+	actualizaMDB();
+	actualizaInf();
+}
+
+sub borra{
+	borraMDB();
+	borraInf();	
+}
 
 1;
 #EOF
