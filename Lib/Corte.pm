@@ -145,7 +145,7 @@ sub procesada {
 sub insertaMDB{
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
-		INSERT INTO ci_movimientos VALUES('"  .
+		INSERT INTO ci_cortes VALUES('"  .
 			$self->{FECHA_HORA} . "','" .
 			$self->{ESTACION} . "','" .
 			$self->{DISPENSADOR} . "','" . 
@@ -175,7 +175,7 @@ sub insertaMDB{
 sub insertaInf {
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = "
-		INSERT INTO ci_movimientos VALUES('"  .
+		INSERT INTO ci_cortes VALUES('"  .
 			$self->{FECHA_HORA} . "','" .
 			$self->{ESTACION} . "','" .
 			$self->{DISPENSADOR} . "','" . 
@@ -206,7 +206,7 @@ sub insertaInf {
 sub actualizaMDB{
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
-				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
+				UPDATE ci_cortes SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
 					"estacion='" . $self->{ESTACION} . "'," .
 					"dispensador='" . $self->{DISPENSADOR} . "'," .
 					"entrega_turno='" . $self->{ENTREGA_TURNO} . "'," . 
@@ -225,7 +225,7 @@ sub actualizaMDB{
 					"folio='" . $self->{FOLIO} . "'," . 
 					"contador_final='" . $self->{CONTADOR_FINAL} . "'," . 
 					"vserie='" . $self->{VSERIE} . "'," . 
-					"procesada='" . $self->{PROCESADA} . "' WHERE id = '" . $self->{ID} . "'";
+					"procesada='" . $self->{PROCESADA} . "' WHERE folio = '" . $self->{FOLIO} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -235,28 +235,26 @@ sub actualizaMDB{
 sub actualizaInf{
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = "
-				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
+				UPDATE ci_cortes SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
 					"estacion='" . $self->{ESTACION} . "'," .
 					"dispensador='" . $self->{DISPENSADOR} . "'," .
-					"supervisor='" . $self->{SUPERVISOR} . "'," .
-					"despachador='" . $self->{DESPACHADOR} . "'," .
-					"viaje='" . $self->{VIAJE} . "'," .
-					"camion='" . $self->{CAMION} . "'," .
-					"chofer='" . $self->{CHOFER} . "'," .
-					"sello='" . $self->{SELLO} . "'," .
-					"tipo_referencia='" . $self->{TIPO_REFERENCIA} . "'," .
-					"serie='" . $self->{SERIE} . "'," .
-					"referencia='" . $self->{REFERENCIA} . "'," . 
-					"movimiento='" . $self->{MOVIMIENTO} . "'," .
-					"litros_esp='" . $self->{LITROS_ESP} . "'," .
-					"litros_real='" . $self->{LITROS_REAL} . "'," .
-					"costo_esp='" . $self->{COSTO_ESP} . "'," .
-					"costo_real='" . $self->{COSTO_REAL} . "'," .
-					"iva='" . $self->{IVA} . "'," .
-					"ieps='" . $self->{IEPS} . "'," .
-					"status='" . $self->{STATUS} . "'," .
-					"procesada='" . $self->{PROCESADA} . "'," .
-					"transaction_id='" . $self->{TRANSACTION_ID} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
+					"entrega_turno='" . $self->{ENTREGA_TURNO} . "'," . 
+					"recibe_turno='" . $self->{RECIBE_TURNO} . "'," . 
+					"fecha_hora_recep='" . $self->{FECHA_HORA_RECEP} . "'," . 
+					"inventario_recibido_lts='" . $self->{INVENTARIO_RECIBIDO_LTS} . "'," . 
+					"movtos_turno_lts='" . $self->{MOVTOS_TURNO_LTS} . "'," . 
+					"inventario_entregado_lts='" . $self->{INVENTARIO_ENTREGADO_LTS} . "'," . 
+					"diferencia_lts='" . $self->{DIFERENCIA_LTS} . "'," . 
+					"inventario_recibido_cto='" . $self->{INVENTARIO_RECIBIDO_CTO} . "'," . 
+					"movtos_turno_cto='" . $self->{MOVTOS_TURNO_CTO} . "'," . 
+					"inventario_entregado_cto='" . $self->{INVENTARIO_ENTREGADO_CTO} . "'," . 
+					"diferencia_cto='" . $self->{DIFERENCIA_CTO} . "'," . 
+					"autorizo_dif='" . $self->{AUTORIZO_DIF} . "'," . 
+					"contador_inicial='" . $self->{CONTADOR_INICIAL} . "'," . 
+					"folio='" . $self->{FOLIO} . "'," . 
+					"contador_final='" . $self->{CONTADOR_FINAL} . "'," . 
+					"vserie='" . $self->{VSERIE} . "'," . 
+					"procesada='" . $self->{PROCESADA} . "' WHERE folio = '" . $self->{FOLIO} . "'";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
@@ -266,7 +264,7 @@ sub actualizaInf{
 
 sub borraMDB{
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "DELETE FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
+	my $preps = "DELETE FROM ci_cortes WHERE folio = '" . $self->{FOLIO} . "'";	
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -275,7 +273,7 @@ sub borraMDB{
 
 sub borraInf{
 	my $connector = Trate::Lib::Informix->new();
-	my $preps = "DELETE FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
+	my $preps = "DELETE FROM ci_cortes WHERE folio = '" . $self->{FOLIO} . "'";	
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");

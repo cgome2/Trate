@@ -23,6 +23,7 @@ sub new
 {
 	my $self = {};
 	$self->{DBH} = undef;
+	$self->{ACTION} = undef;
 	bless($self);
 	return $self;	
 }
@@ -32,6 +33,12 @@ sub dbh {
 	if(@_) { $self->{DBH} = shift }
 	$self->{DBH} = DBI->connect($DSN, $USER, $PASSWORD) or die LOGGER->fatal("Error fatal, no se pudo conectar con el servidor Informix" . $DBI::errstr);
 	return $self->{DBH};
+}
+
+sub action {
+	my $self = shift;
+	if(@_) { $self->{ACTION} = shift }
+	return $self->{ACTION};
 }
 
 sub destroy {

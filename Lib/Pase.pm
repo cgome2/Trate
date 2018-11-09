@@ -118,10 +118,8 @@ sub ultimaModificacion {
         return $self->{ULTIMA_MODIFICACION};
 }
 
-sub insertarPaseMariaDB {
+sub psInsertarPaseMariaDB {
 	my $self = shift;
-	my $cmdb = Trate::Lib::ConnectorMariaDB->new();
-	my $dbh = $cmdb->dbh;
 
 	my $preps = 	"INSERT INTO ci_pases VALUES(NULL,'" .
 												$self->{FECHA_SOLICITUD} . "','" .
@@ -139,14 +137,7 @@ sub insertarPaseMariaDB {
 												$self->{OBSERVACIONES} . "'," .
 												$self->{ULTIMA_MODIFICACION} .
 											")";
-	LOGGER->debug(ref($self) . " " . $preps);
-	my $sth = $dbh->prepare($preps);
-	$sth->execute() or die $DBI::errstr;
-
-	$sth->finish;
-	$cmdb->destroy();
-
-	return 1;
+	return $preps;
 }
 
 sub insertarPaseInformix {

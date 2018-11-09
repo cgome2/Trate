@@ -8,15 +8,13 @@
 # Version: 
 ##########################################################################
 use strict;
-use warnings;
-use POSIX qw(strftime);
-use Orpak::LIB;
-use Orpak::Constants;
-use DBI;
-use Orpak::DbLib;
-use Socket;
-use File::Copy;
-use Orpak::Trate::Trate_functions;
+use Trate::Lib::ConnectorInformix;
+use Trate::Lib::ConnectorMariaDB;
+use Trate::Lib::RemoteExecutor;
+use Trate::Lib::Constants qw(LOGGER TRUE FALSE);
+
+#use experimental qw( switch );
+use Switch;
 
 my ($fecha_fin, $estacion, $dispensador, $supervisor, $despachador, $viaje, $camion, $fecha_finmy, $movimiento);
 my ($chofer, $tipo_referencia, $referencia, $litros_esp, $litros_real, $costo_esp, $costo_real, $iva, $ieps, $transaction_id);
@@ -25,6 +23,8 @@ my $nom_cmd;
 my $APLICA_CONTING=0;
 my ($dbmy, $dbin);
 my ($status_old, $status_new);
+my ( $IDMYSQL, $IDINFMX, $BEGINTRAN, $ERRDB, $COMITTRAN, $ROLLBTRAN);
+my $mensaje_log;
 
 sub calcula_fecha_fin {
     my ($log_arc) = @_;
@@ -36,7 +36,7 @@ sub calcula_fecha_fin {
     $sth->finish;
     $fecha_finmy = $fecha_tmp;
     $fecha_fin = substr($fecha_tmp, 0, 16);
-    return $EXITO;
+    return TRUE;
 }
 
 sub toma_despachador {
@@ -57,7 +57,7 @@ sub toma_despachador {
 	$sth->execute() or &wr_log($log_arc, "NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MYSQL:orpak: $sql", 0);
 	$despachador = $sth->fetchrow_array;
 	$sth->finish;
-	return $EXITO;
+	return TRUE;
 }
 
 sub toma_numero_iva_ieps {
@@ -82,7 +82,7 @@ sub toma_numero_iva_ieps {
 	$sth->execute() or &wr_log($log_arc, "NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MYSQL:orpak: $sql", 1);
 	($ieps,$iva) = $sth->fetchrow_array;
 	$sth->finish;
-	return $EXITO;
+	return TRUE;
 }
 
 sub inserta_movimientos_siteomat {
@@ -136,7 +136,7 @@ sub inserta_movimientos_siteomat {
 					 $status,
 					 $transaction_id;
 	$dbmy->do($sql) or &inserta_error_log($log_arc, $dbmy, $IDMYSQL, "Mysql:Orpak", $sql);
-	return $EXITO;
+	return TRUE;
 }
 
 sub inserta_movimientos_trate {
@@ -195,7 +195,7 @@ sub inserta_movimientos_trate {
 					 $transaction_id;
 
 	$dbin->do($sql) or &inserta_error_log($log_arc, $dbmy, $IDINFMX, "Informix:trate", $sql);
-	return $EXITO;
+	return TRUE;
 }
 
 sub inserta_jarreos_siteomat {
@@ -224,7 +224,7 @@ sub inserta_jarreos_siteomat {
 				 $iva,
 				 $ieps;
 	$dbmy->do($sql) or &inserta_error_log($log_arc, $dbmy, $IDMYSQL, "Mysql:Orpak", $sql);
-	return $EXITO;
+	return TRUE;
 }
 
 sub main {
@@ -270,7 +270,7 @@ sub main {
 		&inserta_jarreos_siteomat(*ARC_LOG);
 		&inserta_movimientos_siteomat(*ARC_LOG);
 		&inserta_movimientos_trate(*ARC_LOG);				#ESTO HAY QUE ACTIVARLO PARA TRATE
-		if ($ERRDB == $FALSE) {
+		if ($ERRDB == FALSE) {
 			&begin_commit_rollback_trans_trate(*ARC_LOG, $dbmy, $COMITTRAN);
 			&begin_commit_rollback_trans_trate(*ARC_LOG, $dbin, $COMITTRAN);
 		}
@@ -318,7 +318,7 @@ sub main {
 		
 		&inserta_movimientos_siteomat(*ARC_LOG);
 		&inserta_movimientos_trate(*ARC_LOG);				#ESTO HAY QUE ACTIVARLO PARA TRATE
-		if ($ERRDB == $FALSE) {
+		if ($ERRDB == FALSE) {
 			&begin_commit_rollback_trans_trate(*ARC_LOG, $dbmy, $COMITTRAN);
 			&begin_commit_rollback_trans_trate(*ARC_LOG, $dbin, $COMITTRAN);
 		}
@@ -331,10 +331,82 @@ sub main {
 	$dbmy->disconnect();
 }
 
-open(ARC_LOG, ">> $ARC_LOG") or die "NO PUDE CREAR EL ARCHIVO $ARC_LOG: $!";
-select ARC_LOG;
-$| = 1;  # Flush la salida 
-select STDOUT;
+
+($tipo_cmd, $fecha_fin, $dispensador, $supervisor, $despachador, $viaje, $camion, $chofer, $referencia, $litros_esp, $litros_real, $costo_real, $tipo_producto, $ppv, $id_vehiculo, $shift_id, $poid, $observaciones, $transaction_id) = @ARGV;
+
+LOGGER->info("==== INICIALIZANDO ==== |Programa $0 en EJECUCION");
+
+
+#given ($tipo_cmd) {
+#	when (1) { $nom_cmd = "AUTOMATICO" }
+#	when (2) { $nom_cmd = "MANUAL" }
+#	when (3) { $nom_cmd = "JARREO" }
+#	when (4) { $nom_cmd = "DEVOLUCION_JARREO" }
+#	default { $nom_cmd = "AUTOMATICO" }
+#}
+
+switch ($tipo_cmd)
+{
+	case 1 { $nom_cmd = "AUTOMATICO" }
+	case 2 { $nom_cmd = "MANUAL" }
+	case 3 { $nom_cmd = "JARREO" }
+	case 4 { $nom_cmd = "DEVOLUCION_JARREO" }
+	else { $nom_cmd = "AUTOMATICO" }
+}
+
+
+$mensaje_log = "DATOS PROCESAR: \n
+	ACTIVIDAD A REALIZAR: $nom_cmd
+	FECHA FIN: $fecha_fin
+	DISPENSADOR: $dispensador
+	SUPERVISOR: $supervisor
+	DESPACHADOR: $despachador
+	VIAJE: $viaje
+	CAMION: $camion
+	CHOFER: $chofer
+	REFERENCIA: $referencia
+	LITROS ESPERADOS: $litros_esp
+	LITROS REALES: $litros_real
+	COSTO REAL: $costo_real
+	TIPO PRODUCTO: $tipo_producto
+	PPV: $ppv
+	ID_VEHICULO: $id_vehiculo
+	ID_TURNO: $shift_id
+	PUMPID: $poid
+	OBSERVACIONES: $observaciones
+	ID TRANSACCION: $transaction_id";
+print "$mensaje_log\n";
+LOGGER->debug($mensaje_log);
+
+
+if ($#ARGV < 17 ) {
+	my $error_message = "
+		ERROR EN EL USO DEL COMANDO, ES NECESARIO INGRESAR COMO PARÁMETROS:
+		COMANDO (1: AUTOMATICO, 2: MANUAL, 3: JARREO, 4: DEVOLUCION JARREO),
+		FECHA FIN,
+		DISPENSADOR,
+		SUPERVISOR,
+		DESPACHADOR,
+		VIAJE,
+		CAMION,
+		CHOFER,
+		REFERENCIA,
+		LITROS_ESPERADOS,
+		LITROS_REALIES,
+		COSTO_REAL,
+		TIPO PRODUCTO,
+		PPV,
+		ID_VEHICULO,
+		ID_TURNO,
+		PUMPID,
+		OBSERVACIONES,
+		ID_TRANSACCION
+	";
+	
+	print $error_message;
+	LOGGER->debug("Numero de Argumentos Invalido. Faltan Datos $error_message");
+	exit TRUE;
+}
 
 ###############################
 # INSERCION POR JARREO
@@ -343,39 +415,7 @@ select STDOUT;
 # CASO5:	perl 4 $fechajarreo $dispensador "NULL" "NULL" "NULL" "NULL" "NULL" "NULL" "NULL" $litros_real $costo_real $prod $ppv "NULL" $shift_object_id "NULL" "NULL" $recnum
 ##############################
 
-($tipo_cmd, $fecha_fin, $dispensador, $supervisor, $despachador, $viaje, $camion, $chofer, $referencia, $litros_esp, $litros_real, $costo_real, $tipo_producto, $ppv, $id_vehiculo, $shift_id, $poid, $observaciones, $transaction_id) = @ARGV;
-&wr_log(*ARC_LOG, "==== INICIALIZANDO ==== |Programa $0 en EJECUCION", 0);
-if ($tipo_cmd == 3) {
-	$nom_cmd = "JARREO";
-}
-elsif ($tipo_cmd == 4) {
-	$nom_cmd = "DEVOLUCION JARREO";
-}
-$mensaje_log = "DATOS PROCESAR: \nACTIVIDAD A REALIZAR: $nom_cmd\n
-		FECHA FIN: $fecha_fin
-		DISPENSADOR: $dispensador
-		SUPERVISOR: $supervisor
-		DESPACHADOR: $despachador
-		VIAJE: $viaje
-		CAMION: $camion
-		CHOFER: $chofer
-		REFERENCIA: $referencia
-		LITROS ESPERADOS: $litros_esp
-		LITROS REALES: $litros_real
-		COSTO REAL: $costo_real
-		TIPO PRODUCTO: $tipo_producto
-		PPV: $ppv
-		ID_VEHICULO: $id_vehiculo
-		ID_TURNO: $shift_id
-		PUMPID: $poid
-		OBSERVACIONES: $observaciones
-		ID TRANSACCION: $transaction_id";
-&wr_log(*ARC_LOG, $mensaje_log, 0);
 
-if ($#ARGV < 17 ) {
-	&wr_log(*ARC_LOG, "Numero de Argumentos Invalido. Faltan Datos", 0);
-	exit 1;
-}
-&main();
-close(ARC_LOG);
-exit $EXITO;
+#&main();
+
+exit TRUE;
