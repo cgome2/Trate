@@ -53,7 +53,6 @@ sub getLastRetrievedTransactions{
     my $self = shift;
     my $twig= new XML::Twig;
     $twig->parsefile($self->{ORCURETREIVEFILE});
-	LOGGER->debug("RAMSES " . $self->{ORCURETREIVEFILE});
     my $root = $twig->root;
     my @transporter_transaction = $root->descendants('transporter:transaction');
     $self->{LAST_TRANSACTION_ID} = $transporter_transaction[0]->{'att'}->{'id'};
