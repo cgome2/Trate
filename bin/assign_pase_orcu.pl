@@ -57,3 +57,23 @@ print $groupRule->insertarOrcu() . "\n";
 $mean->name($camion);
 $mean->rule($groupRule->id());
 print $mean->assignRuleToVehicleOrcu();
+
+
+
+
+#PARA ASIGNAR SALDO A UN VEHÍCULO
+
+#1.	Insertar pase en ci_pases@transporter
+#2.	Ejecutar trigger en ci_pases@transporter
+#2.1	Inicia transacción BEGIN
+#2.1	Se asegura que el camion del pase tenga la regla 1 (SIN CARGA POSIBLE DE COMBUSTIBLE) ejecutando la asignación de esta regla al vehiculo, esto #se hace en ORCU mediante remoteExecutor
+#2.2 Genera regla de carga conforme especificación del pase FUEL_LIMIT
+#2.3 Genera regla grupal de carga conforme a regla FUEL_LIMIT
+#2.4 Asigna regla de carga grupal al vehiculo
+#3.	Mantiene el status del pase como 'A' @transporter cuando todo se ejecuta de forma adecuada COMMIT EXITOSO
+#4.	Pone el status del pase como 'F' @master cuando algo fallo COMMIT FALLIDO
+#4.1 Elimina las reglas generadas como parte del ROLLBACK
+#4.2 Asigna regla 1 (SIN CARGA POSIBLE DE COMBUSTIBLE) al vehiculo como parte del ROLLBACK 
+
+
+exit 1;
