@@ -15,7 +15,6 @@ my $transacciones = Trate::Lib::Transacciones->new();
 my $message = $transacciones->getLastTransactionsFromORCU();
 if(@$message>0){
 	$transacciones->procesaTransacciones($message);
-	LOGGER->debug($message);
 } else {
 	LOGGER->info("Ninguna transaccion por descargar");
 }

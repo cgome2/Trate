@@ -12,14 +12,14 @@ package Trate::Lib::Movimiento;
 
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER ESTACION);
 use strict;
 
 sub new
 {
 	my $self = {};
 	$self->{FECHA_HORA} = undef;
-	$self->{ESTACION} = undef;
+	$self->{ESTACION} = ESTACION;
 	$self->{DISPENSADOR} = undef;
 	$self->{SUPERVISOR} = undef;
 	$self->{DESPACHADOR} = undef;
@@ -45,10 +45,11 @@ sub new
 }
 
 sub fechaHora {
-        my ($self) = @_;
-        if (@_) { $self->{FECHA_HORA} = shift }
+        my ($self) = shift;
+        if (@_) { $self->{FECHA_HORA} = shift }        
         return $self->{FECHA_HORA};
 }
+
 
 sub estacion {
         my ($self) = @_;
@@ -170,13 +171,14 @@ sub procesada {
         return $self->{PROCESADA};
 }
 
-sub transaction_id {
+sub transactionId {
         my ($self) = @_;
         if (@_) { $self->{TRANSACTION_ID} = shift }
         return $self->{TRANSACTION_ID};
 }
 
 sub insertaMDB{
+	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
 		INSERT INTO ci_movimientos VALUES('"  .
@@ -202,13 +204,16 @@ sub insertaMDB{
 			$self->{STATUS} . "','" .
 			$self->{PROCESADA} . "','" .
 			$self->{TRANSACTION_ID} . "')";
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	LOGGER->debug("Ejecutando sql[ ". $preps . " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+    $sth->finish;
 	$connector->destroy();
+	return $self;
 }
 
 sub insertaInf{
+	my $self = shift;
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = "
 		INSERT INTO ci_movimientos VALUES('"  .
@@ -237,10 +242,13 @@ sub insertaInf{
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
-	$connector->destroy();	
+    $sth->finish;
+	$connector->destroy();
+	return $self;
 }
 
 sub actualizaMDB{
+	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
 				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
@@ -268,10 +276,13 @@ sub actualizaMDB{
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	$connector->destroy();	
+    $sth->finish;
+	$connector->destroy();
+	return $self;	
 }
 
 sub actualizaInf{
+	my $self = shift;
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = "
 				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
@@ -299,41 +310,52 @@ sub actualizaInf{
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+    $sth->finish;
 	$connector->destroy();	
-	
+	return $self;	
 }
 
 sub borraMDB{
+	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "DELETE FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	$connector->destroy();		
+    $sth->finish;
+	$connector->destroy();
+	return $self;
 }
 
 sub borraInf{
+	my $self = shift;
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = "DELETE FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
-	$connector->destroy();		
+    $sth->finish;
+	$connector->destroy();
+	return $self;
 }
 
 sub inserta{
-	insertaMDB();
-	insertaInf();
+	my $self = shift;
+	insertaMDB($self);
+	#insertaInf($self);
+	return $self;
 }
 
 sub actualiza{
-	actualizaMDB();
-	actualizaInf();
+	my $self = shift;
+	$self = actualizaMDB($self);
+	$self = actualizaInf($self);
 }
 
 sub borra{
-	borraMDB();
-	borraInf();	
+	my $self = shift;
+	$self = borraMDB($self);
+	$self = borraInf($self);	
 }
 
 1;

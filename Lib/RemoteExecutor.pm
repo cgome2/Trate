@@ -32,19 +32,16 @@ sub command {
 sub remoteQuery {
 	my $self = shift;
 	$self->{QUERY} = shift;
+	my $response = "";
+	my @responseArray = [];
+	my $ret;
 	$self->{COMMAND} = "ssh " . $self->{ORCU} . " \"sqlite3 " . $self->{SQLITE_DATABASE} . " \\\"" . $self->{QUERY} . ";\\\" \\\".exit\\\"\"";
 	LOGGER->info($self->{COMMAND});
-	my $response = `$self->{COMMAND}`;
-	if($@){
-		LOGGER->error($@);		
-		return 0;
-	}
-	my @responseArray = split(/\n/,$response);
-	print "TOTAL DE RESULTADOS: [" . @responseArray . "]\n";
-	foreach my $row (@responseArray){
-		print $row . "\n";
-	}
-	return 1;
+
+    unless (eval { $response = `$self->{COMMAND}`; @responseArray = split(/\n/,$response); $ret = \@responseArray;}) {
+        $ret = 0;
+    }
+	return $ret;
 }
 
 sub remoteQueryDevelopment {
@@ -53,7 +50,7 @@ sub remoteQueryDevelopment {
 	my $response = "";
 	my @responseArray = [];
 	my $ret;
-	$self->{ORCU} = "ramses\@192.168.1.71";
+	$self->{ORCU} = "ramses\@192.168.1.222";
 	$self->{SQLITE_DATABASE} = "/Users/ramses/Desktop/BOS_DATA.DB";
 	$self->{COMMAND} = "ssh " . $self->{ORCU} . " \"sqlite3 " . $self->{SQLITE_DATABASE} . " \\\"" . $self->{QUERY} . ";\\\" \\\".exit\\\"\"";
 	LOGGER->debug("COMMAND > " . $self->{COMMAND});

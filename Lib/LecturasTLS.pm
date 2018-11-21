@@ -10,7 +10,7 @@ package Trate::Lib::LecturasTLS;
 #########################################################
 
 use strict;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER ORCURETREIVEFILE);
 use Trate::Lib::RemoteExecutor;
 use Trate::Lib::ConnectorMariaDB;
 
@@ -56,7 +56,7 @@ sub new
 	$self->{QUANTITY_TLS} = undef;
 	$self->{NET_VOLUME_DURING_DECANT} = undef;
 
-	$self->{ORCURETREIVEFILE} = "/usr/local/orpak/perl/Trate/orcuretreive.xml";
+	$self->{ORCURETREIVEFILE} = ORCURETREIVEFILE;
 	$self->{LAST_TLS_READING_ID} = undef; #ULTIMA RECEPCION DESCARGADA
 	$self->{LAST_TLS_READING_TIMESTAMP} = undef;
 	bless($self);
@@ -161,6 +161,7 @@ sub insertaLecturaTLS{
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+    $sth->finish;
 	$connector->destroy();
 	return $self;
 }
@@ -168,7 +169,7 @@ sub insertaLecturaTLS{
 sub procesaLecturasTLS($){
 	my $self = shift;
 	my $lecturas_tls = shift;
-	LOGGER->debug("transacciones a procesar" . @$lecturas_tls);
+	LOGGER->debug("Lecturas de TLS a procesar" . @$lecturas_tls);
 	foreach my $row (@$lecturas_tls){
 			my @fieldsArray = split(/\|/,$row);
 			$self->{RECEPTION_UNIQUE_ID} = $fieldsArray[0]; 

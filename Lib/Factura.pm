@@ -56,6 +56,7 @@ sub existeFactura {
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->error("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:Trate: $preps");
     $conteo = $sth->fetchrow_array;
+    $sth->finish;
 	$connector->destroy();
     return $conteo;
 }

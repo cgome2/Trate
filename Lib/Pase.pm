@@ -17,7 +17,7 @@ sub new
 {
 	my $self = {};
 	$self->{FECHA_SOLICITUD} = undef;
-	$self->{PASE} = undef;
+	$self->{PASE} = '';
 	$self->{VIAJE} = undef;
 	$self->{CAMION} = undef;
 	$self->{CHOFER} = undef;
@@ -138,6 +138,40 @@ sub psInsertarPaseMariaDB {
 												$self->{ULTIMA_MODIFICACION} .
 											")";
 	return $preps;
+}
+
+sub getFromId(){
+	my $self = shift;
+	my $pase = shift;
+
+	$self->{PASE} = $pase;
+	my $id;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT * FROM ci_pases WHERE pase = '" . $self->{PASE} . "'";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+
+	(
+	$id,
+	$self->{FECHA_SOLICITUD},
+	$self->{PASE},
+	$self->{VIAJE},
+	$self->{CAMION},
+	$self->{CHOFER},
+	$self->{LITROS},
+	$self->{CONTINGENCIA},
+	$self->{STATUS},
+	$self->{LITROS_REAL},
+	$self->{LITROS_ESP},
+	$self->{VIAJE_SUST},
+	$self->{SUPERVISOR},
+	$self->{OBSERVACIONES},
+	$self->{ULTIMA_MODIFICACION}
+	) = $sth->fetchrow_array;
+	$sth->finish;
+	$connector->destroy();
+	return $self;	
 }
 
 sub insertarPaseInformix {
