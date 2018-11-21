@@ -27,8 +27,8 @@ sub new
 	$self->{LITROS_REAL} = undef;
 	$self->{LITROS_ESP} = undef;
 	$self->{VIAJE_SUST} = undef;
-	$self->{SUPERVISOR} = undef;
-	$self->{OBSERVACIONES} = undef;
+	$self->{SUPERVISOR} = '';
+	$self->{OBSERVACIONES} = '';
 	$self->{ULTIMA_MODIFICACION} = undef;
 	bless $self;
 	return $self;	
@@ -175,15 +175,32 @@ sub getFromId(){
 }
 
 sub insertarPaseInformix {
-	#PLEASE IMPLEMENT ME
+	#PLEASE IMPLEMENT ME 8-)
 }
 
-sub actualizaPaseMariaDB{
-	#PLEASE IMPLEMENT ME	
+sub actualizaInf {
+	my $self = shift;
+	my $connector = Trate::Lib::Informix->new();
+	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+    $sth->finish;
+	$connector->destroy();
+	return $self;
 }
 
-sub actualizaPaseInformix{
-	#PLEASE IMPLEMENT ME
+
+sub actualizaMDB{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+    $sth->finish;
+	$connector->destroy();
+	return $self;	
 }
 
 sub borraPaseMariaDB{
@@ -194,6 +211,11 @@ sub borraPaseInformix{
 	#PLEASE IMPLEMENT ME
 }
 
+sub actualiza{
+	my $self = shift;
+	actualizaMDB($self);
+	#actualizaInf($self);
+}
 
 1;
 #EOF

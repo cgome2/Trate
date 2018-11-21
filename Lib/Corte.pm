@@ -17,6 +17,7 @@ use strict;
 sub new
 {
 	my $self = {};
+	$self->{FOLIO} = undef;
 	$self->{FECHA_HORA} = undef;
 	$self->{ESTACION} = undef;
 	$self->{DISPENSADOR} = undef;
@@ -33,7 +34,6 @@ sub new
 	$self->{DIFERENCIA_CTO} = undef;
 	$self->{AUTORIZO_DIF} = undef;
 	$self->{CONTADOR_INICIAL} = undef;
-	$self->{FOLIO} = undef;
 	$self->{CONTADOR_FINAL} = undef;
 	$self->{VSERIE} = undef;
 	$self->{PROCESADA} = undef;
@@ -41,111 +41,133 @@ sub new
 	return $self;	
 }
 
+sub folio {
+        my ($self) = shift;
+        if (@_) { $self->{FOLIO} = shift }        
+        return $self->{FOLIO};
+}
+
 sub fechaHora {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{FECHA_HORA} = shift }        
         return $self->{FECHA_HORA};
 }
 
 sub estacion {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{ESTACION} = shift }        
         return $self->{ESTACION};
 }
 
 sub dispensador {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{DISPENSADOR} = shift }        
         return $self->{DISPENSADOR};
 }
 
 sub entregaTurno {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{ENTREGA_TURNO} = shift }        
         return $self->{ENTREGA_TURNO};
 }
 
 sub recibeTurno {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{RECIBE_TURNO} = shift }        
         return $self->{RECIBE_TURNO};
 }
 
 sub fechaHoraRecep {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{FECHA_HORA_RECEP} = shift }        
         return $self->{FECHA_HORA_RECEP};
 }
 
 sub inventarioRecibidoLts {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{INVENTARIO_RECIBIDO_LTS} = shift }        
         return $self->{INVENTARIO_RECIBIDO_LTS};
 }
 
 sub movtosTurnoLts {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{MOVTOS_TURNO_LTS} = shift }        
         return $self->{MOVTOS_TURNO_LTS};
 }
 
 sub inventarioEntregadoLts {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{INVENTARIO_ENTREGADO_LTS} = shift }        
         return $self->{INVENTARIO_ENTREGADO_LTS};
 }
 
 sub diferenciaLts {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{DIFERENCIA_LTS} = shift }        
         return $self->{DIFERENCIA_LTS};
 }
 
 sub inventarioRecibidoCto {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{INVENTARIO_RECIBIDO_CTO} = shift }        
         return $self->{INVENTARIO_RECIBIDO_CTO};
 }
 
 sub movtosTurnoCto {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{MOVTOS_TURNO_CTO} = shift }        
         return $self->{MOVTOS_TURNO_CTO};
 }
 
 sub inventarioEntregadoCto {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{INVENTARIO_ENTREGADO_CTO} = shift }        
         return $self->{INVENTARIO_ENTREGADO_CTO};
 }
 
 sub diferenciaCto {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{DIFERENCIA_CTO} = shift }        
         return $self->{DIFERENCIA_CTO};
 }
 
 sub autorizoDif {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{AUTORIZO_DIF} = shift }        
         return $self->{AUTORIZO_DIF};
 }
 
 sub contadorInicial {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{CONTADOR_INICIAL} = shift }        
         return $self->{CONTADOR_INICIAL};
 }
 
-sub folio {
-        my ($self) = @_;
-        return $self->{FOLIO};
-}
-
 sub contadorFinal {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{CONTADOR_FINAL} = shift }        
         return $self->{CONTADOR_FINAL};
 }
 
 
 sub vserie {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{VSERIE} = shift }        
         return $self->{VSERIE};
 }
 
 sub procesada {
-        my ($self) = @_;
+        my ($self) = shift;
+        if (@_) { $self->{PROCESADA} = shift }        
         return $self->{PROCESADA};
 }
 
 sub insertaMDB{
+	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
-		INSERT INTO ci_cortes VALUES('"  .
+		INSERT INTO ci_cortes VALUES("  .
+			$self->{FOLIO} . "','" . 
 			$self->{FECHA_HORA} . "','" .
 			$self->{ESTACION} . "','" .
 			$self->{DISPENSADOR} . "','" . 
@@ -162,20 +184,23 @@ sub insertaMDB{
 			$self->{DIFERENCIA_CTO} . "','" . 
 			$self->{AUTORIZO_DIF} . "','" . 
 			$self->{CONTADOR_INICIAL} . "','" . 
-			$self->{FOLIO} . "','" . 
 			$self->{CONTADOR_FINAL} . "','" . 
 			$self->{VSERIE} . "','" . 
 			$self->{PROCESADA} . "')";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	$connector->destroy();
+    $sth->finish;
+	$connector->destroy();	
+	return $self;		
 }
 
 sub insertaInf {
+	my $self = shift;
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = "
-		INSERT INTO ci_cortes VALUES('"  .
+		INSERT INTO ci_cortes VALUES("  .
+			$self->{FOLIO} . "','" . 
 			$self->{FECHA_HORA} . "','" .
 			$self->{ESTACION} . "','" .
 			$self->{DISPENSADOR} . "','" . 
@@ -192,18 +217,19 @@ sub insertaInf {
 			$self->{DIFERENCIA_CTO} . "','" . 
 			$self->{AUTORIZO_DIF} . "','" . 
 			$self->{CONTADOR_INICIAL} . "','" . 
-			$self->{FOLIO} . "','" . 
 			$self->{CONTADOR_FINAL} . "','" . 
 			$self->{VSERIE} . "','" . 
 			$self->{PROCESADA} . "')";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+    $sth->finish;
 	$connector->destroy();	
-	
+	return $self;		
 }
 
 sub actualizaMDB{
+	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
 				UPDATE ci_cortes SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
@@ -229,10 +255,13 @@ sub actualizaMDB{
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+    $sth->finish;
 	$connector->destroy();	
+	return $self;		
 }
 
 sub actualizaInf{
+	my $self = shift;
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = "
 				UPDATE ci_cortes SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
@@ -258,41 +287,93 @@ sub actualizaInf{
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+    $sth->finish;
 	$connector->destroy();	
-	
+	return $self;		
 }
 
 sub borraMDB{
+	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "DELETE FROM ci_cortes WHERE folio = '" . $self->{FOLIO} . "'";	
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	$connector->destroy();		
+    $sth->finish;
+	$connector->destroy();	
+	return $self;		
 }
 
 sub borraInf{
+	my $self = shift;
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = "DELETE FROM ci_cortes WHERE folio = '" . $self->{FOLIO} . "'";	
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
-	$connector->destroy();		
+    $sth->finish;
+	$connector->destroy();	
+	return $self;		
 }
 
 sub inserta{
+	my $self = shift;
 	insertaMDB();
 	insertaInf();
+	return $self;	
 }
 
 sub actualiza{
+	my $self = shift;
 	actualizaMDB();
 	actualizaInf();
+	return $self;	
 }
 
 sub borra{
+	my $self = shift;
 	borraMDB();
 	borraInf();	
+	return $self;	
+}
+
+sub getFromId(){
+	my $self = shift;
+	my $corte = shift;
+
+	$self->{FOLIO} = $corte;
+	my $id;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT * FROM ci_cortes WHERE folio = '" . $self->{FOLIO} . "'";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+
+	(
+	$self->{FOLIO},
+	$self->{FECHA_HORA},
+	$self->{ESTACION},
+	$self->{DISPENSADOR},
+	$self->{ENTREGA_TURNO},
+	$self->{RECIBE_TURNO},
+	$self->{FECHA_HORA_RECEP},
+	$self->{INVENTARIO_RECIBIDO_LTS},
+	$self->{MOVTOS_TURNO_LTS},
+	$self->{INVENTARIO_ENTREGADO_LTS},
+	$self->{DIFERENCIA_LTS},
+	$self->{INVENTARIO_RECIBIDO_CTO},
+	$self->{MOVTOS_TURNO_CTO},
+	$self->{INVENTARIO_ENTREGADO_CTO},
+	$self->{DIFERENCIA_CTO},
+	$self->{AUTORIZO_DIF},
+	$self->{CONTADOR_INICIAL},
+	$self->{CONTADOR_FINAL},
+	$self->{VSERIE},
+	$self->{PROCESADA}
+	) = $sth->fetchrow_array;
+	$sth->finish;
+	$connector->destroy();
+	return $self;	
 }
 
 1;

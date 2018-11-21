@@ -10,7 +10,8 @@ package Trate::Lib::LecturasTLS;
 #########################################################
 
 use strict;
-use Trate::Lib::Constants qw(LOGGER ORCURETREIVEFILE);
+use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE);
+use Trate::Lib::Utilidades;
 use Trate::Lib::RemoteExecutor;
 use Trate::Lib::ConnectorMariaDB;
 
@@ -56,7 +57,7 @@ sub new
 	$self->{QUANTITY_TLS} = undef;
 	$self->{NET_VOLUME_DURING_DECANT} = undef;
 
-	$self->{ORCURETREIVEFILE} = ORCURETREIVEFILE;
+	$self->{ORCURETRIEVEFILE} = ORCURETRIEVEFILE;
 	$self->{LAST_TLS_READING_ID} = undef; #ULTIMA RECEPCION DESCARGADA
 	$self->{LAST_TLS_READING_TIMESTAMP} = undef;
 	bless($self);
@@ -66,7 +67,7 @@ sub new
 sub getLastRetrievedLecturasTLS{
     my $self = shift;
     my $twig= new XML::Twig;
-    $twig->parsefile($self->{ORCURETREIVEFILE});
+    $twig->parsefile($self->{ORCURETRIEVEFILE});
     my $root = $twig->root;
     my @transporter_tls_reading = $root->descendants('transporter:tls_reading');
     $self->{LAST_TLS_READING_ID} = $transporter_tls_reading[0]->{'att'}->{'reception_unique_id'};
@@ -220,31 +221,15 @@ sub setLastLecturaTLSRetreived {
 				my( $t, $tt)= @_;
 				$tt->set_att('reception_unique_id'=>$self->{RECEPTION_UNIQUE_ID});
 				$tt->set_att('received_timestamp'=>$self->{END_DELIVERY_TIMESTAMP});
-				$tt->set_att('timestamp_retrieve'=>getCurrentTimestamp());
+				$tt->set_att('timestamp_retrieve'=>Trate::Lib::Utilidades::getCurrentTimestampMariaDB());
 				$tt->print;		
 		    },
 		},
 		twig_print_outside_roots => 1,
 	);
 
-	$twig->parsefile_inplace($self->{ORCURETREIVEFILE});
+	$twig->parsefile_inplace($self->{ORCURETRIEVEFILE});
 	return $self;
-}
-
-sub getCurrentTimestamp {
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	my $mysqlDate = $year + 1900;
-	$mysqlDate .= "-";
-	$mysqlDate .= $mon + 1;
-	$mysqlDate .= "-";
-	$mysqlDate .= $mday;
-	$mysqlDate .= " ";
-	$mysqlDate .= $hour;
-	$mysqlDate .= ":";
-	$mysqlDate .= $min;
-	$mysqlDate .= ":";
-	$mysqlDate .= sprintf("%02d", $sec);
-	return $mysqlDate;
 }
 
 1;

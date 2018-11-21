@@ -10,11 +10,13 @@ package Trate::Lib::Transacciones;
 #########################################################
 
 use strict;
-use Trate::Lib::Constants qw(LOGGER ORCURETREIVEFILE);
+use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE);
+use Trate::Lib::Utilidades;
 use Trate::Lib::RemoteExecutor;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::Movimiento;
 use Trate::Lib::Pase;
+use Trate::Lib::Corte;
 
 # Librerias para tratamiento de archivo XML
 use XML::Writer;
@@ -26,7 +28,7 @@ sub new
 	my $self = {};
 	$self->{IDTRANSACCIONES} = undef; 				#id@transactions@BOS/DB/DATA.DB
 	$self->{IDPRODUCTOS} = undef;					#product_code@transactions@BOS/DB/DATA.DB
-	$self->{IDCORTES} = undef; 						#shift_id@transactions@BOS/DB/DATA.DB
+	$self->{IDCORTES} = Trate::Lib::Corte->new();	#shift_id@transactions@BOS/DB/DATA.DB
 	$self->{IDVEHICULOS} = undef; 					#mean_id@transactions@BOS/DB/DATA.DB
 	$self->{IDDESPACHADORES} = undef; 				#driver_object_id@transactions@BOS/DB/DATA.DB
 	$self->{IDTANQUES} = undef; 					#tank_id@transactions@BOS/DB/DATA.DB
@@ -44,8 +46,12 @@ sub new
 	$self->{TOTALIZADOR_ANTERIOR} = undef; 			#totalizer_original@transactions@BOS/DB/DATA.DB
 	$self->{PPV} = undef; 							#ppv@transactions@BOS/DB/DATA.DB
 	$self->{VENTA} = undef; 						#sale@transactions@BOS/DB/DATA.DB
+	$self->{GROUP_RULE_ID} = undef;
 	$self->{PASE} = Trate::Lib::Pase->new();		#pase se obtiene de las reglas de carga asignada al mean_id de transactions, es el numero previo a la P que integra el nombre de la regla grupal correspondiente
-	$self->{ORCURETREIVEFILE} = ORCURETREIVEFILE;
+	$self->{LIMIT_RULE_ID} = undef;
+	$self->{FUEL_RULE_ID} = undef;
+	$self->{VISIT_RULE_ID} = undef;
+	$self->{ORCURETRIEVEFILE} = ORCURETRIEVEFILE;
 	$self->{LAST_TRANSACTION_ID} = undef; 			#ULTIMA TRANSACCION DESCARGADA
 	$self->{LAST_TRANSACTION_TIMESTAMP} = undef;
 	bless($self);
@@ -55,7 +61,7 @@ sub new
 sub getLastRetrievedTransactions{
     my $self = shift;
     my $twig= new XML::Twig;
-    $twig->parsefile($self->{ORCURETREIVEFILE});
+    $twig->parsefile($self->{ORCURETRIEVEFILE});
     my $root = $twig->root;
     my @transporter_transaction = $root->descendants('transporter:transaction');
     $self->{LAST_TRANSACTION_ID} = $transporter_transaction[0]->{'att'}->{'id'};
@@ -102,7 +108,7 @@ sub getLastTransactionsFromORCU{
 				WHERE 
 						t.id>" . 
 						$self->{LAST_TRANSACTION_ID} . " AND t.TIMESTAMP>'" .
-						$self->{LAST_TRANSACTION_TIMESTAMP} . "' ";
+						$self->{LAST_TRANSACTION_TIMESTAMP} . "' limit 1";
 	LOGGER->debug($query);
 	#return $remex->remoteQuery($query);
 	return $remex->remoteQueryDevelopment($query);
@@ -115,7 +121,7 @@ sub insertaTransaccion{
 		INSERT INTO transacciones VALUES('"  .
 			$self->{IDTRANSACCIONES} . "','" .
 			$self->{IDPRODUCTOS} . "','" .
-			$self->{IDCORTES} . "','" .
+			$self->{IDCORTES}->folio() . "','" .
 			$self->{IDVEHICULOS} . "','" .
 			$self->{IDDESPACHADORES} . "','" .
 			$self->{IDTANQUES} . "','" .
@@ -150,7 +156,7 @@ sub procesaTransacciones($){
 		my @fieldsArray = split(/\|/,$row);
 		$self->{IDTRANSACCIONES} = $fieldsArray[0];
 		$self->{IDPRODUCTOS} = $fieldsArray[1];
-		$self->{IDCORTES} = $fieldsArray[2];
+		$self->{IDCORTES} = getCorte($fieldsArray[2]);
 		$self->{IDVEHICULOS} = $fieldsArray[3];
 		$self->{IDDESPACHADORES} = $fieldsArray[4];
 		$self->{IDTANQUES} = $fieldsArray[5];
@@ -168,12 +174,15 @@ sub procesaTransacciones($){
 		$self->{TOTALIZADOR_ANTERIOR} = $fieldsArray[17];
 		$self->{PPV} = $fieldsArray[18];
 		$self->{VENTA} = $fieldsArray[19];
+		$self->{GROUP_RULE_ID} = $fieldsArray[20];
 		$self->{PASE} = getPase($fieldsArray[23]);
-		LOGGER->debug("viaje\@pase[" . $self->{PASE}->viaje() . "]");
+		$self->{LIMIT_RULE_ID} = $fieldsArray[24];
+		$self->{FUEL_RULE_ID} = $fieldsArray[25];
+		$self->{VISIT_RULE_ID} = $fieldsArray[26];
 		#eval{
 			insertaTransaccion($self);
 			insertarMovimiento($self);
-			#$self = actualizarPase($self);
+			actualizarPase($self);
 			#$self = limpiarReglaCarga($self);
 		#}
 	}
@@ -189,31 +198,15 @@ sub setLastTransactionRetreived {
 				my( $t, $tt)= @_;
 				$tt->set_att('id'=>$self->{IDTRANSACCIONES});
 				$tt->set_att('TIMESTAMP'=>$self->{FECHA});
-				$tt->set_att('timestamp_retrieve'=>getCurrentTimestamp());
+				$tt->set_att('timestamp_retrieve'=>Trate::Lib::Utilidades::getCurrentTimestampMariaDB());
 				$tt->print;		
 		    },
 		},
 		twig_print_outside_roots => 1,
 	);
 
-	$twig->parsefile_inplace($self->{ORCURETREIVEFILE});
+	$twig->parsefile_inplace($self->{ORCURETRIEVEFILE});
 	return $self;
-}
-
-sub getCurrentTimestamp {
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	my $mysqlDate = $year + 1900;
-	$mysqlDate .= "-";
-	$mysqlDate .= $mon + 1;
-	$mysqlDate .= "-";
-	$mysqlDate .= $mday;
-	$mysqlDate .= " ";
-	$mysqlDate .= $hour;
-	$mysqlDate .= ":";
-	$mysqlDate .= $min;
-	$mysqlDate .= ":";
-	$mysqlDate .= sprintf("%02d", $sec);
-	return $mysqlDate;
 }
 
 sub insertarMovimiento{
@@ -221,8 +214,7 @@ sub insertarMovimiento{
 	my $movimiento = Trate::Lib::Movimiento->new();
 	$movimiento->{FECHA_HORA} = $self->{FECHA};
 	$movimiento->{DISPENSADOR} = $self->{BOMBA};
-	#getSupervisor($self->{IDCORTES})
-	$movimiento->{SUPERVISOR} = '0';
+	$movimiento->{SUPERVISOR} = $self->{IDCORTES}->recibeTurno();
 	$movimiento->{DESPACHADOR} = $self->{IDDESPACHADORES};
 	$movimiento->{VIAJE} = $self->{PASE}->viaje();
 	$movimiento->{CAMION} = $self->{PASE}->camion();
@@ -247,7 +239,12 @@ sub insertarMovimiento{
 
 sub actualizarPase{
 	my $self = shift;
-	#please implement me
+	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD} . ", nuevo status: D]");
+	$self->{PASE}->status('D');
+	$self->{PASE}->supervisor($self->{IDCORTES}->recibeTurno());
+	$self->{PASE}->observaciones('');
+	$self->{PASE}->litrosReal($self->{CANTIDAD});
+	$self->{PASE}->actualiza();
 	return $self;
 }
 
@@ -262,6 +259,13 @@ sub getPase {
 	my $pase = Trate::Lib::Pase->new();
 	$pase->getFromId($paseId);
 	return $pase;
+}
+
+sub getCorte {
+	my $corteId = shift;
+	my $corte = Trate::Lib::Corte->new();
+	$corte->getFromId($corteId);
+	return $corte;
 }
 
 1;
