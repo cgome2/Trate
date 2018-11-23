@@ -8,14 +8,17 @@
 # Version: 
 ##########################################################################
 use Trate::Lib::Factura;
+use Try::Catch;
 use Trate::Lib::Constants qw(LOGGER);
 use strict;
 
+my $return = 0;
 # (1) salir a menos que envien los 3 argumentos
 my $num_args = $#ARGV + 1;
 if ($num_args != 3) {
-	LOGGER->fatal("Uso: check_invoice_exists_trate.pl fecha factura serie");
-    exit 0;
+	LOGGER->fatal("Uso: valida_factura_trate.pl fecha factura serie");
+	print("Uso: valida_factura_trate.pl fecha factura serie\n");
+    exit $return;
 }
 
 my ($invoiceid, $invoicedate, $serie) = @ARGV;
@@ -23,8 +26,15 @@ my ($invoiceid, $invoicedate, $serie) = @ARGV;
 my $factura = Trate::Lib::Factura->new();
 $factura->fecha($invoicedate);
 $factura->factura($invoiceid);
-$factura->factura($serie);
+$factura->fserie($serie);
 LOGGER->info("Executing with $num_args arguments fecha: $invoicedate factura: $invoiceid serie: $serie");
-my $return = $factura->existeFactura;
-
-exit $return;
+try {
+	$return = $factura->existeFactura or die(LOGGER->fatal("IMPOSIBLE VALIDAR LA FACTURA EN MASTER"));
+} catch {
+	LOGGER->warn("IMPOSIBLE VALIDAR LA FACTURA EN MASTER");
+	$return = 0;
+} finally {
+	LOGGER->info("SE DEVOLVIO EL RESULTADO $return");
+	print "$return\n";
+	exit $return;
+};

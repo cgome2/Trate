@@ -11,6 +11,7 @@ package Trate::Lib::ConnectorInformix;
 
 use DBI;
 use strict;
+use Try::Catch;
 use Trate::Lib::Constants qw(DRIVER_INFORMIX DATABASE_INFORMIX DSN_INFORMIX USER_INFORMIX PASSWORD_INFORMIX LOGGER);
 
 my $DRIVER = DRIVER_INFORMIX;
@@ -31,8 +32,14 @@ sub new
 sub dbh {
 	my $self = shift;
 	if(@_) { $self->{DBH} = shift }
-	$self->{DBH} = DBI->connect($DSN, $USER, $PASSWORD) or die LOGGER->fatal("Error fatal, no se pudo conectar con el servidor Informix" . $DBI::errstr);
-	return $self->{DBH};
+
+	try{
+		$self->{DBH} = DBI->connect($DSN, $USER, $PASSWORD) or warn LOGGER->fatal("Error fatal, no se pudo conectar con el servidor Informix" . $DBI::errstr);
+	} catch {
+	    $self->{DBH} = 0;
+	} finally {
+		return $self->{DBH};	
+	};
 }
 
 sub action {
