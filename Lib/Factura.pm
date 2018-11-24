@@ -18,7 +18,7 @@ sub new
 	$self->{FECHA} = undef;
 	$self->{FACTURA} = undef;
 	$self->{PROVEEDOR} = "15002";
-	$self->{FSERIE} = "00";
+	$self->{FSERIE} = "RP";
 	bless($self);
 	return $self;	
 }
@@ -51,7 +51,7 @@ sub existeFactura {
 	my $self = shift;
 	my $conteo = 0;
 	my $connector = Trate::Lib::ConnectorInformix->new();
-	my $preps = "SELECT COUNT(*) FROM pfacturas WHERE fecha='" . $self->{FECHA} . "' AND factura='" . $self->{FACTURA} . "' AND proveedor='" . $self->{PROVEEDOR} . "' AND fserie='" . $self->{FSERIE} . "'";
+	my $preps = "SELECT COUNT(*) FROM pfacturas WHERE fecha='" . $self->{FECHA} . "' AND factura='" . $self->{FACTURA} . "' AND proveedor='" . $self->{PROVEEDOR} . "' AND serie='" . $self->{FSERIE} . "'";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->error("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:Trate: $preps");

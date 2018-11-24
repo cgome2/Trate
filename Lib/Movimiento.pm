@@ -197,7 +197,7 @@ sub insertaMDB{
 			$self->{IEPS} . "','" .
 			$self->{STATUS} . "','" .
 			$self->{PROCESADA} . "','" .
-			$self->{TRANSACTION_ID} . "')";
+			$self->{TRANSACTION_ID} . "',NULL)";
 	LOGGER->debug("Ejecutando sql[ ". $preps . " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -352,7 +352,8 @@ sub borra{
 	$self = borraInf($self);	
 }
 
-
+# To use this method it is necessary to fill up the class first
+# This method insert a local instance of movimiento into trate
 sub enviarMovimientoInformix {
 	my $self = shift;
 	
@@ -396,47 +397,48 @@ sub enviarMovimientoInformix {
 	};
 }
 
-sub getFromId {
-	my $self = shift;
-	if (@_) { 
-		$self->{MOVIMIENTO} = shift;
-	} else {
-		return $self;	
-	}
-	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT * FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
-	LOGGER->debug("Ejecutando sql[ " . $preps . " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	(
-	$self->{FECHA_HORA},
-	$self->{ESTACION},
-	$self->{DISPENSADOR},
-	$self->{SUPERVISOR},
-	$self->{DESPACHADOR},
-	$self->{VIAJE},
-	$self->{CAMION},
-	$self->{CHOFER},
-	$self->{SELLO},
-	$self->{TIPO_REFERENCIA},
-	$self->{SERIE},
-	$self->{REFERENCIA},
-	$self->{MOVIMIENTO},
-	$self->{LITROS_ESP},
-	$self->{LITROS_REAL},
-	$self->{COSTO_ESP},
-	$self->{COSTO_REAL},
-	$self->{IVA},
-	$self->{IEPS},
-	$self->{STATUS},	
-	$self->{PROCESADA},	
-	$self->{TRANSACTION_ID}	
-	) = $sth->fetchrow_array;
-
-    $sth->finish;
-	$connector->destroy();	
-	return $self;	
-}
+#Deprecated
+#sub getFromId {
+#	my $self = shift;
+#	if (@_) { 
+#		$self->{MOVIMIENTO} = shift;
+#	} else {
+#		return $self;	
+#	}
+#	my $connector = Trate::Lib::ConnectorMariaDB->new();
+#	my $preps = "SELECT * FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
+#	LOGGER->debug("Ejecutando sql[ " . $preps . " ]");
+#	my $sth = $connector->dbh->prepare($preps);
+#   $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+#	(
+#	$self->{FECHA_HORA},
+#	$self->{ESTACION},
+#	$self->{DISPENSADOR},
+#	$self->{SUPERVISOR},
+#	$self->{DESPACHADOR},
+#	$self->{VIAJE},
+#	$self->{CAMION},
+#	$self->{CHOFER},
+#	$self->{SELLO},
+#	$self->{TIPO_REFERENCIA},
+#	$self->{SERIE},
+#	$self->{REFERENCIA},
+#	$self->{MOVIMIENTO},
+#	$self->{LITROS_ESP},
+#	$self->{LITROS_REAL},
+#	$self->{COSTO_ESP},
+#	$self->{COSTO_REAL},
+#	$self->{IVA},
+#	$self->{IEPS},
+#	$self->{STATUS},	
+#	$self->{PROCESADA},	
+#	$self->{TRANSACTION_ID}	
+#	) = $sth->fetchrow_array;
+#
+#	$sth->finish;
+#	$connector->destroy();	
+#	return $self;	
+#}
 
 1;
 #EOF

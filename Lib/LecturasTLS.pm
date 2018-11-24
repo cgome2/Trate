@@ -117,8 +117,8 @@ sub getLastLecturasTLSFromORCU{
 						$self->{LAST_TLS_READING_ID} . " AND END_DELIVERY_TIMESTAMP>'" .
 						$self->{LAST_TLS_READING_TIMESTAMP} . "' ";
 	LOGGER->debug($query);
-	#return $remex->remoteQuery($query);
-	return $remex->remoteQueryDevelopment($query);
+	return $remex->remoteQuery($query);
+	#return $remex->remoteQueryDevelopment($query);
 }
 
 sub insertaLecturaTLS{
@@ -158,7 +158,7 @@ sub insertaLecturaTLS{
 			$self->{END_TOTAL_TC_DENSITY_OFFSET} . "','" .
 			$self->{QUANTITY_TRAN} . "','" .
 			$self->{QUANTITY_TLS} . "','" .
-			$self->{NET_VOLUME_DURING_DECANT} . "')";
+			$self->{NET_VOLUME_DURING_DECANT} . "',NULL)";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");

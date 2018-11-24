@@ -17,6 +17,7 @@ use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::Movimiento;
 use Trate::Lib::Pase;
 use Trate::Lib::Corte;
+use Try::Catch;
 
 # Librerias para tratamiento de archivo XML
 use XML::Writer;
@@ -99,7 +100,7 @@ sub getLastTransactionsFromORCU{
 				        m.rule AS group_rule_id,
 				        m.fleet_id,
 				        gr.NAME AS rule_name,
-				        substr(gr.NAME,0,instr(gr.NAME,'P')) AS pase,
+				        gr.NAME AS pase,
 				        gr.limits AS limit_rule_id,
 				        gr.fuel AS fuel_rule_id,
 				        gr.visits AS visit_rule_id
@@ -110,8 +111,56 @@ sub getLastTransactionsFromORCU{
 						$self->{LAST_TRANSACTION_ID} . " AND t.TIMESTAMP>'" .
 						$self->{LAST_TRANSACTION_TIMESTAMP} . "' limit 1";
 	LOGGER->debug($query);
-	#return $remex->remoteQuery($query);
-	return $remex->remoteQueryDevelopment($query);
+	return $remex->remoteQuery($query);
+	#return $remex->remoteQueryDevelopment($query);
+}
+
+sub procesaTransacciones($){
+	my $self = shift;
+	my $transacciones = shift;
+	my $regla;
+	LOGGER->debug("transacciones a procesar [" . @$transacciones . "]");
+	foreach my $row (@$transacciones){
+		my @fieldsArray = split(/\|/,$row);
+		$self->{IDTRANSACCIONES} = $fieldsArray[0];
+		$self->{IDPRODUCTOS} = $fieldsArray[1];
+		$self->{IDCORTES} = getCorte($fieldsArray[2]);
+		$self->{IDVEHICULOS} = $fieldsArray[3];
+		$self->{IDDESPACHADORES} = $fieldsArray[4];
+		$self->{IDTANQUES} = $fieldsArray[5];
+		$self->{FECHA} = $fieldsArray[6];
+		$self->{BOMBA} = $fieldsArray[7];
+		$self->{MANGUERA} = $fieldsArray[8];
+		$self->{CANTIDAD} = $fieldsArray[9];
+		$self->{ODOMETRO} = $fieldsArray[10];
+		$self->{ODOMETROANTERIOR} = $fieldsArray[11];
+		$self->{HORASMOTOR} = $fieldsArray[12];
+		$self->{HORASMOTORANTERIOR} = $fieldsArray[13];
+		$self->{PLACA} = $fieldsArray[14];
+		$self->{RECIBO} = $fieldsArray[15];
+		$self->{TOTALIZADOR} = $fieldsArray[16];
+		$self->{TOTALIZADOR_ANTERIOR} = $fieldsArray[17];
+		$self->{PPV} = $fieldsArray[18];
+		$self->{VENTA} = $fieldsArray[19];
+		$self->{GROUP_RULE_ID} = $fieldsArray[20];
+		
+		LOGGER->debug("INDEX de la regla [" . index($fieldsArray[23],'P') . "]");
+		$regla = index($fieldsArray[23],'P') > -1 ? $fieldsArray[23] : 'P';
+		LOGGER->info("regla " . $regla);
+		#$self->{PASE} = getPase(substr($fieldsArray[23],0,index($fieldsArray[23],'P')));
+		$self->{PASE} = getPase(substr($regla,0,index($regla,'P')));
+		LOGGER->info("pase " . $self->{PASE}->pase());
+		$self->{LIMIT_RULE_ID} = $fieldsArray[24];
+		$self->{FUEL_RULE_ID} = $fieldsArray[25];
+		$self->{VISIT_RULE_ID} = $fieldsArray[26];
+
+		insertaTransaccion($self);
+		insertaMovimiento($self);
+		actualizaPase($self);
+		#limpiaReglaCarga($self);
+	}
+	$self = setLastTransactionRetreived($self);	
+	return 1;
 }
 
 sub insertaTransaccion{
@@ -148,68 +197,7 @@ sub insertaTransaccion{
 	return $self;
 }
 
-sub procesaTransacciones($){
-	my $self = shift;
-	my $transacciones = shift;
-	LOGGER->debug("transacciones a procesar [" . @$transacciones . "]");
-	foreach my $row (@$transacciones){
-		my @fieldsArray = split(/\|/,$row);
-		$self->{IDTRANSACCIONES} = $fieldsArray[0];
-		$self->{IDPRODUCTOS} = $fieldsArray[1];
-		$self->{IDCORTES} = getCorte($fieldsArray[2]);
-		$self->{IDVEHICULOS} = $fieldsArray[3];
-		$self->{IDDESPACHADORES} = $fieldsArray[4];
-		$self->{IDTANQUES} = $fieldsArray[5];
-		$self->{FECHA} = $fieldsArray[6];
-		$self->{BOMBA} = $fieldsArray[7];
-		$self->{MANGUERA} = $fieldsArray[8];
-		$self->{CANTIDAD} = $fieldsArray[9];
-		$self->{ODOMETRO} = $fieldsArray[10];
-		$self->{ODOMETROANTERIOR} = $fieldsArray[11];
-		$self->{HORASMOTOR} = $fieldsArray[12];
-		$self->{HORASMOTORANTERIOR} = $fieldsArray[13];
-		$self->{PLACA} = $fieldsArray[14];
-		$self->{RECIBO} = $fieldsArray[15];
-		$self->{TOTALIZADOR} = $fieldsArray[16];
-		$self->{TOTALIZADOR_ANTERIOR} = $fieldsArray[17];
-		$self->{PPV} = $fieldsArray[18];
-		$self->{VENTA} = $fieldsArray[19];
-		$self->{GROUP_RULE_ID} = $fieldsArray[20];
-		$self->{PASE} = getPase($fieldsArray[23]);
-		$self->{LIMIT_RULE_ID} = $fieldsArray[24];
-		$self->{FUEL_RULE_ID} = $fieldsArray[25];
-		$self->{VISIT_RULE_ID} = $fieldsArray[26];
-		#eval{
-			insertaTransaccion($self);
-			insertarMovimiento($self);
-			actualizarPase($self);
-			#$self = limpiarReglaCarga($self);
-		#}
-	}
-	$self = setLastTransactionRetreived($self);	
-	return 1;
-}
-
-sub setLastTransactionRetreived {
-	my $self = shift;
-	my $twig= XML::Twig->new(
-		twig_roots => {
-			'transporter:transaction' => sub{ 
-				my( $t, $tt)= @_;
-				$tt->set_att('id'=>$self->{IDTRANSACCIONES});
-				$tt->set_att('TIMESTAMP'=>$self->{FECHA});
-				$tt->set_att('timestamp_retrieve'=>Trate::Lib::Utilidades::getCurrentTimestampMariaDB());
-				$tt->print;		
-		    },
-		},
-		twig_print_outside_roots => 1,
-	);
-
-	$twig->parsefile_inplace($self->{ORCURETRIEVEFILE});
-	return $self;
-}
-
-sub insertarMovimiento{
+sub insertaMovimiento{
 	my $self = shift;
 	my $movimiento = Trate::Lib::Movimiento->new();
 	$movimiento->{FECHA_HORA} = $self->{FECHA};
@@ -237,7 +225,7 @@ sub insertarMovimiento{
 	return $self;
 }
 
-sub actualizarPase{
+sub actualizaPase{
 	my $self = shift;
 	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD} . ", nuevo status: D]");
 	$self->{PASE}->status('D');
@@ -248,9 +236,28 @@ sub actualizarPase{
 	return $self;
 }
 
+sub setLastTransactionRetreived {
+	my $self = shift;
+	my $twig= XML::Twig->new(
+		twig_roots => {
+			'transporter:transaction' => sub{ 
+				my( $t, $tt)= @_;
+				$tt->set_att('id'=>$self->{IDTRANSACCIONES});
+				$tt->set_att('TIMESTAMP'=>$self->{FECHA});
+				$tt->set_att('timestamp_retrieve'=>Trate::Lib::Utilidades::getCurrentTimestampMariaDB());
+				$tt->print;		
+		    },
+		},
+		twig_print_outside_roots => 1,
+	);
+
+	$twig->parsefile_inplace($self->{ORCURETRIEVEFILE});
+	return $self;
+}
+
 sub limpiarReglaCarga{
 	my $self = shift;
-	#please implement me
+	my $reglaCarga = Trate::Lib::Rule->new();
 	return $self;
 }
 

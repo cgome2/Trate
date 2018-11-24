@@ -28,14 +28,14 @@ use constant DSN_MARIADB => "DBI:" . DRIVER_MARIADB . ":database=" . DATABASE_MA
 use constant USER_MARIADB => "trateuser";
 use constant PASSWORD_MARIADB => "tratepassword";
 
-use constant DEFAULT_FLEET_ID => "200000129";
-use constant DEFAULT_DEPT_ID => "200000129";
+use constant DEFAULT_FLEET_ID => "1423001";
+use constant DEFAULT_DEPT_ID => "1423001";
 
 use constant ORCU_ADDRESS => "root\@192.168.1.105";
 use constant SQLITE_DATABASE => "/usr/local/orpak/BOS/DB/DATA.DB";
 
 use constant ORCURETRIEVEFILE => "/usr/local/orpak/perl/Trate/orcuretrieve.xml";
-use constant ESTACION => "20101";
+use constant ESTACION => "1423";
 
 use constant TRUE => 1;
 use constant FALSE => 0;
