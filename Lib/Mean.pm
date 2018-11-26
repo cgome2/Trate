@@ -1,16 +1,9 @@
-package Trate::Lib::Vehiculo;
-
-#########################################################
-#Vehiculo - Clase Vehiculo								#
-#                                                       #
-#Autor: Ramses                                          #
-#Fecha: Octubre, 2018                                   #
-#Revision: 1.0                                          #
-#                                                       #
-#########################################################
+package Trate::Lib::Mean;
 
 use strict;
 use Trate::Lib::RemoteExecutor;
+use Trate::Lib::WebServicesClient;
+use Data::Dump qw(dump);
 use Trate::Lib::Constants qw(DEFAULT_FLEET_ID DEFAULT_DEPT_ID LOGGER);
 
 sub new
@@ -128,6 +121,8 @@ sub new
 	$self->{NIGHTTIME_START} = 0;
 	$self->{SHIFT_INSTANCE_ID} = 0;
 	$self->{PROMPT_FOR_JOBCODE} = 0;
+	
+	$self->{NR_2STAGE_ELEMENTS}	= 1;
 
 	bless($self);
 	return $self;	
@@ -319,6 +314,12 @@ sub discovered {
         return $self->{DISCOVERED};
 }
 
+sub nr2StageElements {
+	my ($self) = shift;
+	if (@_) { $self->{NR_2STAGE_ELEMENTS} = shift }
+	return $self->{NR_2STAGE_ELEMENTS};
+}
+
 sub createVehicleOrcu {
 	my $self = shift;
 	my $remex = Trate::Lib::RemoteExecutor->new();
@@ -359,7 +360,7 @@ sub createVehicleOrcu {
 	return 1;	
 }
 
-sub assignRuleToVehicleOrcu() {
+sub assignRuleToVehicleOrcuRemoteExecutor{
 	my $self = shift;
 	my $remex = Trate::Lib::RemoteExecutor->new();
 	my $query = "UPDATE means SET rule='" . $self->{RULE} . "' WHERE NAME='" . $self->{NAME} . "'";
@@ -368,7 +369,7 @@ sub assignRuleToVehicleOrcu() {
 	return 1;	
 }
 
-sub assignNoFuelRuleToVehicleOrcu() {
+sub assignNoFuelRuleToVehicleOrcuRemoteExecutor {
 	my $self = shift;
 	my $remex = Trate::Lib::RemoteExecutor->new();
 	my $query = "UPDATE means SET rule='1' WHERE NAME='" . $self->{NAME} . "'";
@@ -376,6 +377,88 @@ sub assignNoFuelRuleToVehicleOrcu() {
 	$remex->remoteQuery($query) or die LOGGER->fatal("Error al ejecutar la consulta $query");
 	return 1;	
 }
+
+sub activarMean {
+	my $self = shift;
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		mean_name => $self->{NAME},
+		new_state => 2,
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOUpdateMeanStatus");
+	$wsc->sessionId();
+	my $result = $wsc->execute(\%params);
+	LOGGER->info(dump($result));
+	return $result;
+	
+}
+
+sub desactivarMean {
+	my $self = shift;
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		mean_name => $self->{NAME},
+		new_state => 1,
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOUpdateMeanStatus");
+	$wsc->sessionId();
+	my $result = $wsc->execute(\%params);
+	LOGGER->info(dump($result));
+	return $result;
+}
+
+sub assignRuleToVehicleOrcu{
+	my $self = shift;
+
+	my %params = (
+
+		SessionID => "",
+		site_code => "",
+        num_of_means => 1,
+        #Optional
+		#Zero or more repetitions
+		soMean => (
+					id => $self->{ID},
+					rule => $self->{RULE},
+					dept_id => $self->{DEPT_ID},
+					employee_type => $self->{EMPLOYEE_TYPE},
+					available_amount => $self->{AVAILABLE_AMOUNT},
+					fleet_id => $self->{FLEET_ID},
+					hardware_type => $self->{HARDWARE_TYPE},
+					auttyp => $self->{AUTTYP},
+					model_id => $self->{MODEL_ID},
+					#Optional
+					name => $self->{NAME},
+					odometer => $self->{ODOMETER},
+					#Optional
+					plate => $self->{PLATE},
+					status => $self->{STATUS},
+					#Optional
+					string => $self->{STRING},
+					type => $self->{TYPE},
+					nr_2stage_elements => $self->{NR_2STAGE_ELEMENTS},
+					#Optional
+					TwoStageList => (
+								#Zero or more repetitions
+								soMeanID => (
+											id => 1,
+											),
+								),
+				),
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOUpdateMeans");
+	$wsc->sessionId();
+	my $result = $wsc->execute(\%params);
+	LOGGER->info(dump($result));
+	return $result;	
+}
+
+
 
 1;
 #EOF

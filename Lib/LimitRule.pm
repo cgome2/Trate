@@ -12,7 +12,8 @@ use strict;
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::RemoteExecutor;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER SITE_CODE);
+use Trate::Lib::WebService;
 
 sub new
 {
@@ -24,6 +25,12 @@ sub new
 	$self->{MONTH} = 0;
 	$self->{TYPE} = undef; 			# 1. inactivo 2. activo
 	$self->{YEAR} = 0; 	 
+
+	$self->{SESSIONID} = Trate::Lib::WebService::SessionId;  #SessionID, 
+	$self->{SITE_CODE} = SITE_CODE; #site_code, 
+	$self->{NUM_LIMITS_RULES} = 1; #num_limits_rules, 
+	$self->{SOLIMITSRULE} = Trate::Lib::SoLimitsRule->new();  #SessionIDsoLimitsRule[] a_soLimitsRule{
+
 	bless $self;
 	return $self;	
 }
@@ -85,6 +92,11 @@ sub insertarOrcu {
 	$remex->remoteQuery($query) or die LOGGER->fatal("Error al ejecutar el comando $query");
 
 	return 1;
+}
+
+sub insertarOrcuWS {
+	my $self = shift;
+	
 }
 
 sub borrarOrcu {

@@ -32,16 +32,6 @@ CREATE TABLE `ci_configuration` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `ci_configuration`
---
-
-LOCK TABLES `ci_configuration` WRITE;
-/*!40000 ALTER TABLE `ci_configuration` DISABLE KEYS */;
-INSERT INTO `ci_configuration` VALUES ('trate','pruebas','ÎÔýrŸ',0,1423),('master','trateusr','ŽìºOf•¯',1,1423);
-/*!40000 ALTER TABLE `ci_configuration` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `ci_cortes`
 --
 
@@ -71,15 +61,6 @@ CREATE TABLE `ci_cortes` (
   PRIMARY KEY (`folio`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ci_cortes`
---
-
-LOCK TABLES `ci_cortes` WRITE;
-/*!40000 ALTER TABLE `ci_cortes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ci_cortes` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -187,16 +168,6 @@ CREATE TABLE `ci_movimientos` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ci_movimientos`
---
-
-LOCK TABLES `ci_movimientos` WRITE;
-/*!40000 ALTER TABLE `ci_movimientos` DISABLE KEYS */;
-INSERT INTO `ci_movimientos` VALUES ('2018-10-08 16:40:17',1423,1,0,0,0,0,0,'NULL',3,'NULL',0,2,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089227,1);
-/*!40000 ALTER TABLE `ci_movimientos` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -260,29 +231,19 @@ CREATE TABLE `ci_pases` (
   `observaciones` varchar(200) DEFAULT NULL,
   `ultima_modificacion` timestamp NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ci_pases`
---
-
-LOCK TABLES `ci_pases` WRITE;
-/*!40000 ALTER TABLE `ci_pases` DISABLE KEYS */;
-INSERT INTO `ci_pases` VALUES (1,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-23 07:39:47'),(15,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 02:48:59'),(16,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 02:49:04'),(17,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 02:50:07'),(18,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 02:51:41'),(19,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 02:52:33'),(20,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 02:53:21'),(21,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 02:54:01'),(22,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 02:59:55'),(23,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:01:48'),(24,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:02:31'),(25,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:05:35'),(26,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:05:43'),(27,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:08:02'),(28,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:11:33'),(29,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:11:56'),(30,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:33:33'),(31,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:36:02'),(32,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:44:23'),(33,'2018-10-01 00:00:00',3000,100,'AutoTag',3001,120.0000,0.0000,'A',98.0000,99.0000,0,0,'NULL','2018-11-01 03:52:51'),(34,'2018-10-01 00:00:00',4000,101,'AutoTag',3001,11.0000,0.0000,'A',9.0000,9.0000,0,0,'NULL','2018-11-01 04:17:49'),(35,'2018-10-01 00:00:00',5000,102,'AutoTag',3001,9.0000,0.0000,'A',9.0000,9.0000,0,0,'NULL','2018-11-01 04:24:10'),(36,'2018-10-01 00:00:00',5000,102,'AutoTag',3001,9.0000,0.0000,'A',9.0000,9.0000,0,0,'NULL','2018-11-05 21:19:05'),(37,'2018-11-22 18:14:26',5001,102,'AutoTag',2001,100.0000,0.0000,'A',NULL,NULL,NULL,NULL,NULL,'2018-11-23 00:14:26'),(38,'2018-11-22 18:15:00',5001,102,'AutoTag',2001,100.0000,0.0000,'A',NULL,NULL,NULL,NULL,NULL,'2018-11-23 00:15:00'),(39,'2018-11-22 18:23:01',5001,102,'AutoTag',2001,100.0000,0.0000,'A',NULL,NULL,NULL,NULL,NULL,'2018-11-23 00:23:01');
-/*!40000 ALTER TABLE `ci_pases` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER `ci_pases_after_insert` AFTER INSERT ON `ci_pases` FOR EACH ROW BEGIN
-SET @exec_var = sys_exec(concat('/usr/bin/perl -I /usr/local/orpak/perl /usr/local/orpak/perl/Trate/bin/assign_pase_orcu.pl ',new.pase, ' ', new.camion, ' ', new.litros, ' &'));
+SET @exec_var = sys_exec(concat('/usr/bin/perl -I /usr/local/orpak/perl /usr/local/orpak/perl/Trate/bin/actualiza_status_mean_orcu.pl ', new.camion, ' 2 &'));
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -339,15 +300,6 @@ CREATE TABLE `despachadores` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `despachadores`
---
-
-LOCK TABLES `despachadores` WRITE;
-/*!40000 ALTER TABLE `despachadores` DISABLE KEYS */;
-/*!40000 ALTER TABLE `despachadores` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `jarreos_t`
 --
 
@@ -375,15 +327,6 @@ CREATE TABLE `jarreos_t` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `jarreos_t`
---
-
-LOCK TABLES `jarreos_t` WRITE;
-/*!40000 ALTER TABLE `jarreos_t` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jarreos_t` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `modelos`
 --
 
@@ -404,15 +347,6 @@ CREATE TABLE `modelos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `modelos`
---
-
-LOCK TABLES `modelos` WRITE;
-/*!40000 ALTER TABLE `modelos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `modelos` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `product_ieps`
 --
 
@@ -428,16 +362,6 @@ CREATE TABLE `product_ieps` (
   `status` smallint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `product_ieps`
---
-
-LOCK TABLES `product_ieps` WRITE;
-/*!40000 ALTER TABLE `product_ieps` DISABLE KEYS */;
-INSERT INTO `product_ieps` VALUES (142300000000001,0.2988,0.1600,'2011-09-07','2011-10-30',2),(142300000000001,0.0000,0.1600,'2011-10-30','0000-00-00',1);
-/*!40000 ALTER TABLE `product_ieps` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `tank_delivery_readings_t`
@@ -486,16 +410,6 @@ CREATE TABLE `tank_delivery_readings_t` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `tank_delivery_readings_t`
---
-
-LOCK TABLES `tank_delivery_readings_t` WRITE;
-/*!40000 ALTER TABLE `tank_delivery_readings_t` DISABLE KEYS */;
-INSERT INTO `tank_delivery_readings_t` VALUES (200000021,200000017,34837.1,75734.1,23.8752,'2018-11-23 15:30:00','2018-11-23 15:32:00',200000002,0,32479.1,70628.1,1132.55,2081.08,49.0731,49.0622,23.8975,0,0,0,0,0,0,'2018-11-23 15:37:28',0,0,0,0,0,0,0,40896.9,0,0,NULL);
-/*!40000 ALTER TABLE `tank_delivery_readings_t` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `transacciones`
 --
 
@@ -529,16 +443,6 @@ CREATE TABLE `transacciones` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `transacciones`
---
-
-LOCK TABLES `transacciones` WRITE;
-/*!40000 ALTER TABLE `transacciones` DISABLE KEYS */;
-INSERT INTO `transacciones` VALUES (300089227,2,0,200000018,0,200000010,'2018-10-08 16:40:17',1,1,0.0000,0,0,0,0,'AutoTag',300089227,0,0,10.0000,0.0000,0);
-/*!40000 ALTER TABLE `transacciones` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `usuarios`
 --
 
@@ -556,15 +460,6 @@ CREATE TABLE `usuarios` (
   PRIMARY KEY (`idusuarios`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `usuarios`
---
-
-LOCK TABLES `usuarios` WRITE;
-/*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-/*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `vehiculos`
@@ -587,15 +482,6 @@ CREATE TABLE `vehiculos` (
   PRIMARY KEY (`idvehiculos`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vehiculos`
---
-
-LOCK TABLES `vehiculos` WRITE;
-/*!40000 ALTER TABLE `vehiculos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `vehiculos` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -606,4 +492,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-11-23 18:49:02
+-- Dump completed on 2018-11-26  1:14:09

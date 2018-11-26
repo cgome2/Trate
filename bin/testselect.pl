@@ -6,8 +6,8 @@ use strict;
 my $driver = "Informix";
 my $database = "master";
 my $dsn = "DBI:$driver:$database";
-my $userid = "trateusr";
-my $password = "t1710e";
+my $userid = "informix";
+my $password = "ortech";
 
 printf("dsn: [" . $dsn . "]\n");
 
@@ -16,7 +16,7 @@ printf("dsn: [" . $dsn . "]\n");
 
 my $dbh = DBI->connect($dsn, $userid, $password) or die $DBI::errstr;
 
-my $preps = "SELECT * FROM ci_movimientos where transaction_id=142300099000000";
+my $preps = "SELECT * FROM pfacturas";
 my $sth = $dbh->prepare($preps);
 $sth->execute() or die $DBI::errstr;
 print "Numero de registros: [" . $sth->rows . "]\n";

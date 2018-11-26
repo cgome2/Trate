@@ -1,34 +1,28 @@
 package Trate::Lib::Rule;
 
-#########################################################
-#Rule - Clase Rule										#
-#                                                       #
-#Autor: Ramses                                          #
-#Fecha: Octubre, 2018                                   #
-#Revision: 1.0                                          #
-#                                                       #
-#########################################################
 use strict;
-use Trate::Lib::ConnectorInformix;
-use Trate::Lib::ConnectorMariaDB;
-use Trate::Lib::RemoteExecutor;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER SITE_CODE);
+use Trate::Lib::WebServicesClient;
 
-sub new
+sub new 
 {
 	my $self = {};
-	$self->{ID} = undef; 				# Se conforma por {pase}
-	$self->{RULE_ID} = undef; 			# Se conforma por {pase}
-	$self->{RULE_TYPE} = undef; 		# 1. Limite cantidad, 2. Visitas, 3. Tipo de Combustible
-	$self->{NAME} = undef; 				# Se conforma por {pase}P{litros}Litros
-	$self->{DESCRIPTION} = undef;
-	$self->{STATUS} = undef; 			# 1. inactivo 2. activo
-	$self->{CONTENT_SUMMARY} = undef; 	 
-	$self->{SENT_TO_FHO} = 0;
-	$self->{SENT_TO_DHO} = 0;
-	$self->{DISCOVERED} = 0;
-	bless $self;
+	$self->{ID} = undef;
+	$self->{SINGLE} = undef;
+	$self->{DAY} = 0;
+	$self->{WEEK} = 0;
+	$self->{MONTH} = 0;
+	$self->{TYPE} = undef;
+	$self->{YEAR} = 0;
+
+	$self->{SESSIONID} = Trate::Lib::WebService::SessionId;		#SessionID, 
+	$self->{SITE_CODE} = SITE_CODE; 							#site_code, 
+	$self->{NUM_LIMITS_RULES} = 1; 								#num_limits_rules, 
+	$self->{SOLIMITSRULE} = Trate::Lib::SoLimitsRule->new();	#SessionIDsoLimitsRule[] a_soLimitsRule{
+
+	bless($self);
 	return $self;	
+
 }
 
 sub id {
@@ -37,86 +31,64 @@ sub id {
         return $self->{ID};
 }
 
-sub ruleId {
+sub single {
         my ($self) = shift;
-        if (@_) { $self->{RULE_ID} = shift }        
-        return $self->{RULE_ID};
+        if (@_) { $self->{SINGLE} = shift }        
+        return $self->{SINGLE};
 }
 
-sub ruleType {
+sub day {
         my ($self) = shift;
-        if (@_) { $self->{RULE_TYPE} = shift }        
-        return $self->{RULE_TYPE};
+        if (@_) { $self->{DAY} = shift }        
+        return $self->{WEEK};
 }
 
-sub name {
+sub week {
         my ($self) = shift;
-        if (@_) { $self->{NAME} = shift }        
-        return $self->{NAME};
+        if (@_) { $self->{WEEK} = shift }        
+        return $self->{WEEK};
 }
 
-sub description {
+sub month {
         my ($self) = shift;
-        if (@_) { $self->{DESCRIPTION} = shift }        
-        return $self->{DESCRIPTION};
+        if (@_) { $self->{MONTH} = shift }        
+        return $self->{MONTH};
 }
 
-sub status {
+sub type {
         my ($self) = shift;
-        if (@_) { $self->{STATUS} = shift }        
-        return $self->{STATUS};
+        if (@_) { $self->{TYPE} = shift }        
+        return $self->{TYPE};
 }
 
-sub contentSummary {
+sub year {
         my ($self) = shift;
-        if (@_) { $self->{CONTENT_SUMMARY} = shift }        
-        return $self->{CONTENT_SUMMARY};
+        if (@_) { $self->{YEAR} = shift }        
+        return $self->{YEAR};
 }
 
-sub sentToFho {
+sub sessionId {
         my ($self) = shift;
-        if (@_) { $self->{SENT_TO_FHO} = shift }        
-        return $self->{SENT_TO_FHO};
+        if (@_) { $self->{SESSION_ID} = shift }        
+        return $self->{SESSION_ID};
 }
 
-sub sentToDho {
+sub siteCode {
         my ($self) = shift;
-        if (@_) { $self->{SENT_TO_DHO} = shift }        
-        return $self->{SENT_TO_DHO};
+        if (@_) { $self->{SITE_CODE} = shift }        
+        return $self->{SITE_CODE};
 }
 
-sub discovered {
+sub numLimitsRules {
         my ($self) = shift;
-        if (@_) { $self->{DISCOVERED} = shift }        
-        return $self->{DISCOVERED};
+        if (@_) { $self->{NUM_LIMITS_RULES} = shift }        
+        return $self->{NUM_LIMITS_RULES};
 }
 
-sub insertarOrcu {
-	my $self = shift;
-	my $remex = Trate::Lib::RemoteExecutor->new();
-	my $query = "INSERT INTO rules VALUES ('" . 
-										$self->{ID} . "','" .
-										$self->{RULE_ID} . "','" .
-										$self->{RULE_TYPE} . "','" .
-										$self->{NAME} . "','" .
-										$self->{DESCRIPTION} . "','" .
-										$self->{STATUS} . "','" .
-										$self->{CONTENT_SUMMARY} . "','" .
-										$self->{SENT_TO_FHO} . "','" .
-										$self->{SENT_TO_DHO} . "','" .
-										$self->{DISCOVERED} . "')";
-	LOGGER->debug($query);
-	$remex->remoteQuery($query);
-
-	return 1;
-}
-
-sub borraOrcu {
-	my $self = shift;
-	my $remex = Trate::Lib::RemoteExecutor->new();
-	my $query = "DELETE FROM rules WHERE rule_id = '" . $self->{RULE_ID} . "'";
-	LOGGER->debug($query);
-	$remex->remoteQuery($query);	
+sub SOLimitsRule {
+        my ($self) = shift;
+        if (@_) { $self->{SOLIMITSRULE} = shift }        
+        return $self->{SOLIMITSRULE};
 }
 
 1;
