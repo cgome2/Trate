@@ -1,8 +1,10 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 use strict;
+use warnings;
 
 use Trate::Lib::Mean;
 use Trate::Lib::Constants qw(LOGGER);
+use Try::Catch;
 
 my $num_args = $#ARGV + 1;
 
@@ -14,9 +16,16 @@ if ($num_args != 2) {
 }
 
 my ($meanName,$status) = @ARGV;
-
+my $exit = 0;
 my $mean = Trate::Lib::Mean->new();
 $mean->name($meanName);
-my $resultado = ($status == 1 ? $mean->desactivarMean() : $mean->activarMean());
-print $resultado->{rc_desc} . "\n";
-($resultado->{rc} == 0 ? exit 1 : exit 0);
+try{
+	my $resultado = ($status == 1 ? $mean->desactivarMean() : $mean->activarMean());	
+	print $resultado->{rc_desc} . "\n";
+	$exit = ($resultado->{rc} == 0 ? 1 : 0);
+} catch {
+	exit $exit;
+} finally {
+	exit $exit;
+};
+

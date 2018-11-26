@@ -178,7 +178,7 @@ sub insertarPaseInformix {
 	#PLEASE IMPLEMENT ME 8-)
 }
 
-sub actualizaInf {
+sub actualizaInformix {
 	my $self = shift;
 	my $connector = Trate::Lib::Informix->new();
 	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
@@ -214,7 +214,7 @@ sub borraPaseInformix{
 sub actualiza{
 	my $self = shift;
 	actualizaMDB($self);
-	#actualizaInf($self);
+	#actualizaInformix($self);
 }
 
 1;

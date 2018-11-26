@@ -1,51 +1,50 @@
 #!/usr/bin/perl
-##########################################################################
-# Name: 
-# Description: 
-# Author: 
-# Adapted by: 
-# Date : 
-# Version: 
-##########################################################################
-use Trate::Lib::Movimiento;
+
+use Trate::Lib::Pase;
 use Try::Catch;
+use Trate::Lib::Mean;
 use Trate::Lib::Constants qw(LOGGER);
+use Data::Dump qw(dump);
+
 use strict;
 
 # (1) salir a menos que envien los 21 argumentos
 my $num_args = $#ARGV + 1;
 my $return = 0;
 
-if ($num_args != 21) {
-	LOGGER->fatal("Uso: movimiento_from_transporter_to_trate.pl fecha_hora estacion dispensador supervisor despachador viaje camion chofer sello tipo_referencia serie referencia movimiento litros_esp litros_real costo_esp costo_real iva ieps status procesada transaction_id");
-    exit $return;
-}
-my ($fecha_hora,$estacion,$dispensador,$supervisor,$despachador,$viaje,$camion,$chofer,$sello,$tipo_referencia,$serie,$referencia,$movimiento,$litros_esp,$litros_real,$costo_esp,$costo_real,$iva,$ieps,$status,$procesada,$transaction_id) = @ARGV;
-my $MOVIMIENTO = Trate::Lib::Movimiento->new();
-$MOVIMIENTO->fechaHora($fecha_hora);
-$MOVIMIENTO->estacion($estacion);
-$MOVIMIENTO->dispensador($dispensador);
-$MOVIMIENTO->supervisor($supervisor);
-$MOVIMIENTO->despachador($despachador);
-$MOVIMIENTO->viaje($viaje);
-$MOVIMIENTO->camion($camion);
-$MOVIMIENTO->sello($sello);
-$MOVIMIENTO->tipoReferencia($tipo_referencia);
-$MOVIMIENTO->serie($serie);
-$MOVIMIENTO->referencia($referencia);
-$MOVIMIENTO->movimiento($movimiento);
-$MOVIMIENTO->litrosEsp($litros_esp);
-$MOVIMIENTO->litrosReal($litros_real);
-$MOVIMIENTO->costoEsp($costo_esp);
-$MOVIMIENTO->costoReal($costo_real);
-$MOVIMIENTO->iva($iva);
-$MOVIMIENTO->ieps($ieps);
-$MOVIMIENTO->status($status);
-$MOVIMIENTO->status($procesada);
-$MOVIMIENTO->transactionId($transaction_id);
+#if ($num_args != 15) {
+#	LOGGER->fatal("Uso: actualiza_pase_trate.pl fecha_solicitud pase viaje camion chofer litros contingencia status litros_real litros_esp viaje_sust supervisor observaciones ultima_modificacion");
+#    exit $return;
+#}
+my ($id,$fecha_solicitud,$pase,$viaje,$camion,$chofer,$litros,$contingencia,$status,$litros_real,$litros_esp,$viaje_sust,$supervisor,$observaciones,$ultima_modificacion) = @ARGV;
+my $PASE = Trate::Lib::Pase->new();
+$PASE->fechaSolicitud($fecha_solicitud);
+$PASE->pase($pase);
+$PASE->viaje($viaje);
+$PASE->camion($camion);
+$PASE->chofer($chofer);
+$PASE->litros($litros);
+$PASE->contingencia($contingencia);
+$PASE->status($status);
+$PASE->litrosReal($litros_real);
+$PASE->litrosEsp($litros_esp);
+$PASE->viajeSust($viaje_sust);
+$PASE->supervisor($supervisor);
+$PASE->observaciones($observaciones);
+$PASE->ultimaModificacion($ultima_modificacion);
 
-try { 
-	$return = $MOVIMIENTO->enviarMovimientoInformix() or die(LOGGER->fatal("ERROR AL ENVIAR MOVIMIENTO A INFORMIX"));
+try {
+	LOGGER->debug("\npase " . dump($PASE));
+	my $mean = Trate::Lib::Mean->new();
+	$mean->name($PASE->camion());
+	LOGGER->debug("status " . $status . "\n");
+	my $resultado = ($status == 'D' ? $mean->desactivarMean() : $mean->activarMean());	
+	LOGGER->info("Resultado de activar/desactivar mean" . $resultado->{rc_desc});
+	if($resultado->{rc} eq "0"){
+		$return = $PASE->actualizaInformix() or die(LOGGER->fatal("ERROR AL ENVIAR PASE A INFORMIX"));
+	} else {
+		LOGGER->debug("VALIO VERGA " . $resultado->{rc});
+	}
 } catch {
     $return = 0;
 } finally {
