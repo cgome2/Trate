@@ -31,7 +31,7 @@ use constant PASSWORD_MARIADB => "tratepassword";
 use constant DEFAULT_FLEET_ID => "1423001";
 use constant DEFAULT_DEPT_ID => "1423001";
 
-use constant ORCU_ADDRESS => "root\@192.168.1.105";
+use constant ORCU_ADDRESS => "root\@maac-lab.ddns.net";
 use constant SQLITE_DATABASE => "/usr/local/orpak/BOS/DB/DATA.DB";
 
 use constant ORCURETRIEVEFILE => "/usr/local/orpak/perl/Trate/orcuretrieve.xml";
@@ -40,8 +40,8 @@ use constant ESTACION => "1423";
 # Constantes Web Service
 use constant USERWS => "Admin";
 use constant PASSWORDWS => "Admin";
-use constant WSURI => "http://192.168.1.105:3443/SiteOmatService/";
-use constant WSPROXY => "http://192.168.1.105:3443/SiteOmatService/SiteOmatService.asmx"; 
+use constant WSURI => "http://maac-lab.ddns.net:3443/SiteOmatService/";
+use constant WSPROXY => "http://maac-lab.ddns.net:3443/SiteOmatService/SiteOmatService.asmx"; 
 use constant WSUSER => "Admin";
 use constant WSPASSWORD => "Admin";
 use constant SITE_CODE => "5";

@@ -11,6 +11,7 @@ package Trate::Lib::Transacciones;
 
 use strict;
 use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE);
+use Trate::Lib::WebServicesClient;
 use Trate::Lib::Utilidades;
 use Trate::Lib::RemoteExecutor;
 use Trate::Lib::ConnectorMariaDB;
@@ -18,6 +19,8 @@ use Trate::Lib::Movimiento;
 use Trate::Lib::Pase;
 use Trate::Lib::Corte;
 use Try::Catch;
+use Data::Dump qw(dump);
+
 
 # Librerias para tratamiento de archivo XML
 use XML::Writer;
@@ -71,7 +74,7 @@ sub getLastRetrievedTransactions{
 	return $self;
 }
 
-sub getLastTransactionsFromORCU{
+sub getLastTransactionsFromORCUDeprecated{
 	my $self = shift;
 	$self = getLastRetrievedTransactions($self);
 	my $remex = Trate::Lib::RemoteExecutor->new();
@@ -115,126 +118,154 @@ sub getLastTransactionsFromORCU{
 	#return $remex->remoteQueryDevelopment($query);
 }
 
-sub procesaTransacciones($){
+sub getLastTransactionsFromORCU{
 	my $self = shift;
-	my $transacciones = shift;
-	my $regla;
-	LOGGER->debug("transacciones a procesar [" . @$transacciones . "]");
-	foreach my $row (@$transacciones){
-		my @fieldsArray = split(/\|/,$row);
-		$self->{IDTRANSACCIONES} = $fieldsArray[0];
-		$self->{IDPRODUCTOS} = $fieldsArray[1];
-		$self->{IDCORTES} = getCorte($fieldsArray[2]);
-		$self->{IDVEHICULOS} = $fieldsArray[3];
-		$self->{IDDESPACHADORES} = $fieldsArray[4];
-		$self->{IDTANQUES} = $fieldsArray[5];
-		$self->{FECHA} = $fieldsArray[6];
-		$self->{BOMBA} = $fieldsArray[7];
-		$self->{MANGUERA} = $fieldsArray[8];
-		$self->{CANTIDAD} = $fieldsArray[9];
-		$self->{ODOMETRO} = $fieldsArray[10];
-		$self->{ODOMETROANTERIOR} = $fieldsArray[11];
-		$self->{HORASMOTOR} = $fieldsArray[12];
-		$self->{HORASMOTORANTERIOR} = $fieldsArray[13];
-		$self->{PLACA} = $fieldsArray[14];
-		$self->{RECIBO} = $fieldsArray[15];
-		$self->{TOTALIZADOR} = $fieldsArray[16];
-		$self->{TOTALIZADOR_ANTERIOR} = $fieldsArray[17];
-		$self->{PPV} = $fieldsArray[18];
-		$self->{VENTA} = $fieldsArray[19];
-		$self->{GROUP_RULE_ID} = $fieldsArray[20];
-		
-		LOGGER->debug("INDEX de la regla [" . index($fieldsArray[23],'P') . "]");
-		$regla = index($fieldsArray[23],'P') > -1 ? $fieldsArray[23] : 'P';
-		LOGGER->info("regla " . $regla);
-		#$self->{PASE} = getPase(substr($fieldsArray[23],0,index($fieldsArray[23],'P')));
-		$self->{PASE} = getPase(substr($regla,0,index($regla,'P')));
-		LOGGER->info("pase " . $self->{PASE}->pase());
-		$self->{LIMIT_RULE_ID} = $fieldsArray[24];
-		$self->{FUEL_RULE_ID} = $fieldsArray[25];
-		$self->{VISIT_RULE_ID} = $fieldsArray[26];
-
-		insertaTransaccion($self);
-		insertaMovimiento($self);
-		actualizaPase($self);
-		#limpiaReglaCarga($self);
-	}
-	$self = setLastTransactionRetreived($self);	
+	$self = getLastRetrievedTransactions($self);
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		ho_role => "1",
+		fromID => $self->{LAST_TRANSACTION_ID},
+		toID => $self->{LAST_TRANSACTION_ID} + 5,
+		extended_info => "1"
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOHOGetTransactionsByRange");
+	$wsc->sessionId();
+	my $result = $wsc->execute(\%params);	
+	LOGGER->info($result->{num_transactions});
+	LOGGER->info($result->{rc});
+	LOGGER->info($result->{rc_desc});
+	LOGGER->info($result->{a_soTransaction}->{soTransaction});
+	my $ret = procesaTransacciones($self,$result->{a_soTransaction}->{soTransaction});
+	#foreach my $trans ($result->{a_soTransaction}->{soTransaction})
+	#{
+	#	LOGGER->info(dump($trans));
+	#}
 	return 1;
 }
 
-sub insertaTransaccion{
+sub procesaTransacciones($$){
 	my $self = shift;
-	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "
-		INSERT INTO transacciones VALUES('"  .
-			$self->{IDTRANSACCIONES} . "','" .
-			$self->{IDPRODUCTOS} . "','" .
-			$self->{IDCORTES}->folio() . "','" .
-			$self->{IDVEHICULOS} . "','" .
-			$self->{IDDESPACHADORES} . "','" .
-			$self->{IDTANQUES} . "','" .
-			$self->{FECHA} . "','" .
-			$self->{BOMBA} . "','" .
-			$self->{MANGUERA} . "','" .
-			$self->{CANTIDAD} . "','" .
-			$self->{ODOMETRO} . "','" .
-			$self->{ODOMETROANTERIOR} . "','" .
-			$self->{HORASMOTOR} . "','" .
-			$self->{HORASMOTORANTERIOR} . "','" .
-			$self->{PLACA} . "','" .
-			$self->{RECIBO} . "','" .
-			$self->{TOTALIZADOR} . "','" .
-			$self->{TOTALIZADOR_ANTERIOR} . "','" .
-			$self->{PPV} . "','" .
-			$self->{VENTA} . "','" .
-			$self->{PASE}->pase() . "')";
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-    $sth->finish;
-	$connector->destroy();
-	return $self;
+	my $transaccionesarray = shift;
+	my $regla;
+	LOGGER->debug("transacciones a procesar [" . @$transaccionesarray . "]");
+	my @transacciones = @$transaccionesarray;
+	foreach my $row (@transacciones){
+		$self->{IDTRANSACCIONES} = $row->{'id'};
+	#	$self->{IDPRODUCTOS} = $fieldsArray[1];
+	#	$self->{IDCORTES} = getCorte($fieldsArray[2]);
+	#	$self->{IDVEHICULOS} = $fieldsArray[3];
+	#	$self->{IDDESPACHADORES} = $fieldsArray[4];
+	#	$self->{IDTANQUES} = $fieldsArray[5];
+	#	$self->{FECHA} = $fieldsArray[6];
+	#	$self->{BOMBA} = $fieldsArray[7];
+	#	$self->{MANGUERA} = $fieldsArray[8];
+	#	$self->{CANTIDAD} = $fieldsArray[9];
+	#	$self->{ODOMETRO} = $fieldsArray[10];
+	#	$self->{ODOMETROANTERIOR} = $fieldsArray[11];
+	#	$self->{HORASMOTOR} = $fieldsArray[12];
+	#	$self->{HORASMOTORANTERIOR} = $fieldsArray[13];
+	#	$self->{PLACA} = $fieldsArray[14];
+	#	$self->{RECIBO} = $fieldsArray[15];
+	#	$self->{TOTALIZADOR} = $fieldsArray[16];
+	#	$self->{TOTALIZADOR_ANTERIOR} = $fieldsArray[17];
+	#	$self->{PPV} = $fieldsArray[18];
+	#	$self->{VENTA} = $fieldsArray[19];
+	#	$self->{GROUP_RULE_ID} = $fieldsArray[20];
+	#	
+	#	LOGGER->debug("INDEX de la regla [" . index($fieldsArray[23],'P') . "]");
+	#	$regla = index($fieldsArray[23],'P') > -1 ? $fieldsArray[23] : 'P';
+	#	LOGGER->info("regla " . $regla);
+	#	#$self->{PASE} = getPase(substr($fieldsArray[23],0,index($fieldsArray[23],'P')));
+	#	$self->{PASE} = getPase(substr($regla,0,index($regla,'P')));
+	#	LOGGER->info("pase " . $self->{PASE}->pase());
+	#	$self->{LIMIT_RULE_ID} = $fieldsArray[24];
+	#	$self->{FUEL_RULE_ID} = $fieldsArray[25];
+	#	$self->{VISIT_RULE_ID} = $fieldsArray[26];
+#
+	#	insertaTransaccion($self);
+	#	insertaMovimiento($self);
+	#	actualizaPase($self);
+	#	#limpiaReglaCarga($self);
+	}
+	LOGGER->info(dump($self));
+	#$self = setLastTransactionRetreived($self);	
+	return 1;
 }
 
-sub insertaMovimiento{
-	my $self = shift;
-	my $movimiento = Trate::Lib::Movimiento->new();
-	$movimiento->{FECHA_HORA} = $self->{FECHA};
-	$movimiento->{DISPENSADOR} = $self->{BOMBA};
-	$movimiento->{SUPERVISOR} = $self->{IDCORTES}->recibeTurno();
-	$movimiento->{DESPACHADOR} = $self->{IDDESPACHADORES};
-	$movimiento->{VIAJE} = $self->{PASE}->viaje();
-	$movimiento->{CAMION} = $self->{PASE}->camion();
-	$movimiento->{CHOFER} = $self->{PASE}->chofer();
-	$movimiento->{SELLO} = 'NULL';
-	$movimiento->{TIPO_REFERENCIA} = '3';
-	$movimiento->{SERIE} = 'NULL';
-	$movimiento->{REFERENCIA} = $self->{PASE}->pase();
-	$movimiento->{MOVIMIENTO} = '2';
-	$movimiento->{LITROS_ESP} = $self->{PASE}->litros();
-	$movimiento->{LITROS_REAL} = $self->{CANTIDAD};
-	$movimiento->{COSTO_ESP} = '0';
-	$movimiento->{COSTO_REAL} = $self->{VENTA};
-	$movimiento->{IVA} = '0';
-	$movimiento->{IEPS} = '0';
-	$movimiento->{STATUS} = '0';
-	$movimiento->{PROCESADA} = 'N';
-	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
-	$movimiento->inserta();
-	return $self;
-}
+#sub insertaTransaccion{
+#	my $self = shift;
+#	my $connector = Trate::Lib::ConnectorMariaDB->new();
+#	my $preps = "
+#		INSERT INTO transacciones VALUES('"  .
+#			$self->{IDTRANSACCIONES} . "','" .
+#			$self->{IDPRODUCTOS} . "','" .
+#			$self->{IDCORTES}->folio() . "','" .
+#			$self->{IDVEHICULOS} . "','" .
+#			$self->{IDDESPACHADORES} . "','" .
+#			$self->{IDTANQUES} . "','" .
+#			$self->{FECHA} . "','" .
+#			$self->{BOMBA} . "','" .
+#			$self->{MANGUERA} . "','" .
+#			$self->{CANTIDAD} . "','" .
+#			$self->{ODOMETRO} . "','" .
+#			$self->{ODOMETROANTERIOR} . "','" .
+#			$self->{HORASMOTOR} . "','" .
+#			$self->{HORASMOTORANTERIOR} . "','" .
+#			$self->{PLACA} . "','" .
+#			$self->{RECIBO} . "','" .
+#			$self->{TOTALIZADOR} . "','" .
+#			$self->{TOTALIZADOR_ANTERIOR} . "','" .
+#			$self->{PPV} . "','" .
+#			$self->{VENTA} . "','" .
+#			$self->{PASE}->pase() . "')";
+#	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+#	my $sth = $connector->dbh->prepare($preps);
+ #   $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+  #  $sth->finish;
+	#$connector->destroy();
+#	return $self;
+#}
 
-sub actualizaPase{
-	my $self = shift;
-	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD} . ", nuevo status: D]");
-	$self->{PASE}->status('D');
-	$self->{PASE}->supervisor($self->{IDCORTES}->recibeTurno());
-	$self->{PASE}->observaciones('');
-	$self->{PASE}->litrosReal($self->{CANTIDAD});
-	$self->{PASE}->actualiza();
-	return $self;
-}
+#sub insertaMovimiento{
+#	my $self = shift;
+#	my $movimiento = Trate::Lib::Movimiento->new();
+#	$movimiento->{FECHA_HORA} = $self->{FECHA};
+#	$movimiento->{DISPENSADOR} = $self->{BOMBA};
+#	$movimiento->{SUPERVISOR} = $self->{IDCORTES}->recibeTurno();
+#	$movimiento->{DESPACHADOR} = $self->{IDDESPACHADORES};
+#	$movimiento->{VIAJE} = $self->{PASE}->viaje();
+#	$movimiento->{CAMION} = $self->{PASE}->camion();
+#	$movimiento->{CHOFER} = $self->{PASE}->chofer();
+#	$movimiento->{SELLO} = 'NULL';
+#	$movimiento->{TIPO_REFERENCIA} = '3';
+#	$movimiento->{SERIE} = 'NULL';
+#	$movimiento->{REFERENCIA} = $self->{PASE}->pase();
+#	$movimiento->{MOVIMIENTO} = '2';
+#	$movimiento->{LITROS_ESP} = $self->{PASE}->litros();
+#	$movimiento->{LITROS_REAL} = $self->{CANTIDAD};
+#	$movimiento->{COSTO_ESP} = '0';
+#	$movimiento->{COSTO_REAL} = $self->{VENTA};
+#	$movimiento->{IVA} = '0';
+#	$movimiento->{IEPS} = '0';
+#	$movimiento->{STATUS} = '0';
+#	$movimiento->{PROCESADA} = 'N';
+#	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
+#	$movimiento->inserta();
+#	return $self;
+#}
+
+#sub actualizaPase{
+#	my $self = shift;
+#	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD} . ", nuevo status: D]");
+#	$self->{PASE}->status('D');
+#	$self->{PASE}->supervisor($self->{IDCORTES}->recibeTurno());
+#	$self->{PASE}->observaciones('');
+#	$self->{PASE}->litrosReal($self->{CANTIDAD});
+#	$self->{PASE}->actualiza();
+#	return $self;
+#}
 
 sub setLastTransactionRetreived {
 	my $self = shift;
@@ -255,25 +286,25 @@ sub setLastTransactionRetreived {
 	return $self;
 }
 
-sub limpiarReglaCarga{
-	my $self = shift;
-	my $reglaCarga = Trate::Lib::Rule->new();
-	return $self;
-}
+#sub limpiarReglaCarga{
+#	my $self = shift;
+#	my $reglaCarga = Trate::Lib::Rule->new();
+#	return $self;
+#}
 
-sub getPase {
-	my $paseId = shift;
-	my $pase = Trate::Lib::Pase->new();
-	$pase->getFromId($paseId);
-	return $pase;
-}
+#sub getPase {
+#	my $paseId = shift;
+#	my $pase = Trate::Lib::Pase->new();
+#	$pase->getFromId($paseId);
+#	return $pase;
+#}
 
-sub getCorte {
-	my $corteId = shift;
-	my $corte = Trate::Lib::Corte->new();
-	$corte->getFromId($corteId);
-	return $corte;
-}
+#sub getCorte {
+#	my $corteId = shift;
+#	my $corte = Trate::Lib::Corte->new();
+#	$corte->getFromId($corteId);
+#	return $corte;
+#}
 
 1;
 #EOF

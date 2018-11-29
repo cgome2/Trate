@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <transporter:lastRetrieve xmlns:transporter="Trate:transporter">
-	<transporter:transaction TIMESTAMP="2018-10-08 16:40:17" id="300089227" timestamp_retrieve="2018-11-23 17:12:49"/>
+	<transporter:transaction TIMESTAMP="2018-10-08 16:40:17" id="300089215" timestamp_retrieve="2018-11-23 17:12:49"/>
 	<transporter:tls_reading received_timestamp="2018-11-23 15:32:00" reception_unique_id="1" timestamp_retrieve="2011-11-23 17:33:35"/>
 	<transporter:cron transacciones="20" lecturas_tls="120"/>
 </transporter:lastRetrieve>

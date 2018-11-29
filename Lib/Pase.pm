@@ -12,6 +12,7 @@ use strict;
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::Constants qw(LOGGER);
+use Try::Catch;
 
 sub new
 {
@@ -180,14 +181,22 @@ sub insertarPaseInformix {
 
 sub actualizaInformix {
 	my $self = shift;
-	my $connector = Trate::Lib::Informix->new();
+	my $return = 0;
+	my $connector = Trate::Lib::ConnectorInformix->new();
 	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-    $sth->finish;
-	$connector->destroy();
-	return $self;
+	try {			
+		my $sth;
+		$sth = $connector->dbh->prepare($preps) or die(LOGGER->fatal("NO SE PUDO CONECTAR A INFORMIX:master"));
+	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:orpak: $preps");
+	    $sth->finish;
+		$connector->destroy();
+		$return = 1;		
+	} catch {
+		$return = 0;
+	} finally {
+		return $return;
+	};
 }
 
 
@@ -201,6 +210,20 @@ sub actualizaMDB{
     $sth->finish;
 	$connector->destroy();
 	return $self;	
+}
+
+sub queueMe {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $queue = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+	LOGGER->debug("Encolando sql[ ", $queue, " ]");
+	my $preps = "INSERT INTO errores_sql_informix VALUES (NULL,\"" . $queue . "\",NOW())";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+    $sth->finish;
+	$connector->destroy();
+	return $self;		
 }
 
 sub borraPaseMariaDB{

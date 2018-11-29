@@ -1,8 +1,8 @@
 package Trate::Lib::WebServicesClient;
 
 use Trate::Lib::Constants qw(LOGGER WSURI WSPROXY WSUSER WSPASSWORD SITE_CODE WSXMLSCHEMA);
-#use SOAP::Lite +trace => 'debug';
-use SOAP::Lite on_fault => sub {my($soap, $res) = @_; die LOGGER->info(ref $res) ? LOGGER->info($res->faultdetail) : LOGGER->info($soap->transport->status),"\n"};
+use SOAP::Lite +trace => 'debug';
+#use SOAP::Lite on_fault => sub {my($soap, $res) = @_; die LOGGER->info(ref $res) ? LOGGER->info($res->faultdetail) : LOGGER->info($soap->transport->status),"\n"};
 use SOAP::Lite;
 use XML::Twig;
 #use Data::Dump qw(dump);
