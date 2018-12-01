@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 ##########################################################################
 # Name: 
 # Description: 
@@ -8,6 +8,7 @@
 # Version: 
 ##########################################################################
 use strict;
+use warnings;
 use Trate::Lib::Transacciones;
 use Trate::Lib::Constants qw(LOGGER);
 

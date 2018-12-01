@@ -13,24 +13,26 @@ use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::Constants qw(LOGGER);
 use Try::Catch;
+use base qw/Apache2::REST::Handler/;
+
 
 sub new
 {
 	my $self = {};
-	$self->{FECHA_SOLICITUD} = undef;
-	$self->{PASE} = '';
-	$self->{VIAJE} = undef;
-	$self->{CAMION} = undef;
-	$self->{CHOFER} = undef;
-	$self->{LITROS} = undef;
-	$self->{CONTINGENCIA} = undef;
-	$self->{STATUS} = undef;
-	$self->{LITROS_REAL} = undef;
-	$self->{LITROS_ESP} = undef;
-	$self->{VIAJE_SUST} = undef;
-	$self->{SUPERVISOR} = '';
-	$self->{OBSERVACIONES} = '';
-	$self->{ULTIMA_MODIFICACION} = undef;
+	$self->{FECHA_SOLICITUD} = "";
+	$self->{PASE} = 0;
+	$self->{VIAJE} = 0;
+	$self->{CAMION} = "";
+	$self->{CHOFER} = 0;
+	$self->{LITROS} = 0;
+	$self->{CONTINGENCIA} = 0;
+	$self->{STATUS} = "";
+	$self->{LITROS_REAL} = 0;
+	$self->{LITROS_ESP} = 0;
+	$self->{VIAJE_SUST} = 0;
+	$self->{SUPERVISOR} = "";
+	$self->{OBSERVACIONES} = "";
+	$self->{ULTIMA_MODIFICACION} = "";
 	bless $self;
 	return $self;	
 }
@@ -141,14 +143,14 @@ sub psInsertarPaseMariaDB {
 	return $preps;
 }
 
-sub getFromId(){
+sub getFromCamion(){
 	my $self = shift;
-	my $pase = shift;
+	$self->{CAMION} = shift;
+	$self->{FECHA_SOLICITUD} = shift;
 
-	$self->{PASE} = $pase;
-	my $id;
+	my $id = 0;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT * FROM ci_pases WHERE pase = '" . $self->{PASE} . "'";
+	my $preps = "SELECT * FROM ci_pases WHERE camion = '" . $self->{CAMION} . "' AND fecha_solicitud < '" . $self->{FECHA_SOLICITUD} . "' AND status IN ('A','R') ORDER BY fecha_solicitud DESC LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -237,8 +239,21 @@ sub borraPaseInformix{
 sub actualiza{
 	my $self = shift;
 	actualizaMDB($self);
-	#actualizaInformix($self);
+	#actualizaInformix($self); Deprecated now its a trigger from mariadb
 }
+
+sub GET{
+    my ( $self , $req , $resp ) = @_ ;
+    
+    $resp->data()->{'pase_message'} = 'Yoadfadsfng user '.$self->paseid() ;
+    $resp->data()->{'pase'} = {
+        'name' => "\x{111}\x{103}ng t\x{1ea3}i t\x{1ea1}i",
+        'id' => '30001' ,
+    };
+    return Apache2::Const::HTTP_OK ;
+}
+
+
 
 1;
 #EOF

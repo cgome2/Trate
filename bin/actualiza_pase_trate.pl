@@ -6,7 +6,7 @@ use Trate::Lib::Mean;
 use Trate::Lib::Constants qw(LOGGER);
 use Data::Dump qw(dump);
 
-use strict;
+use warnings;
 
 # (1) salir a menos que envien los 16 argumentos
 my $num_args = $#ARGV + 1;
