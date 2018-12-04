@@ -1,0 +1,55 @@
+Lunes
+1.- put Crear Vehículo
+2.- update Actualizar Vehículo
+3.- delete Eliminar vehículo
+
+
+Martes
+4.- update reasignar pase
+5.- update reabrir pase
+6.- put guardar jarreo en transporter y trate
+7.- put registrar devolución de jarreo en transporter y trate
+8.- put registrar movimiento manual en transporter y trate
+
+
+Miércoles
+9.- put abrir turno
+	crear turno en orcu
+	activar tags seleccionados en orcu
+	obtener y registrar totalizadores en transporter
+	obtener y registrar lectura de tanques en transporter
+10.- put cerrar turno
+	cambiar estatus de turno en orcu
+	desactivar tags seleccionados en orcu
+	obtener y registrar totalizadores en transporter
+	obtener y registrar lectura de tanques en transporter
+	registrar movimientos en mariadb
+	registrar movimientos en trate
+
+Jueves
+11.- get listar pase especifico
+12.- get listar lecturas de tanques
+13.- put registrar movimiento de descarga de combustible o recepcion de combustible
+14.- get listar usuarios
+
+Viernes
+15.- put crear usuario
+16.- update modificar usuario
+
+
+
+
+
+
+
+
+
+
+
+
+
+11.- Obtener transacciones en bloques de 5 cada minuto
+
+
+
+12.- Obtener lecturas de tanques cada minuto

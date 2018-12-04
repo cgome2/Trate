@@ -2,6 +2,7 @@ package Trate::Lib::Mean;
 
 use strict;
 use Trate::Lib::RemoteExecutor;
+use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::WebServicesClient;
 use Data::Dump qw(dump);
 use Trate::Lib::Constants qw(DEFAULT_FLEET_ID DEFAULT_DEPT_ID LOGGER);
@@ -128,6 +129,78 @@ sub new
 	return $self;	
 }
 
+sub nrOdoRetries {
+        my ($self) = shift;
+        if (@_) { $self->{NR_ODO_RETRIES} = shift }        
+        return $self->{NR_ODO_RETRIES};
+}
+
+sub delta {
+        my ($self) = shift;
+        if (@_) { $self->{DELTA} = shift }        
+        return $self->{DELTA};
+}
+
+sub nrPinRetries {
+        my ($self) = shift;
+        if (@_) { $self->{NR_PIN_RETRIES} = shift }        
+        return $self->{NR_PIN_RETRIES};
+}
+
+sub pinCode {
+        my ($self) = shift;
+        if (@_) { $self->{PIN_CODE} = shift }        
+        return $self->{PIN_CODE};
+}
+
+sub string2 {
+        my ($self) = shift;
+        if (@_) { $self->{STRING2} = shift }        
+        return $self->{STRING2};
+}
+
+sub string3 {
+        my ($self) = shift;
+        if (@_) { $self->{STRING3} = shift }        
+        return $self->{STRING3};
+}
+
+sub string4 {
+        my ($self) = shift;
+        if (@_) { $self->{STRING4} = shift }        
+        return $self->{STRING4};
+}
+
+sub string5 {
+        my ($self) = shift;
+        if (@_) { $self->{STRING5} = shift }        
+        return $self->{STRING5};
+}
+
+sub availableAmount {
+        my ($self) = shift;
+        if (@_) { $self->{AVAILABLE_AMOUNT} = shift }        
+        return $self->{AVAILABLE_AMOUNT};
+}
+
+sub custId {
+        my ($self) = shift;
+        if (@_) { $self->{CUST_ID} = shift }        
+        return $self->{CUST_ID};
+}
+
+sub address {
+        my ($self) = shift;
+        if (@_) { $self->{CONSUMPTION2} = shift }        
+        return $self->{CONSUMPTION2};
+}
+
+sub consumption2 {
+        my ($self) = shift;
+        if (@_) { $self->{ADDRESS} = shift }        
+        return $self->{ADDRESS};
+}
+
 sub name {
         my ($self) = shift;
         if (@_) { $self->{NAME} = shift }        
@@ -148,8 +221,8 @@ sub type {
 
 sub id {
         my ($self) = shift;
-        if (@_) { $self->{id} = shift }        
-        return $self->{id};
+        if (@_) { $self->{ID} = shift }        
+        return $self->{ID};
 }
 
 sub status {
@@ -320,6 +393,31 @@ sub nr2StageElements {
 	return $self->{NR_2STAGE_ELEMENTS};
 }
 
+sub usePinCode {
+        my ($self) = shift;
+        if (@_) { $self->{USE_PIN_CODE} = shift }        
+        return $self->{USE_PIN_CODE};
+}
+
+sub block {
+        my ($self) = shift;
+        if (@_) { $self->{BLOCK} = shift }        
+        return $self->{BLOCK};
+}
+
+sub oposPromptForPlate {
+        my ($self) = shift;
+        if (@_) { $self->{OPOS_PROMPT_FOR_PLATE} = shift }        
+        return $self->{OPOS_PROMPT_FOR_PLATE};
+}
+
+sub nr2stageElements {
+        my ($self) = shift;
+        if (@_) { $self->{NR_2STAGE_ELEMENTS} = shift }        
+        return $self->{NR_2STAGE_ELEMENTS};
+}
+
+
 sub createVehicleOrcu {
 	my $self = shift;
 	my $remex = Trate::Lib::RemoteExecutor->new();
@@ -358,6 +456,101 @@ sub createVehicleOrcu {
 										$self->{DISCOVERED} . "')";
 	$remex->remoteQuery($query);
 	return 1;	
+}
+
+sub createMeanMariaDb {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "
+		INSERT INTO means (id, rule, dept_id, employee_type, available_amount, fleet_id, hardware_type, auttyp, model_id, name, odometer, plate, status, string, type) VALUES ('" . 
+			$self->{ID} . "','" .
+			$self->{RULE} . "','" .
+			$self->{DEPT_ID} . "','" .
+			$self->{EMPLOYEE_TYPE} . "','" .
+			$self->{AVAILABLE_AMOUNT} . "','" .
+			$self->{FLEET_ID} . "','" .
+			$self->{HARDWARE_TYPE} . "','" .
+			$self->{AUTTYP} . "','" .
+			$self->{MODEL_ID} . "','" .
+			$self->{NAME} . "','" .
+			$self->{ODOMETER} . "','" .
+			$self->{PLATE} . "','" .
+			$self->{STATUS} . "','" .
+			$self->{STRING} . "','" .
+			$self->{TYPE} . "')";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+	return $self;
+}
+
+sub createMeanOrcu {
+	my $self = shift;
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		num_of_means => 1,
+		a_soMean => [
+			soMean => {
+				id => $self->{ID},
+				rule => $self->{RULE},
+				dept_id => $self->{DEPT_ID},
+				employee_type => $self->{EMPLOYEE_TYPE},
+				available_amount => $self->{AVAILABLE_AMOUNT},
+				fleet_id => $self->{FLEET_ID},
+				hardware_type => $self->{HARDWARE_TYPE},
+				auttyp => $self->{AUTTYP},
+				model_id => $self->{MODEL_ID},
+				name => $self->{NAME},
+				odometer => $self->{ODOMETER},
+				plate => $self->{PLATE},
+				status => $self->{STATUS},
+				string => $self->{STRING},
+				type => $self->{TYPE},
+				nr_2stage_elements => 1,
+				TwoStageList => [
+					soMeanID => {
+						id => 1,
+					}
+				]
+			}
+		]		
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOUpdateMeans");
+	#$wsc->sessionId();
+	#my $result = $wsc->execute(\%params);
+	LOGGER->debug(dump(%params));
+	return "YEAH";
+}
+
+sub updateMeanMariaDb {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = " UPDATE means SET " .
+		"id = '" . $self->{ID} . "'," .
+		"rule = '" . $self->{RULE} . "'," . 
+		"dept_id = '" . $self->{DEPT_ID} . "'," .
+		"employee_type = '" . $self->{EMPLOYEE_TYPE} . "'," . 
+		"available_amount = ,'" . $self->{AVAILABLE_AMOUNT} . "'," .   
+		"fleet_id = ,'" . $self->{FLEET_ID} . "'," .   
+		"hardware_type = ,'" . $self->{HARDWARE_TYPE} . "'," .   
+		"auttyp = ,'" . $self->{AUTTYP} . "'," .   
+		"model_id = ,'" . $self->{MODEL_ID} . "'," .   
+		"name = ,'" . $self->{NAME} . "'," .   
+		"odometer = ,'" . $self->{ODOMETER} . "'," .   
+		"plate = ,'" . $self->{PLATE} . "'," .   
+		"status = ,'" . $self->{STATUS} . "'," .   
+		"string = ,'" . $self->{STRING} . "'," .   
+		"type = ,'" . $self->{TYPE} . "' WHERE id='" . $self->{ID} . "'";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+	return $self;
 }
 
 sub assignRuleToVehicleOrcuRemoteExecutor{
@@ -409,6 +602,23 @@ sub desactivarMean {
 	my $result = $wsc->execute(\%params);
 	LOGGER->info(dump($result));
 	return $result;
+}
+
+sub getMeans{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT id, rule, dept_id, employee_type, available_amount, fleet_id, hardware_type, auttyp, model_id, name, odometer, plate, status, string, type FROM means"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @means;
+	while (my $ref = $sth->fetchrow_hashref()) {
+    	push @means,$ref;
+	}
+	LOGGER->{dump(@means)};
+	$sth->finish;
+	$connector->destroy();
+	return \@means;	
 }
 
 sub assignRuleToVehicleOrcu{
