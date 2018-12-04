@@ -32,6 +32,16 @@ CREATE TABLE `ci_configuration` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `ci_configuration`
+--
+
+LOCK TABLES `ci_configuration` WRITE;
+/*!40000 ALTER TABLE `ci_configuration` DISABLE KEYS */;
+INSERT INTO `ci_configuration` VALUES ('trate','pruebas','ÎÔýrŸ',0,1423),('master','trateusr','ŽìºOf•¯',1,1423);
+/*!40000 ALTER TABLE `ci_configuration` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `ci_cortes`
 --
 
@@ -61,6 +71,15 @@ CREATE TABLE `ci_cortes` (
   PRIMARY KEY (`folio`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ci_cortes`
+--
+
+LOCK TABLES `ci_cortes` WRITE;
+/*!40000 ALTER TABLE `ci_cortes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ci_cortes` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -148,8 +167,8 @@ CREATE TABLE `ci_movimientos` (
   `supervisor` int(11) DEFAULT NULL,
   `despachador` int(11) DEFAULT NULL,
   `viaje` int(11) DEFAULT NULL,
-  `camion` smallint(6) DEFAULT NULL,
-  `chofer` int(11) DEFAULT NULL,
+  `camion` varchar(255) DEFAULT NULL,
+  `chofer` varchar(255) DEFAULT NULL,
   `sello` char(20) DEFAULT NULL,
   `tipo_referencia` smallint(6) DEFAULT NULL,
   `serie` char(20) DEFAULT NULL,
@@ -166,8 +185,18 @@ CREATE TABLE `ci_movimientos` (
   `transaction_id` bigint(15) DEFAULT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ci_movimientos`
+--
+
+LOCK TABLES `ci_movimientos` WRITE;
+/*!40000 ALTER TABLE `ci_movimientos` DISABLE KEYS */;
+INSERT INTO `ci_movimientos` VALUES ('2018-10-08 00:00:00',1423,1,0,0,10005,'AutoTag','1005','NULL',3,'NULL',30005,2,200.0000,11.0000,0.0000,11.0000,0.0000,0.0000,0,'N',300089220,1),('2018-10-08 00:00:00',1423,1,0,0,10011,'AutoTag','1011','NULL',3,'NULL',30011,2,200.0000,10.0000,0.0000,100.0000,0.0000,0.0000,0,'N',300089221,2),('2018-10-08 00:00:00',1423,1,0,0,10017,'AutoTag','1017','NULL',3,'NULL',30017,2,200.0000,16.2700,0.0000,16.2700,0.0000,0.0000,0,'N',300089222,3),('2018-10-08 00:00:00',1423,1,0,0,10023,'AutoTag','1023','NULL',3,'NULL',30023,2,200.0000,8.7200,0.0000,87.2000,0.0000,0.0000,0,'N',300089223,4),('2018-10-08 00:00:00',1423,1,0,0,10029,'AutoTag','1029','NULL',3,'NULL',30029,2,200.0000,7.8500,0.0000,78.5000,0.0000,0.0000,0,'N',300089224,5),('2018-10-08 00:00:00',1423,1,0,0,10035,'AutoTag','1035','NULL',3,'NULL',30035,2,200.0000,34.0070,0.0000,340.0700,0.0000,0.0000,0,'N',300089225,6),('2018-10-08 00:00:00',1423,1,0,0,10006,'AutoTag','1006','NULL',3,'NULL',30010,2,200.0000,12.1120,0.0000,121.1200,0.0000,0.0000,0,'N',300089226,7),('2018-10-08 00:00:00',1423,1,0,0,10007,'AutoTag','1007','NULL',3,'NULL',30007,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089227,8),('2018-10-08 00:00:00',1423,1,0,0,10012,'AutoTag','1012','NULL',3,'NULL',30012,2,200.0000,24.5000,0.0000,245.0000,0.0000,0.0000,0,'N',300089228,9),('2018-10-08 00:00:00',1423,1,0,0,10013,'AutoTag','1013','NULL',3,'NULL',30013,2,200.0000,10.0000,0.0000,100.0000,0.0000,0.0000,0,'N',300089229,10),('2018-10-08 00:00:00',1423,1,0,0,10018,'AutoTag','1018','NULL',3,'NULL',30018,2,200.0000,5.1970,0.0000,51.9700,0.0000,0.0000,0,'N',300089230,11),('2018-10-08 00:00:00',1423,1,0,0,10019,'AutoTag','1019','NULL',3,'NULL',30019,2,200.0000,2.1600,0.0000,21.6000,0.0000,0.0000,0,'N',300089231,12),('2018-10-08 00:00:00',1423,1,0,0,10024,'AutoTag','1024','NULL',3,'NULL',30024,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089232,13),('2018-10-08 00:00:00',1423,1,0,0,10025,'AutoTag','1025','NULL',3,'NULL',30025,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089233,14),('2018-10-08 00:00:00',1423,1,0,0,10030,'AutoTag','1030','NULL',3,'NULL',30030,2,200.0000,0.0210,0.0000,0.2070,0.0000,0.0000,0,'N',300089234,15),('2018-10-08 00:00:00',1423,1,0,0,10036,'AutoTag','1036','NULL',3,'NULL',30036,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089235,16),('2018-10-08 00:00:00',1423,1,0,0,10037,'AutoTag','1037','NULL',3,'NULL',30037,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089236,17),('2018-10-08 00:00:00',1423,1,0,0,10008,'AutoTag','1008','NULL',3,'NULL',30008,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089237,18),('2018-10-08 00:00:00',1423,1,0,0,10014,'AutoTag','1014','NULL',3,'NULL',30014,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089238,19),('2018-10-08 00:00:00',1423,1,0,0,10020,'AutoTag','1020','NULL',3,'NULL',30020,2,200.0000,1.1800,0.0000,11.8000,0.0000,0.0000,0,'N',300089239,20),('2018-10-08 00:00:00',1423,1,0,0,10032,'AutoTag','1032','NULL',3,'NULL',30032,2,200.0000,6.7170,0.0000,67.1700,0.0000,0.0000,0,'N',300089240,21),('2018-10-08 00:00:00',1423,1,0,0,10001,'TagAuth','1001','NULL',3,'NULL',30001,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089217,22),('2018-10-08 00:00:00',1423,1,0,0,10002,'TagVehiculo','1002','NULL',3,'NULL',30002,2,200.0000,10.5820,0.0000,10.5820,0.0000,0.0000,0,'N',300089218,23),('2018-10-08 00:00:00',1423,1,0,0,10003,'TagVehiculo','1003','NULL',3,'NULL',30003,2,200.0000,26.9050,0.0000,26.9050,0.0000,0.0000,0,'N',300089219,24),('2018-10-31 00:00:00',1423,1,0,0,10031,'01','1031','NULL',3,'NULL',30031,2,200.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0,'N',300089258,25),('2018-10-31 00:00:00',1423,1,0,0,10009,'AutoTag','1009','NULL',3,'NULL',30009,2,200.0000,135.2250,0.0000,1352.2500,0.0000,0.0000,0,'N',300089259,26),('2018-10-31 00:00:00',1423,1,0,0,10015,'AutoTag','1015','NULL',3,'NULL',30015,2,200.0000,10.0000,0.0000,100.0000,0.0000,0.0000,0,'N',300089260,27),('2018-10-31 00:00:00',1423,1,0,0,10021,'AutoTag','1021','NULL',3,'NULL',30021,2,200.0000,12.5170,0.0000,125.1700,0.0000,0.0000,0,'N',300089261,28),('2018-10-31 00:00:00',1423,1,0,0,10027,'AutoTag','1027','NULL',3,'NULL',30027,2,200.0000,9.0000,0.0000,90.0000,0.0000,0.0000,0,'N',300089262,29),('2018-11-25 00:00:00',1423,1,0,0,10026,'01','1026','NULL',3,'NULL',30026,2,200.0000,5.5270,0.0000,55.2700,0.0000,0.0000,0,'N',300089263,30),('2018-11-25 00:00:00',1423,1,0,0,10033,'AutoTag','1033','NULL',3,'NULL',30033,2,200.0000,0.0310,0.0000,0.3070,0.0000,0.0000,0,'N',300089264,31),('2018-11-25 00:00:00',1423,1,0,0,10004,'AutoTag','1004','NULL',3,'NULL',30004,2,200.0000,1.0000,0.0000,10.0000,0.0000,0.0000,0,'N',300089265,32),('2018-11-25 00:00:00',1423,1,0,0,10016,'AutoTag','1016','NULL',3,'NULL',30016,2,200.0000,1.0000,0.0000,10.0000,0.0000,0.0000,0,'N',300089266,33),('2018-11-25 00:00:00',1423,1,0,0,10022,'AutoTag','1022','NULL',3,'NULL',30022,2,200.0000,1.0000,0.0000,10.0000,0.0000,0.0000,0,'N',300089267,34),('2018-11-25 00:00:00',1423,1,0,0,10028,'AutoTag','1028','NULL',3,'NULL',30028,2,200.0000,6.1020,0.0000,61.0200,0.0000,0.0000,0,'N',300089268,35),('2018-11-25 00:00:00',1423,1,0,0,10034,'AutoTag','1034','NULL',3,'NULL',30034,2,200.0000,0.0090,0.0000,0.0870,0.0000,0.0000,0,'N',300089269,36);
+/*!40000 ALTER TABLE `ci_movimientos` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -231,8 +260,18 @@ CREATE TABLE `ci_pases` (
   `observaciones` varchar(200) DEFAULT NULL,
   `ultima_modificacion` timestamp NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ci_pases`
+--
+
+LOCK TABLES `ci_pases` WRITE;
+/*!40000 ALTER TABLE `ci_pases` DISABLE KEYS */;
+INSERT INTO `ci_pases` VALUES (49,'2016-11-01 19:59:00',30001,10001,'TagAuth',1001,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 05:04:02'),(50,'2016-11-01 18:59:00',30002,10002,'TagVehiculo',1002,200.0000,NULL,'D',10.5820,200.0000,NULL,0,'','2018-12-01 05:04:03'),(51,'2016-11-01 17:59:00',30003,10003,'TagVehiculo',1003,200.0000,NULL,'D',26.9050,200.0000,NULL,0,'','2018-12-01 05:04:03'),(52,'2016-11-01 17:19:00',30004,10004,'AutoTag',1004,200.0000,NULL,'D',1.0000,200.0000,NULL,0,'','2018-12-01 07:14:08'),(53,'2016-11-02 17:19:00',30005,10005,'AutoTag',1005,200.0000,NULL,'D',11.0000,200.0000,NULL,0,'','2018-12-01 04:51:02'),(54,'2016-11-01 19:59:00',30010,10006,'AutoTag',1006,200.0000,NULL,'D',12.1120,200.0000,NULL,0,'','2018-12-01 04:56:02'),(55,'2016-11-01 19:59:00',30007,10007,'AutoTag',1007,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 04:56:03'),(56,'2016-11-01 18:59:00',30008,10008,'AutoTag',1008,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 04:58:03'),(57,'2016-11-01 17:59:00',30009,10009,'AutoTag',1009,200.0000,NULL,'D',135.2250,200.0000,NULL,0,'','2018-12-01 07:13:03'),(58,'2016-11-01 17:19:00',30010,10010,'AutoTag',1010,200.0000,NULL,'D',12.1120,200.0000,NULL,0,'','2018-12-01 04:56:02'),(59,'2016-11-02 17:19:00',30011,10011,'AutoTag',1011,200.0000,NULL,'D',10.0000,200.0000,NULL,0,'','2018-12-01 04:51:03'),(60,'2016-11-01 19:59:00',30012,10012,'AutoTag',1012,200.0000,NULL,'D',24.5000,200.0000,NULL,0,'','2018-12-01 04:56:06'),(61,'2016-11-01 19:59:00',30013,10013,'AutoTag',1013,200.0000,NULL,'D',10.0000,200.0000,NULL,0,'','2018-12-01 04:56:08'),(62,'2016-11-01 18:59:00',30014,10014,'AutoTag',1014,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 04:58:05'),(63,'2016-11-01 17:59:00',30015,10015,'AutoTag',1015,200.0000,NULL,'D',10.0000,200.0000,NULL,0,'','2018-12-01 07:13:05'),(64,'2016-11-01 17:19:00',30016,10016,'AutoTag',1016,200.0000,NULL,'D',1.0000,200.0000,NULL,0,'','2018-12-01 07:15:02'),(65,'2016-11-02 17:19:00',30017,10017,'AutoTag',1017,200.0000,NULL,'D',16.2700,200.0000,NULL,0,'','2018-12-01 04:51:04'),(66,'2016-11-01 19:59:00',30018,10018,'AutoTag',1018,200.0000,NULL,'D',5.1970,200.0000,NULL,0,'','2018-12-01 04:56:10'),(67,'2016-11-01 19:59:00',30019,10019,'AutoTag',1019,200.0000,NULL,'D',2.1600,200.0000,NULL,0,'','2018-12-01 04:57:04'),(68,'2016-11-01 18:59:00',30020,10020,'AutoTag',1020,200.0000,NULL,'D',1.1800,200.0000,NULL,0,'','2018-12-01 04:58:08'),(69,'2016-11-01 17:59:00',30021,10021,'AutoTag',1021,200.0000,NULL,'D',12.5170,200.0000,NULL,0,'','2018-12-01 07:14:04'),(70,'2016-11-01 17:19:00',30022,10022,'AutoTag',1022,200.0000,NULL,'D',1.0000,200.0000,NULL,0,'','2018-12-01 07:15:04'),(71,'2016-11-02 17:19:00',30023,10023,'AutoTag',1023,200.0000,NULL,'D',8.7200,200.0000,NULL,0,'','2018-12-01 04:51:08'),(72,'2016-11-01 19:59:00',30024,10024,'AutoTag',1024,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 04:57:04'),(73,'2016-11-01 19:59:00',30025,10025,'AutoTag',1025,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 04:57:06'),(74,'2016-11-01 18:59:00',30026,10026,'01',1026,200.0000,NULL,'D',5.5270,200.0000,NULL,0,'','2018-12-01 07:14:06'),(75,'2016-11-01 17:59:00',30027,10027,'AutoTag',1027,200.0000,NULL,'D',9.0000,200.0000,NULL,0,'','2018-12-01 07:14:04'),(76,'2016-11-01 17:19:00',30028,10028,'AutoTag',1028,200.0000,NULL,'D',6.1020,200.0000,NULL,0,'','2018-12-01 07:15:06'),(77,'2016-11-02 17:19:00',30029,10029,'AutoTag',1029,200.0000,NULL,'D',7.8500,200.0000,NULL,0,'','2018-12-01 04:51:10'),(78,'2016-11-01 19:59:00',30030,10030,'AutoTag',1030,200.0000,NULL,'D',0.0210,200.0000,NULL,0,'','2018-12-01 04:57:09'),(79,'2016-11-01 19:59:00',30031,10031,'01',1031,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 07:13:02'),(80,'2016-11-01 18:59:00',30032,10032,'AutoTag',1032,200.0000,NULL,'D',6.7170,200.0000,NULL,0,'','2018-12-01 04:58:10'),(81,'2016-11-01 17:59:00',30033,10033,'AutoTag',1033,200.0000,NULL,'D',0.0310,200.0000,NULL,0,'','2018-12-01 07:14:07'),(82,'2016-11-01 17:19:00',30034,10034,'AutoTag',1034,200.0000,NULL,'D',0.0090,200.0000,NULL,0,'','2018-12-01 07:15:08'),(83,'2016-11-02 17:19:00',30035,10035,'AutoTag',1035,200.0000,NULL,'D',34.0070,200.0000,NULL,0,'','2018-12-01 04:51:11'),(84,'2016-11-01 19:59:00',30036,10036,'AutoTag',1036,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 04:57:10'),(85,'2016-11-01 19:59:00',30037,10037,'AutoTag',1037,200.0000,NULL,'D',0.0000,200.0000,NULL,0,'','2018-12-01 04:58:02');
+/*!40000 ALTER TABLE `ci_pases` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -304,6 +343,15 @@ CREATE TABLE `despachadores` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `despachadores`
+--
+
+LOCK TABLES `despachadores` WRITE;
+/*!40000 ALTER TABLE `despachadores` DISABLE KEYS */;
+/*!40000 ALTER TABLE `despachadores` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `errores_sql_informix`
 --
 
@@ -315,8 +363,18 @@ CREATE TABLE `errores_sql_informix` (
   `sql_statement` text,
   `timestamp` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=160 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `errores_sql_informix`
+--
+
+LOCK TABLES `errores_sql_informix` WRITE;
+/*!40000 ALTER TABLE `errores_sql_informix` DISABLE KEYS */;
+INSERT INTO `errores_sql_informix` VALUES (1,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'NULL\', litros_real=CASE WHEN litros_real IS NULL THEN 98.0000 ELSE litros_real + 98.0000 END WHERE pase=3007','2018-11-28 17:48:48'),(2,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'NULL\', litros_real=CASE WHEN litros_real IS NULL THEN 98.0000 ELSE litros_real + 98.0000 END WHERE pase=3001','2018-11-30 19:48:53'),(3,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'NULL\', litros_real=CASE WHEN litros_real IS NULL THEN 98.0000 ELSE litros_real + 98.0000 END WHERE pase=3002','2018-11-30 19:48:55'),(4,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'NULL\', litros_real=CASE WHEN litros_real IS NULL THEN 98.0000 ELSE litros_real + 98.0000 END WHERE pase=3003','2018-11-30 19:48:58'),(5,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'NULL\', litros_real=CASE WHEN litros_real IS NULL THEN 98.0000 ELSE litros_real + 98.0000 END WHERE pase=3004','2018-11-30 19:49:01'),(6,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'NULL\', litros_real=CASE WHEN litros_real IS NULL THEN 98.0000 ELSE litros_real + 98.0000 END WHERE pase=3005','2018-11-30 19:49:03'),(7,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'NULL\', litros_real=CASE WHEN litros_real IS NULL THEN 98.0000 ELSE litros_real + 98.0000 END WHERE pase=3006','2018-11-30 19:49:05'),(8,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'NULL\', litros_real=CASE WHEN litros_real IS NULL THEN 98.0000 ELSE litros_real + 98.0000 END WHERE pase=3007','2018-11-30 19:49:09'),(9,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 108.0000 ELSE litros_real + 108.0000 END WHERE pase=3002','2018-11-30 19:49:50'),(10,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 109.0000 ELSE litros_real + 109.0000 END WHERE pase=3001','2018-11-30 19:49:51'),(11,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:16:09'),(12,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:16:21'),(13,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:16:28'),(14,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:16:34'),(15,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:16:43'),(16,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:16:59'),(17,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 24.5000 ELSE litros_real + 24.5000 END WHERE pase=30004','2018-11-30 20:17:00'),(18,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:20:41'),(19,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:22:34'),(20,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:22:36'),(21,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:22:39'),(22,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:22:42'),(23,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:22:46'),(24,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:22:48'),(25,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:22:51'),(26,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:22:53'),(27,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:22:55'),(28,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:24:57'),(29,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:24:59'),(30,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:25:00'),(31,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:25:03'),(32,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:25:03'),(33,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 6.7170 ELSE litros_real + 6.7170 END WHERE pase=30001','2018-11-30 20:25:48'),(34,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 1.1800 ELSE litros_real + 1.1800 END WHERE pase=30005','2018-11-30 20:25:51'),(35,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 3.1550 ELSE litros_real + 3.1550 END WHERE pase=30004','2018-11-30 20:26:02'),(36,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 6.7170 ELSE litros_real + 6.7170 END WHERE pase=30001','2018-11-30 20:28:08'),(37,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:28:09'),(38,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 3.1550 ELSE litros_real + 3.1550 END WHERE pase=30004','2018-11-30 20:28:14'),(39,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:28:14'),(40,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:28:15'),(41,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 1.1800 ELSE litros_real + 1.1800 END WHERE pase=30005','2018-11-30 20:28:16'),(42,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:28:16'),(43,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 6.7170 ELSE litros_real + 6.7170 END WHERE pase=30001','2018-11-30 20:28:17'),(44,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:28:18'),(45,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:28:18'),(46,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 6.7170 ELSE litros_real + 6.7170 END WHERE pase=30001','2018-11-30 20:28:21'),(47,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:28:27'),(48,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.5820 ELSE litros_real + 10.5820 END WHERE pase=30002','2018-11-30 20:28:46'),(49,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 26.9050 ELSE litros_real + 26.9050 END WHERE pase=30003','2018-11-30 20:28:46'),(50,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 11.0000 ELSE litros_real + 11.0000 END WHERE pase=30005','2018-11-30 20:28:48'),(51,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.0000 ELSE litros_real + 10.0000 END WHERE pase=30001','2018-11-30 20:28:48'),(52,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.0000 ELSE litros_real + 10.0000 END WHERE pase=30001','2018-11-30 20:31:03'),(53,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.5820 ELSE litros_real + 10.5820 END WHERE pase=30002','2018-11-30 20:31:03'),(54,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 26.9050 ELSE litros_real + 26.9050 END WHERE pase=30003','2018-11-30 20:31:07'),(55,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 11.0000 ELSE litros_real + 11.0000 END WHERE pase=30005','2018-11-30 20:31:10'),(56,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:31:14'),(57,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:31:16'),(58,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:31:20'),(59,'UPDATE ci_pases SET status=\'A\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:31:24'),(60,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:31:34'),(61,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:31:36'),(62,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:31:39'),(63,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:31:42'),(64,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:31:45'),(65,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:31:46'),(66,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:31:48'),(67,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:31:49'),(68,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30010','2018-11-30 20:32:08'),(69,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:32:20'),(70,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:32:22'),(71,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:32:26'),(72,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30004','2018-11-30 20:32:31'),(73,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:32:34'),(74,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30010','2018-11-30 20:32:36'),(75,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30036','2018-11-30 20:43:06'),(76,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30030','2018-11-30 20:43:06'),(77,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30010','2018-11-30 20:43:28'),(78,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30008','2018-11-30 20:43:29'),(79,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30009','2018-11-30 20:43:30'),(80,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30012','2018-11-30 20:43:33'),(81,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30014','2018-11-30 20:43:34'),(82,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30015','2018-11-30 20:43:36'),(83,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30018','2018-11-30 20:43:41'),(84,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30020','2018-11-30 20:43:41'),(85,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30021','2018-11-30 20:43:43'),(86,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30024','2018-11-30 20:43:45'),(87,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30026','2018-11-30 20:43:48'),(88,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30027','2018-11-30 20:43:50'),(89,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30032','2018-11-30 20:43:53'),(90,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30033','2018-11-30 20:43:55'),(91,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:44:15'),(92,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30025','2018-11-30 20:45:10'),(93,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30036','2018-11-30 20:45:23'),(94,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30025','2018-11-30 20:46:57'),(95,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30026','2018-11-30 20:47:00'),(96,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30030','2018-11-30 20:47:02'),(97,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30031','2018-11-30 20:47:06'),(98,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:49:31'),(99,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.5820 ELSE litros_real + 10.5820 END WHERE pase=30002','2018-11-30 20:49:32'),(100,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 26.9050 ELSE litros_real + 26.9050 END WHERE pase=30003','2018-11-30 20:49:33'),(101,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 11.0000 ELSE litros_real + 11.0000 END WHERE pase=30005','2018-11-30 20:49:34'),(102,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.0000 ELSE litros_real + 10.0000 END WHERE pase=30011','2018-11-30 20:49:36'),(103,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:53:23'),(104,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:53:26'),(105,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:53:31'),(106,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:53:32'),(107,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30011','2018-11-30 20:53:35'),(108,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:53:37'),(109,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:53:39'),(110,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:53:43'),(111,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:53:46'),(112,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30011','2018-11-30 20:53:49'),(113,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:53:50'),(114,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:53:53'),(115,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:53:57'),(116,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:53:58'),(117,'UPDATE ci_pases SET status=\'D\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30011','2018-11-30 20:54:02'),(118,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 20:54:05'),(119,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30002','2018-11-30 20:54:07'),(120,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30003','2018-11-30 20:54:08'),(121,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30005','2018-11-30 20:54:10'),(122,'UPDATE ci_pases SET status=\'A\', supervisor=\'\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30011','2018-11-30 20:54:13'),(123,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 11.0000 ELSE litros_real + 11.0000 END WHERE pase=30005','2018-11-30 22:51:04'),(124,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.0000 ELSE litros_real + 10.0000 END WHERE pase=30011','2018-11-30 22:51:05'),(125,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 16.2700 ELSE litros_real + 16.2700 END WHERE pase=30017','2018-11-30 22:51:07'),(126,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 8.7200 ELSE litros_real + 8.7200 END WHERE pase=30023','2018-11-30 22:51:09'),(127,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 7.8500 ELSE litros_real + 7.8500 END WHERE pase=30029','2018-11-30 22:51:12'),(128,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 34.0070 ELSE litros_real + 34.0070 END WHERE pase=30035','2018-11-30 22:51:13'),(129,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 12.1120 ELSE litros_real + 12.1120 END WHERE pase=30010','2018-11-30 22:56:04'),(130,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 12.1120 ELSE litros_real + 12.1120 END WHERE pase=30010','2018-11-30 22:56:04'),(131,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30007','2018-11-30 22:56:05'),(132,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 24.5000 ELSE litros_real + 24.5000 END WHERE pase=30012','2018-11-30 22:56:07'),(133,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.0000 ELSE litros_real + 10.0000 END WHERE pase=30013','2018-11-30 22:56:09'),(134,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 5.1970 ELSE litros_real + 5.1970 END WHERE pase=30018','2018-11-30 22:56:12'),(135,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 2.1600 ELSE litros_real + 2.1600 END WHERE pase=30019','2018-11-30 22:57:06'),(136,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30024','2018-11-30 22:57:07'),(137,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30025','2018-11-30 22:57:08'),(138,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0210 ELSE litros_real + 0.0210 END WHERE pase=30030','2018-11-30 22:57:11'),(139,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30036','2018-11-30 22:57:12'),(140,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30037','2018-11-30 22:58:04'),(141,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30008','2018-11-30 22:58:07'),(142,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30014','2018-11-30 22:58:08'),(143,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 1.1800 ELSE litros_real + 1.1800 END WHERE pase=30020','2018-11-30 22:58:10'),(144,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 6.7170 ELSE litros_real + 6.7170 END WHERE pase=30032','2018-11-30 22:58:12'),(145,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30001','2018-11-30 23:04:03'),(146,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.5820 ELSE litros_real + 10.5820 END WHERE pase=30002','2018-11-30 23:04:04'),(147,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 26.9050 ELSE litros_real + 26.9050 END WHERE pase=30003','2018-11-30 23:04:04'),(148,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0000 ELSE litros_real + 0.0000 END WHERE pase=30031','2018-12-01 01:13:04'),(149,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 135.2250 ELSE litros_real + 135.2250 END WHERE pase=30009','2018-12-01 01:13:04'),(150,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 10.0000 ELSE litros_real + 10.0000 END WHERE pase=30015','2018-12-01 01:13:06'),(151,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 12.5170 ELSE litros_real + 12.5170 END WHERE pase=30021','2018-12-01 01:14:05'),(152,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 9.0000 ELSE litros_real + 9.0000 END WHERE pase=30027','2018-12-01 01:14:06'),(153,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 5.5270 ELSE litros_real + 5.5270 END WHERE pase=30026','2018-12-01 01:14:08'),(154,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0310 ELSE litros_real + 0.0310 END WHERE pase=30033','2018-12-01 01:14:09'),(155,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 1.0000 ELSE litros_real + 1.0000 END WHERE pase=30004','2018-12-01 01:14:10'),(156,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 1.0000 ELSE litros_real + 1.0000 END WHERE pase=30016','2018-12-01 01:15:05'),(157,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 1.0000 ELSE litros_real + 1.0000 END WHERE pase=30022','2018-12-01 01:15:06'),(158,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 6.1020 ELSE litros_real + 6.1020 END WHERE pase=30028','2018-12-01 01:15:08'),(159,'UPDATE ci_pases SET status=\'D\', supervisor=\'0\', observaciones=\'\', litros_real=CASE WHEN litros_real IS NULL THEN 0.0090 ELSE litros_real + 0.0090 END WHERE pase=30034','2018-12-01 01:15:09');
+/*!40000 ALTER TABLE `errores_sql_informix` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `jarreos_t`
@@ -346,6 +404,148 @@ CREATE TABLE `jarreos_t` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `jarreos_t`
+--
+
+LOCK TABLES `jarreos_t` WRITE;
+/*!40000 ALTER TABLE `jarreos_t` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jarreos_t` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `means`
+--
+
+DROP TABLE IF EXISTS `means`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `means` (
+  `NAME` text,
+  `string` text,
+  `TYPE` int(11) DEFAULT NULL,
+  `id` int(11) DEFAULT NULL,
+  `status` int(11) DEFAULT NULL,
+  `rule` int(11) DEFAULT NULL,
+  `hardware_type` text,
+  `pump` int(11) DEFAULT NULL,
+  `employee_type` int(11) DEFAULT NULL,
+  `plate` text,
+  `model_id` int(11) DEFAULT NULL,
+  `YEAR` int(11) DEFAULT NULL,
+  `capacity` decimal(10,0) DEFAULT NULL,
+  `consumption` decimal(10,0) DEFAULT NULL,
+  `odometer` text,
+  `cust_id` text,
+  `address` text,
+  `fleet_id` int(11) DEFAULT NULL,
+  `dept_id` int(11) DEFAULT NULL,
+  `acctyp` int(11) DEFAULT NULL,
+  `available_amount` decimal(10,0) DEFAULT NULL,
+  `update_timestamp` datetime DEFAULT NULL,
+  `fcc_bos_cleared` int(11) DEFAULT NULL,
+  `use_pin_code` int(11) DEFAULT NULL,
+  `pin_code` text,
+  `auth_pin_from` int(11) DEFAULT NULL,
+  `nr_pin_retries` int(11) DEFAULT NULL,
+  `block_if_pin_retries_fail` int(11) DEFAULT NULL,
+  `opos_prompt_for_plate` int(11) DEFAULT NULL,
+  `opos_prompt_for_odometer` int(11) DEFAULT NULL,
+  `do_odo_reasonability_check` int(11) DEFAULT NULL,
+  `max_odo_delta_allowed` int(11) DEFAULT NULL,
+  `nr_odo_retries` int(11) DEFAULT NULL,
+  `driver_id_type_required` int(11) DEFAULT NULL,
+  `price_list_id` int(11) DEFAULT NULL,
+  `day_volume` decimal(10,0) DEFAULT NULL,
+  `week_volume` decimal(10,0) DEFAULT NULL,
+  `month_volume` decimal(10,0) DEFAULT NULL,
+  `day_money` decimal(10,0) DEFAULT NULL,
+  `week_money` decimal(10,0) DEFAULT NULL,
+  `month_money` decimal(10,0) DEFAULT NULL,
+  `day_visits` int(11) DEFAULT NULL,
+  `week_visits` int(11) DEFAULT NULL,
+  `month_visits` int(11) DEFAULT NULL,
+  `sent_to_dho` int(11) DEFAULT NULL,
+  `sent_to_fho` int(11) DEFAULT NULL,
+  `auttyp` int(11) DEFAULT NULL,
+  `engine_hours` decimal(10,0) DEFAULT NULL,
+  `original_engine_hours` decimal(10,0) DEFAULT NULL,
+  `target_engine_hours` decimal(10,0) DEFAULT NULL,
+  `price_list` int(11) DEFAULT NULL,
+  `need_ho_update` int(11) DEFAULT NULL,
+  `opos_prompt_for_engine_hours` int(11) DEFAULT NULL,
+  `address2` text,
+  `city` text,
+  `state` text,
+  `zip` text,
+  `phone` text,
+  `user_data1` text,
+  `user_data2` text,
+  `user_data3` text,
+  `user_data4` text,
+  `user_data5` text,
+  `start_odometer` decimal(10,0) DEFAULT NULL,
+  `consumption2` decimal(10,0) DEFAULT NULL,
+  `is_burned` int(11) DEFAULT NULL,
+  `viu_serial` varchar(32) DEFAULT NULL,
+  `allow_id_replacement` int(11) DEFAULT NULL,
+  `num_of_strings` int(11) DEFAULT NULL,
+  `string2` varchar(50) DEFAULT NULL,
+  `string3` varchar(50) DEFAULT NULL,
+  `string4` varchar(50) DEFAULT NULL,
+  `string5` varchar(50) DEFAULT NULL,
+  `opos_plate_check_type` int(11) DEFAULT NULL,
+  `nr_plate_retries` int(11) DEFAULT NULL,
+  `block_if_plate_retries_fail` int(11) DEFAULT NULL,
+  `chassis_number` varchar(32) DEFAULT NULL,
+  `sent_to_olic` int(11) DEFAULT NULL,
+  `issued_date` datetime DEFAULT NULL,
+  `last_used` datetime DEFAULT NULL,
+  `disable_viu_two_stage` int(11) DEFAULT NULL,
+  `prompt_always_for_viu` int(11) DEFAULT NULL,
+  `discovered` int(11) DEFAULT NULL,
+  `expire` int(11) DEFAULT NULL,
+  `expire_date` varchar(4) DEFAULT NULL,
+  `year_volume` decimal(10,0) DEFAULT NULL,
+  `year_money` decimal(10,0) DEFAULT NULL,
+  `sent_to_client` int(11) DEFAULT NULL,
+  `do_eh_reasonability_check` int(11) DEFAULT NULL,
+  `max_eh_delta_allowed` int(11) DEFAULT NULL,
+  `nr_eh_retries` int(11) DEFAULT NULL,
+  `reject_if_eh_check_fails` int(11) DEFAULT NULL,
+  `deposit_date` datetime DEFAULT NULL,
+  `cash_on_hand` decimal(10,0) DEFAULT NULL,
+  `max_cash_allowed` decimal(10,0) DEFAULT NULL,
+  `block_fueling` int(11) DEFAULT NULL,
+  `add_dp_approved` int(11) DEFAULT NULL,
+  `add_dp_approval_date` datetime DEFAULT NULL,
+  `add_dp_completion_date` datetime DEFAULT NULL,
+  `reject_if_odm_check_fails` int(11) DEFAULT NULL,
+  `route_prompt` int(11) DEFAULT NULL,
+  `pressure_level` int(11) DEFAULT NULL,
+  `attendant_required` int(11) DEFAULT NULL,
+  `notify_expire` int(11) DEFAULT NULL,
+  `notification_days` int(11) DEFAULT NULL,
+  `max_cash_allowed_at_night` decimal(10,0) DEFAULT NULL,
+  `high_cash_allowed` decimal(10,0) DEFAULT NULL,
+  `high_cash_allowed_at_night` decimal(10,0) DEFAULT NULL,
+  `daytime_start` int(11) DEFAULT NULL,
+  `nighttime_start` int(11) DEFAULT NULL,
+  `shift_instance_id` int(11) DEFAULT NULL,
+  `prompt_for_jobcode` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `means`
+--
+
+LOCK TABLES `means` WRITE;
+/*!40000 ALTER TABLE `means` DISABLE KEYS */;
+INSERT INTO `means` VALUES ('AutoTag','123456789',1,2,2,1,'3',NULL,1,'AutoTag',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,'2018-12-03 23:58:03',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('9999','987654321',1,1,2,1,'3',NULL,1,'9999',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,'2018-12-03 23:52:03',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag3','1234567890',1,3,2,1,'3',NULL,1,'AutoTag3',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag4','1234567891',1,4,2,1,'3',NULL,1,'AutoTag4',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag5','1234567892',1,5,2,1,'3',NULL,1,'AutoTag5',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag6','1234567893',1,6,2,1,'3',NULL,1,'AutoTag6',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag7','1234567894',1,7,2,1,'3',NULL,1,'AutoTag7',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag8','1234567895',1,8,2,1,'3',NULL,1,'AutoTag8',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag9','1234567896',1,9,2,1,'3',NULL,1,'AutoTag9',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag10','1234567897',1,10,2,1,'3',NULL,1,'AutoTag10',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag11','1234567898',1,11,2,1,'3',NULL,1,'AutoTag11',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag12','1234567899',1,12,2,1,'3',NULL,1,'AutoTag12',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag13','12345678910',1,13,2,1,'3',NULL,1,'AutoTag13',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag14','12345678911',1,14,2,1,'3',NULL,1,'AutoTag14',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag15','12345678912',1,15,2,1,'3',NULL,1,'AutoTag15',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag16','12345678913',1,16,2,1,'3',NULL,1,'AutoTag16',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag17','12345678914',1,17,2,1,'3',NULL,1,'AutoTag17',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag18','12345678915',1,18,2,1,'3',NULL,1,'AutoTag18',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag19','12345678916',1,19,2,1,'3',NULL,1,'AutoTag19',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag20','12345678917',1,20,2,1,'3',NULL,1,'AutoTag20',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag21','12345678918',1,21,2,1,'3',NULL,1,'AutoTag21',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag22','12345678919',1,22,2,1,'3',NULL,1,'AutoTag22',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag23','12345678920',1,23,2,1,'3',NULL,1,'AutoTag23',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),('AutoTag24','12345678921',1,24,2,1,'3',NULL,1,'AutoTag24',1,NULL,NULL,NULL,'0',NULL,NULL,1234,5,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `means` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `modelos`
 --
 
@@ -366,6 +566,15 @@ CREATE TABLE `modelos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `modelos`
+--
+
+LOCK TABLES `modelos` WRITE;
+/*!40000 ALTER TABLE `modelos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `modelos` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `product_ieps`
 --
 
@@ -381,6 +590,16 @@ CREATE TABLE `product_ieps` (
   `status` smallint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_ieps`
+--
+
+LOCK TABLES `product_ieps` WRITE;
+/*!40000 ALTER TABLE `product_ieps` DISABLE KEYS */;
+INSERT INTO `product_ieps` VALUES (142300000000001,0.2988,0.1600,'2011-09-07','2011-10-30',2),(142300000000001,0.0000,0.1600,'2011-10-30','0000-00-00',1);
+/*!40000 ALTER TABLE `product_ieps` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `tank_delivery_readings_t`
@@ -429,6 +648,16 @@ CREATE TABLE `tank_delivery_readings_t` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `tank_delivery_readings_t`
+--
+
+LOCK TABLES `tank_delivery_readings_t` WRITE;
+/*!40000 ALTER TABLE `tank_delivery_readings_t` DISABLE KEYS */;
+INSERT INTO `tank_delivery_readings_t` VALUES (200000021,200000017,34837.1,75734.1,23.8752,'2018-11-23 15:30:00','2018-11-23 15:32:00',200000002,0,32479.1,70628.1,1132.55,2081.08,49.0731,49.0622,23.8975,0,0,0,0,0,0,'2018-11-23 15:37:28',0,0,0,0,0,0,0,40896.9,0,0,NULL);
+/*!40000 ALTER TABLE `tank_delivery_readings_t` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `transacciones`
 --
 
@@ -439,8 +668,8 @@ CREATE TABLE `transacciones` (
   `idtransacciones` bigint(20) NOT NULL,
   `idproductos` int(11) DEFAULT '1',
   `idcortes` int(11) DEFAULT NULL,
-  `idvehiculos` int(11) DEFAULT NULL,
-  `iddespachadores` int(11) DEFAULT NULL,
+  `idvehiculos` varchar(255) DEFAULT NULL,
+  `iddespachadores` varchar(255) DEFAULT NULL,
   `idtanques` int(11) DEFAULT NULL,
   `fecha` datetime DEFAULT NULL,
   `bomba` int(5) DEFAULT NULL,
@@ -462,6 +691,16 @@ CREATE TABLE `transacciones` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `transacciones`
+--
+
+LOCK TABLES `transacciones` WRITE;
+/*!40000 ALTER TABLE `transacciones` DISABLE KEYS */;
+INSERT INTO `transacciones` VALUES (300089217,1,0,'TagAuth','0',0,'2018-10-08 00:00:00',1,2,0.0000,0,0,0,0,'TagAuth',0,0,0,1.0000,0.0000,30001),(300089218,1,0,'TagVehiculo','0',0,'2018-10-08 00:00:00',1,2,10.5820,0,0,0,0,'TagVehiculo',0,0,0,1.0000,10.5820,30002),(300089219,1,0,'TagVehiculo','0',0,'2018-10-08 00:00:00',1,2,26.9050,0,0,0,0,'TagVehiculo',0,0,0,1.0000,26.9050,30003),(300089220,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,11.0000,0,0,0,0,'AutoTag',0,0,0,1.0000,11.0000,30005),(300089221,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,10.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,100.0000,30011),(300089222,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,16.2700,0,0,0,0,'AutoTag',0,0,0,1.0000,16.2700,30017),(300089223,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,8.7200,0,0,0,0,'AutoTag',0,0,0,10.0000,87.2000,30023),(300089224,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,7.8500,0,0,0,0,'AutoTag',0,0,0,10.0000,78.5000,30029),(300089225,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,34.0070,0,0,0,0,'AutoTag',0,0,0,10.0000,340.0700,30035),(300089226,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,12.1120,0,0,0,0,'AutoTag',0,0,0,10.0000,121.1200,30010),(300089227,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,0.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,0.0000,30007),(300089228,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,24.5000,0,0,0,0,'AutoTag',0,0,0,10.0000,245.0000,30012),(300089229,1,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,2,10.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,100.0000,30013),(300089230,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,5.1970,0,0,0,0,'AutoTag',0,0,0,10.0000,51.9700,30018),(300089231,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,2.1600,0,0,0,0,'AutoTag',0,0,0,10.0000,21.6000,30019),(300089232,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,0.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,0.0000,30024),(300089233,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,0.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,0.0000,30025),(300089234,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,0.0210,0,0,0,0,'AutoTag',0,0,0,10.0000,0.2070,30030),(300089235,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,0.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,0.0000,30036),(300089236,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,0.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,0.0000,30037),(300089237,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,0.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,0.0000,30008),(300089238,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,0.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,0.0000,30014),(300089239,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,1.1800,0,0,0,0,'AutoTag',0,0,0,10.0000,11.8000,30020),(300089240,2,0,'AutoTag','0',0,'2018-10-08 00:00:00',1,1,6.7170,0,0,0,0,'AutoTag',0,0,0,10.0000,67.1700,30032),(300089258,2,0,'01','Driver',0,'2018-10-31 00:00:00',1,1,0.0000,0,0,0,0,'01',0,0,0,10.0000,0.0000,30031),(300089259,2,0,'AutoTag','Driver',0,'2018-10-31 00:00:00',1,1,135.2250,0,0,0,0,'AutoTag',0,0,0,10.0000,1352.2500,30009),(300089260,2,0,'AutoTag','Driver',0,'2018-10-31 00:00:00',1,1,10.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,100.0000,30015),(300089261,2,0,'AutoTag','Driver',0,'2018-10-31 00:00:00',1,1,12.5170,0,0,0,0,'AutoTag',0,0,0,10.0000,125.1700,30021),(300089262,2,0,'AutoTag','Driver',0,'2018-10-31 00:00:00',1,1,9.0000,0,0,0,0,'AutoTag',0,0,0,10.0000,90.0000,30027),(300089263,2,0,'01','Driver',0,'2018-11-25 00:00:00',1,1,5.5270,0,0,0,0,'01',0,0,0,10.0000,55.2700,30026),(300089264,2,0,'AutoTag','0',0,'2018-11-25 00:00:00',1,1,0.0310,0,0,0,0,'0',0,0,0,10.0000,0.3070,30033),(300089265,2,0,'AutoTag','0',0,'2018-11-25 00:00:00',1,1,1.0000,0,0,0,0,'0',0,0,0,10.0000,10.0000,30004),(300089266,2,0,'AutoTag','0',0,'2018-11-25 00:00:00',1,1,1.0000,0,0,0,0,'0',0,0,0,10.0000,10.0000,30016),(300089267,2,0,'AutoTag','0',0,'2018-11-25 00:00:00',1,1,1.0000,0,0,0,0,'0',0,0,0,10.0000,10.0000,30022),(300089268,2,0,'AutoTag','0',0,'2018-11-25 00:00:00',1,1,6.1020,0,0,0,0,'0',0,0,0,10.0000,61.0200,30028),(300089269,2,0,'AutoTag','0',0,'2018-11-25 00:00:00',1,1,0.0090,0,0,0,0,'0',0,0,0,10.0000,0.0870,30034);
+/*!40000 ALTER TABLE `transacciones` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `usuarios`
 --
 
@@ -479,6 +718,16 @@ CREATE TABLE `usuarios` (
   PRIMARY KEY (`idusuarios`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `usuarios`
+--
+
+LOCK TABLES `usuarios` WRITE;
+/*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
+INSERT INTO `usuarios` VALUES (0,'admin',NULL,'896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL);
+/*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `vehiculos`
@@ -501,6 +750,15 @@ CREATE TABLE `vehiculos` (
   PRIMARY KEY (`idvehiculos`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `vehiculos`
+--
+
+LOCK TABLES `vehiculos` WRITE;
+/*!40000 ALTER TABLE `vehiculos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vehiculos` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -511,4 +769,4 @@ CREATE TABLE `vehiculos` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-11-28 19:18:04
+-- Dump completed on 2018-12-04  2:18:03
