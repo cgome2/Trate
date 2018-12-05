@@ -9,9 +9,9 @@ $eumm_version =~ s/_//;
 
 WriteMakefile(
     NAME                => 'Transporter',
-    AUTHOR              => q{YOUR NAME <youremail@example.com>},
-    VERSION_FROM        => 'lib/Transporter.pm',
-    ABSTRACT            => 'YOUR APPLICATION ABSTRACT',
+    AUTHOR              => q{CARLOS GOMEZ <cgomez@tecflo.com.mx>},
+    VERSION_FROM        => 'lib/Transporter/Means.pm',
+    ABSTRACT            => 'TRANSPORTADOR DE INFORMACION ENTRE MASTER@FARMACIAS_DE_GUADALAJARA Y ORCU@ORPAK_GASBOY',
     ($eumm_version >= 6.3001
       ? ('LICENSE'=> 'perl')
       : ()),

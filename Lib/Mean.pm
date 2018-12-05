@@ -534,17 +534,17 @@ sub updateMeanMariaDb {
 		"rule = '" . $self->{RULE} . "'," . 
 		"dept_id = '" . $self->{DEPT_ID} . "'," .
 		"employee_type = '" . $self->{EMPLOYEE_TYPE} . "'," . 
-		"available_amount = ,'" . $self->{AVAILABLE_AMOUNT} . "'," .   
-		"fleet_id = ,'" . $self->{FLEET_ID} . "'," .   
-		"hardware_type = ,'" . $self->{HARDWARE_TYPE} . "'," .   
-		"auttyp = ,'" . $self->{AUTTYP} . "'," .   
-		"model_id = ,'" . $self->{MODEL_ID} . "'," .   
-		"name = ,'" . $self->{NAME} . "'," .   
-		"odometer = ,'" . $self->{ODOMETER} . "'," .   
-		"plate = ,'" . $self->{PLATE} . "'," .   
-		"status = ,'" . $self->{STATUS} . "'," .   
-		"string = ,'" . $self->{STRING} . "'," .   
-		"type = ,'" . $self->{TYPE} . "' WHERE id='" . $self->{ID} . "'";
+		"available_amount = '" . $self->{AVAILABLE_AMOUNT} . "'," .   
+		"fleet_id = '" . $self->{FLEET_ID} . "'," .   
+		"hardware_type = '" . $self->{HARDWARE_TYPE} . "'," .   
+		"auttyp = '" . $self->{AUTTYP} . "'," .   
+		"model_id = '" . $self->{MODEL_ID} . "'," .   
+		"name = '" . $self->{NAME} . "'," .   
+		"odometer = '" . $self->{ODOMETER} . "'," .   
+		"plate = '" . $self->{PLATE} . "'," .   
+		"status = '" . $self->{STATUS} . "'," .   
+		"string = '" . $self->{STRING} . "'," .   
+		"type = '" . $self->{TYPE} . "' WHERE id='" . $self->{ID} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -608,6 +608,23 @@ sub getMeans{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT id, rule, dept_id, employee_type, available_amount, fleet_id, hardware_type, auttyp, model_id, name, odometer, plate, status, string, type FROM means"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @means;
+	while (my $ref = $sth->fetchrow_hashref()) {
+    	push @means,$ref;
+	}
+	LOGGER->{dump(@means)};
+	$sth->finish;
+	$connector->destroy();
+	return \@means;	
+}
+
+sub getMeanFromId {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT id,rule,dept_id,employee_type,available_amount,fleet_id,hardware_type,auttyp,model_id,name,odometer,plate,status,string,type FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");

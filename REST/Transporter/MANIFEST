@@ -2,7 +2,8 @@ MANIFEST
 Makefile.PL
 views/layouts/main.tt
 views/index.tt
-lib/Transporter.pm
+lib/Transporter/Means.pm
+lib/Transporter/LecturasTLS.pm
 MANIFEST.SKIP
 public/css/error.css
 public/css/style.css

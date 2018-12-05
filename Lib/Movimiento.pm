@@ -33,6 +33,7 @@ sub new
 	$self->{STATUS} = undef;
 	$self->{PROCESADA} = undef;
 	$self->{TRANSACTION_ID} = undef;
+	$self->{ID} = undef;
 	bless($self);
 	return $self;	
 }
@@ -335,7 +336,7 @@ sub borraInf{
 
 sub inserta{
 	my $self = shift;
-	insertaMDB($self);
+	$self = insertaMDB($self);
 	#insertaInf($self);
 	return $self;
 }
