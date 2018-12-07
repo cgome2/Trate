@@ -12,6 +12,16 @@ use Try::Catch;
 use Trate::Lib::Constants qw(LOGGER);
 use strict;
 
+$ENV{INFORMIXSERVER} = 'prueba';
+$ENV{INFORMIXDIR} = '/opt/informix';
+$ENV{INFORMIXSERVER} = 'prueba';
+$ENV{DBDATE}= 'DMY2/';
+$ENV{DBCENTURY} = 'C';
+$ENV{PATH} = $ENV{PATH} . ':/opt/informix/bin';
+
+
+LOGGER->info("ramses->>>>>>>>>>><\n" . `env`);
+
 # (1) salir a menos que envien los 21 argumentos
 my $num_args = $#ARGV + 1;
 my $return = 0;

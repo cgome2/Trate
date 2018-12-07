@@ -19,8 +19,10 @@ use constant LOGGER => get_logger("Trate");
 use constant DRIVER_INFORMIX => 'Informix';
 use constant DATABASE_INFORMIX => 'master';
 use constant DSN_INFORMIX => "DBI:" . DRIVER_INFORMIX . ":" . DATABASE_INFORMIX;
-use constant USER_INFORMIX => "trateusr";
-use constant PASSWORD_INFORMIX => "t1710e";
+#use constant USER_INFORMIX => "trateusr";
+#use constant PASSWORD_INFORMIX => "t1710e";
+use constant USER_INFORMIX => "informix";
+use constant PASSWORD_INFORMIX => "ortech";
 
 use constant DRIVER_MARIADB => "mysql";
 use constant DATABASE_MARIADB => "orpak";

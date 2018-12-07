@@ -48,19 +48,24 @@ Martes:
 
 
 Miércoles:
-4.- update reasignar pase
-5.- update reabrir pase
-6.- put guardar jarreo en transporter y trate
-7.- put registrar devolución de jarreo en transporter y trate
-8.- put registrar movimiento manual en transporter y trate
+9.- get obtener pase especifico
+10.- patch reasignar pase
+11.- patch reabrir pase
+12.- get listar tags de contingencia
 
 Jueves:
-9.- put abrir turno
+13.- put guardar jarreo en transporter y trate
+14.- put registrar devolución de jarreo en transporter y trate
+15.- put registrar movimiento manual en transporter y trate
+
+Viernes:
+16.- get listar tags de despachador
+17.- put abrir turno
 	crear turno en orcu
 	activar tags seleccionados en orcu
 	obtener y registrar totalizadores en transporter
 	obtener y registrar lectura de tanques en transporter
-10.- put cerrar turno
+18.- put cerrar turno
 	cambiar estatus de turno en orcu
 	desactivar tags seleccionados en orcu
 	obtener y registrar totalizadores en transporter
@@ -68,20 +73,7 @@ Jueves:
 	registrar movimientos en mariadb
 	registrar movimientos en trate
 
-Viernes:
-11.- get listar pase especifico
-12.- get listar lecturas de tanques
-13.- put registrar movimiento de descarga de combustible o recepcion de combustible
-14.- get listar usuarios
-
 Sábado:
-15.- put crear usuario
-16.- update modificar usuario
-
-Domingo:
-12.- Obtener lecturas de tanques cada minuto
-
-
-
-
-
+19.- get listar usuarios
+20.- put crear usuario
+21.- update modificar usuario

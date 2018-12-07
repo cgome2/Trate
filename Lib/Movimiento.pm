@@ -359,8 +359,9 @@ sub enviarMovimientoInformix {
 	my $self = shift;
 	
 	my $connector = Trate::Lib::ConnectorInformix->new();
-	my $preps = "INSERT INTO ci_movimientos VALUES(";
-		$preps .= $self->{FECHA_HORA} eq '' ?  "NULL," : "'" . $self->{FECHA_HORA} . "',";
+	my $preps = "INSERT INTO ci_movimientos(fecha_hora,estacion,dispensador,supervisor,despachador,viaje,camion,chofer,sello,tipo_referencia,serie,referencia,movimiento,litros_esp,litros_real,costo_esp,costo_real,iva,ieps,status,procesada,transaction_id) VALUES(
+	";
+		$preps .= $self->{FECHA_HORA} eq '' ?  "NULL," : "'" . substr($self->{FECHA_HORA},0,16) . "',";
 		$preps .= "'" . $self->{ESTACION} . "',";
 		$preps .= $self->{DISPENSADOR} eq '' ?  "NULL," : "'" . $self->{DISPENSADOR} . "',";
 		$preps .= $self->{SUPERVISOR} eq '' ?  "NULL," : "'" . $self->{SUPERVISOR} . "',";
@@ -368,6 +369,7 @@ sub enviarMovimientoInformix {
 		$preps .= $self->{VIAJE} eq '' ?  "NULL," : "'" . $self->{VIAJE} . "',";
 		$preps .= $self->{CAMION} eq '' ?  "NULL," : "'" . $self->{CAMION} . "',";
 		$preps .= $self->{CHOFER} eq '' ?  "NULL," : "'" . $self->{CHOFER} . "',";
+		$preps .= $self->{SELLO} eq '' ?  "NULL," : "'" . $self->{SELLO} . "',";
 		$preps .= $self->{TIPO_REFERENCIA} eq '' ?  "NULL," : "'" . $self->{TIPO_REFERENCIA} . "',";
 		$preps .= $self->{SERIE} eq '' ?  "NULL," : "'" . $self->{SERIE} . "',";
 		$preps .= $self->{REFERENCIA} eq '' ?  "NULL," : "'" . $self->{REFERENCIA} . "',";
@@ -380,7 +382,7 @@ sub enviarMovimientoInformix {
 		$preps .= $self->{IEPS} eq '' ?  "NULL," : "'" . $self->{IEPS} . "',";
 		$preps .= $self->{STATUS} eq '' ?  "NULL," : "'" . $self->{STATUS} . "',";
 		$preps .= $self->{PROCESADA} eq '' ?  "NULL," : "'" . $self->{PROCESADA} . "',";
-		$preps .= $self->{TRANSACTION_ID} eq '' ?  "NULL" : "'" . $self->{TRANSACTION_ID} . "')";
+		$preps .= $self->{TRANSACTION_ID} eq '' ?  "NULL)" : "'" . $self->{TRANSACTION_ID} . "')";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 
 	try {
