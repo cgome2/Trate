@@ -11,11 +11,9 @@ package Trate::Lib::RecepcionCombustible;
 
 use strict;
 use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE HO_ROLE);
-use Trate::Lib::Utilidades;
 use Trate::Lib::LecturasTLS;
 use Trate::Lib::Factura;
 use Trate::Lib::Movimiento;
-use Data::Dump qw(dump);
 
 sub new
 {

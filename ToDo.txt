@@ -16,9 +16,9 @@ Martes:
 	endpoint: /lecturas_tls/:reception_unique_id
 6.- verificar existencia de factura en master informix
 	tipo get:
-	endpoint: /facturas/:fecha/:factura/:proveedor/:serie
+	endpoint: /facturas/:fecha/:factura/:serie
 7.- actualiza lectura especifica agregando el movimiento correspondiente y posteriormente agrega el ci_movimiento a la lectura y modifica su estatus a 1 (procesada)
-	tipo put:
+	tipo patch:
 	endpoint: /lecturas_tls
 	body:
 		{

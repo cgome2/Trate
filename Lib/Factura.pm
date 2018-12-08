@@ -10,14 +10,14 @@ package Trate::Lib::Factura;
 
 use strict;
 use Trate::Lib::ConnectorInformix;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER PROVEEDOR);
 
 sub new
 {
 	my $self = {};
 	$self->{FECHA} = undef;
 	$self->{FACTURA} = undef;
-	$self->{PROVEEDOR} = "15002";
+	$self->{PROVEEDOR} = PROVEEDOR;
 	$self->{FSERIE} = "RP";
 	bless($self);
 	return $self;	
@@ -51,14 +51,14 @@ sub existeFactura {
 	my $self = shift;
 	my $conteo = 0;
 	my $connector = Trate::Lib::ConnectorInformix->new();
-	my $preps = "SELECT COUNT(*) FROM pfacturas WHERE fecha='" . $self->{FECHA} . "' AND factura='" . $self->{FACTURA} . "' AND proveedor='" . $self->{PROVEEDOR} . "' AND serie='" . $self->{FSERIE} . "'";
+	my $preps = "SELECT COUNT(*) FROM pfacturas WHERE fecha='" . &Trate::Lib::Utilidades::getInformixDate($self->{FECHA}) . "' AND factura='" . $self->{FACTURA} . "' AND proveedor='" . $self->{PROVEEDOR} . "' AND fserie='" . $self->{FSERIE} . "'";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->error("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:Trate: $preps");
     $conteo = $sth->fetchrow_array;
     $sth->finish;
 	$connector->destroy();
-    return $conteo;
+	($conteo gt 0 ? return 1 : return 0);
 }
 
 1;

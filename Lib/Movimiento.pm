@@ -4,6 +4,8 @@ use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
 use Try::Catch;
 use Trate::Lib::Constants qw(LOGGER ESTACION);
+use Data::Dump qw(dump);
+
 use strict;
 
 our $return = 0;
@@ -357,7 +359,7 @@ sub borra{
 # This method insert a local instance of movimiento into trate
 sub enviarMovimientoInformix {
 	my $self = shift;
-	
+	my $return = 0;
 	my $connector = Trate::Lib::ConnectorInformix->new();
 	my $preps = "INSERT INTO ci_movimientos(fecha_hora,estacion,dispensador,supervisor,despachador,viaje,camion,chofer,sello,tipo_referencia,serie,referencia,movimiento,litros_esp,litros_real,costo_esp,costo_real,iva,ieps,status,procesada,transaction_id) VALUES(
 	";
@@ -400,48 +402,23 @@ sub enviarMovimientoInformix {
 	};
 }
 
-#Deprecated
-#sub getFromId {
-#	my $self = shift;
-#	if (@_) { 
-#		$self->{MOVIMIENTO} = shift;
-#	} else {
-#		return $self;	
-#	}
-#	my $connector = Trate::Lib::ConnectorMariaDB->new();
-#	my $preps = "SELECT * FROM ci_movimientos WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";	
-#	LOGGER->debug("Ejecutando sql[ " . $preps . " ]");
-#	my $sth = $connector->dbh->prepare($preps);
-#   $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-#	(
-#	$self->{FECHA_HORA},
-#	$self->{ESTACION},
-#	$self->{DISPENSADOR},
-#	$self->{SUPERVISOR},
-#	$self->{DESPACHADOR},
-#	$self->{VIAJE},
-#	$self->{CAMION},
-#	$self->{CHOFER},
-#	$self->{SELLO},
-#	$self->{TIPO_REFERENCIA},
-#	$self->{SERIE},
-#	$self->{REFERENCIA},
-#	$self->{MOVIMIENTO},
-#	$self->{LITROS_ESP},
-#	$self->{LITROS_REAL},
-#	$self->{COSTO_ESP},
-#	$self->{COSTO_REAL},
-#	$self->{IVA},
-#	$self->{IEPS},
-#	$self->{STATUS},	
-#	$self->{PROCESADA},	
-#	$self->{TRANSACTION_ID}	
-#	) = $sth->fetchrow_array;
-#
-#	$sth->finish;
-#	$connector->destroy();	
-#	return $self;	
-#}
+sub getFromId {
+	my $self = shift;
+	if (@_) { 
+		$self->{ID} = shift;
+	} else {
+		return $self;	
+	}
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT * FROM ci_movimientos WHERE id = '" . $self->{ID} . "' LIMIT 1";	
+	LOGGER->debug("Ejecutando sql[ " . $preps . " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	return $row;	
+}
 
 1;
 #EOF

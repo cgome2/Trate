@@ -252,14 +252,10 @@ sub getLecturasTlsFromId {
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	my @tdrs;
-	while (my $ref = $sth->fetchrow_hashref()) {
-    	push @tdrs,$ref;
-	}
-	LOGGER->{dump(@tdrs)};
+	my $row = $sth->fetchrow_hashref();
 	$sth->finish;
 	$connector->destroy();
-	return \@tdrs;	
+	return $row;	
 }
 
 sub updateLecturasTlsMariaDb {

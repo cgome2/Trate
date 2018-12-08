@@ -28,5 +28,14 @@ sub getCurrentTimestampMariaDB {
 	return $mysqlDate;
 }
 
+sub getInformixDate($){
+	my $mariaDBdate = shift;
+	my @fecha = split /-/, $mariaDBdate;
+	my $year = $fecha[0];
+	my $month = $fecha[1];
+	my $day = $fecha[2];
+	return $day . "/" . $month . "/" . $year;
+}
+
 1;
 #EOF

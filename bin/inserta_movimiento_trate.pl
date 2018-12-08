@@ -13,24 +13,17 @@ use Trate::Lib::Constants qw(LOGGER);
 use strict;
 
 $ENV{INFORMIXSERVER} = 'prueba';
-$ENV{INFORMIXDIR} = '/opt/informix';
-$ENV{INFORMIXSERVER} = 'prueba';
-$ENV{DBDATE}= 'DMY2/';
-$ENV{DBCENTURY} = 'C';
-$ENV{PATH} = $ENV{PATH} . ':/opt/informix/bin';
 
-
-LOGGER->info("ramses->>>>>>>>>>><\n" . `env`);
 
 # (1) salir a menos que envien los 21 argumentos
 my $num_args = $#ARGV + 1;
 my $return = 0;
 
-if ($num_args != 21) {
+if ($num_args != 22) {
 	LOGGER->fatal("Uso: movimiento_from_transporter_to_trate.pl fecha_hora estacion dispensador supervisor despachador viaje camion chofer sello tipo_referencia serie referencia movimiento litros_esp litros_real costo_esp costo_real iva ieps status procesada transaction_id");
     exit $return;
 }
-my ($fecha_hora,$estacion,$dispensador,$supervisor,$despachador,$viaje,$camion,$chofer,$sello,$tipo_referencia,$serie,$referencia,$movimiento,$litros_esp,$litros_real,$costo_esp,$costo_real,$iva,$ieps,$status,$procesada,$transaction_id) = @ARGV;
+my ($fecha_hora,$estacion,$dispensador,$supervisor,$despachador,$viaje,$camion,$sello,$chofer,$tipo_referencia,$serie,$referencia,$movimiento,$litros_esp,$litros_real,$costo_esp,$costo_real,$iva,$ieps,$status,$procesada,$transaction_id) = @ARGV;
 my $MOVIMIENTO = Trate::Lib::Movimiento->new();
 $MOVIMIENTO->fechaHora($fecha_hora);
 $MOVIMIENTO->estacion($estacion);
@@ -40,6 +33,7 @@ $MOVIMIENTO->despachador($despachador);
 $MOVIMIENTO->viaje($viaje);
 $MOVIMIENTO->camion($camion);
 $MOVIMIENTO->sello($sello);
+$MOVIMIENTO->chofer($chofer);
 $MOVIMIENTO->tipoReferencia($tipo_referencia);
 $MOVIMIENTO->serie($serie);
 $MOVIMIENTO->referencia($referencia);
@@ -51,7 +45,7 @@ $MOVIMIENTO->costoReal($costo_real);
 $MOVIMIENTO->iva($iva);
 $MOVIMIENTO->ieps($ieps);
 $MOVIMIENTO->status($status);
-$MOVIMIENTO->status($procesada);
+$MOVIMIENTO->procesada($procesada);
 $MOVIMIENTO->transactionId($transaction_id);
 
 try { 
@@ -59,6 +53,6 @@ try {
 } catch {
     $return = 0;
 } finally {
-	print "$return\n";
-	exit $return;
+	LOGGER->info("el valor que devolvera exit es >>>>>>" . $return);
+	exit(1);
 };
