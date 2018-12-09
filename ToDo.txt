@@ -11,15 +11,19 @@ Martes:
 4.- obtener lecturas desde orcu
 	tipo get:
 	endpoint: /lecturas_tls
+	header:  token => "el token del login"
 5.- obtener lectura especifica desde orcu
 	tipo get:
 	endpoint: /lecturas_tls/:reception_unique_id
+	header:  token => "el token del login"
 6.- verificar existencia de factura en master informix
 	tipo get:
 	endpoint: /facturas/:fecha/:factura/:serie
+	header:  token => "el token del login"
 7.- actualiza lectura especifica agregando el movimiento correspondiente y posteriormente agrega el ci_movimiento a la lectura y modifica su estatus a 1 (procesada)
 	tipo patch:
 	endpoint: /lecturas_tls
+	header:  token => "el token del login"
 	body:
 		{
 		    "reception_unique_id": "si Es Lectura De TLS agregar reception_unique_id Sino dejar en blanco",
@@ -40,6 +44,7 @@ Martes:
 		}
 8.- eliminar una lectura local
 	tipo del:
+	header:  token => "el token del login"
 	endpoint: /lecturas_tls
 	body:
 		{

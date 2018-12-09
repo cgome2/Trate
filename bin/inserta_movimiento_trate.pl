@@ -51,8 +51,7 @@ $MOVIMIENTO->transactionId($transaction_id);
 try { 
 	$return = $MOVIMIENTO->enviarMovimientoInformix() or die(LOGGER->fatal("ERROR AL ENVIAR MOVIMIENTO A INFORMIX"));
 } catch {
-    $return = 0;
+	$return = 0;
 } finally {
-	LOGGER->info("el valor que devolvera exit es >>>>>>" . $return);
-	exit(1);
+	print $return;
 };

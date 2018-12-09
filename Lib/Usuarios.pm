@@ -137,5 +137,22 @@ sub logout($){
 	return 1;			
 }
 
+sub getUsuarios {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT * FROM usuarios"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @usuarios;
+	while (my $ref = $sth->fetchrow_hashref()) {
+    	push @usuarios,$ref;
+	}
+	LOGGER->debug(dump(@usuarios));
+	$sth->finish;
+	$connector->destroy();
+	return \@usuarios;	
+}
+
 1;
 #EOF

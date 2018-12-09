@@ -109,7 +109,6 @@ sub getLastTransactionsFromORCUDeprecated{
 						$self->{LAST_TRANSACTION_TIMESTAMP} . "' limit 1";
 	LOGGER->debug($query);
 	return $remex->remoteQuery($query);
-	#return $remex->remoteQueryDevelopment($query);
 }
 
 sub getLastTransactionsFromORCU{
@@ -128,9 +127,6 @@ sub getLastTransactionsFromORCU{
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);	
 	LOGGER->info($result->{num_transactions});
-#	LOGGER->info($result->{rc});
-#	LOGGER->info($result->{rc_desc});
-#	LOGGER->info($result->{a_soTransaction}->{soTransaction});
 	if ($result->{num_transactions} > 0){
 		return procesaTransacciones($self,$result->{a_soTransaction}->{soTransaction});
 	} else {
@@ -141,10 +137,11 @@ sub getLastTransactionsFromORCU{
 	}
 }
 
-sub procesaTransacciones($$){
+sub procesaTransacciones($){
 	my $self = shift;
 	my $transaccionesarray = shift;
 	my $regla;
+	my $return = 0;
 	LOGGER->debug("transacciones a procesar [" . @$transaccionesarray . "]");
 	my @transacciones = @$transaccionesarray;
 	foreach my $row (@transacciones){
@@ -161,34 +158,29 @@ sub procesaTransacciones($$){
 		$self->{PLACA} = $row->{'plate'};
 		$self->{PPV} = $row->{'ppv'};
 		$self->{VENTA} = $row->{'total_price'};
-#		$self->{IDTANQUES} = $row->{''};
-#		$self->{ODOMETROANTERIOR} = $row->{''};
-#		$self->{HORASMOTOR} = $row->{''};
-#		$self->{HORASMOTORANTERIOR} = $row->{''};
-#		$self->{RECIBO} = $row->{''};
-#		$self->{TOTALIZADOR} = $row->{''};
-#		$self->{TOTALIZADOR_ANTERIOR} = $row->{''};
-#		$self->{GROUP_RULE_ID} = $row->{''};
-#	
-#		LOGGER->debug("INDEX de la regla [" . index($fieldsArray[23],'P') . "]");
-#		$regla = index($fieldsArray[23],'P') > -1 ? $fieldsArray[23] : 'P';
-#		LOGGER->info("regla " . $regla);
 		$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'});
-#		$self->{PASE} = getPase(substr($regla,0,index($regla,'P')));
 		LOGGER->info("pase " . $self->{PASE}->pase());
-#		$self->{LIMIT_RULE_ID} = $fieldsArray[24];
-#		$self->{FUEL_RULE_ID} = $fieldsArray[25];
-#		$self->{VISIT_RULE_ID} = $fieldsArray[26];
-#		
-		insertaTransaccion($self);
-		insertaMovimiento($self);
-		actualizaPase($self);
-		limpiaReglaCarga($self);
-		$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} + 1;
+		try {
+			insertaTransaccion($self);
+			insertaMovimiento($self);
+			actualizaPase($self);
+			limpiaReglaCarga($self);
+			$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} + 1;
+			$return = 1;
+		} catch {
+			$return = 0;			
+		} finally {
+			LOGGER->info(dump($self));
+		}
 	}
-#	LOGGER->info(dump($self));
-	$self = setLastTransactionRetreived($self);	
-	return 1;
+	try {
+		$self = setLastTransactionRetreived($self);	
+		$return = 1;
+	} catch {
+		$return = 0;			
+	} finally {
+		return $return;
+	}
 }
 
 sub insertaTransaccion{

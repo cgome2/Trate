@@ -5,6 +5,7 @@ use Trate::Lib::Constants qw(LOGGER);
 use Trate::Lib::LecturasTLS;
 use Trate::Lib::RecepcionCombustible;
 use Trate::Lib::Factura;
+use Try::Catch;
 use Data::Dump qw(dump);
 use Data::Structure::Util qw( unbless );
 
@@ -107,19 +108,20 @@ patch '/lecturas_tls' => sub {
 	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->ieps($post->{ieps});
 	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->status($post->{reception_unique_id} eq "" ? 1 : 0); #si no trae rui significa que los datos se cargaron manualmente y no desde tls, por lo tanto el status se envia como 1
 	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->procesada('N');
-	#my $id_ci_movimiento = 0;
-	#actualizar tank_delivery_readings indicando el id@ci_movimientos
-	$RECEPCION_COMBUSTIBLE->lecturaTls->status(1);
-	#$RECEPCION_COMBUSTIBLE->lecturaTls->ciMovimientos($id_ci_movimiento);
 	
-	$RECEPCION_COMBUSTIBLE->movimientoInventario($RECEPCION_COMBUSTIBLE->movimientoInventario->inserta());
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion($RECEPCION_COMBUSTIBLE->movimientoRecepcion->inserta());	
-	#$RECEPCION_COMBUSTIBLE->lecturaTls->ciMovimientos($RECEPCION_COMBUSTIBLE->movimientoRecepcion->{ID});
-
-	LOGGER->info(dump($RECEPCION_COMBUSTIBLE));
-	$RECEPCION_COMBUSTIBLE->lecturaTls->updateLecturasTlsMariaDb();	
-	
-	return {data => "OKComputer"};
+	my $respuesta = $RECEPCION_COMBUSTIBLE->movimientoInventario($RECEPCION_COMBUSTIBLE->movimientoInventario->inserta());
+	if ($respuesta eq 1){
+		$respuesta = $RECEPCION_COMBUSTIBLE->movimientoRecepcion($RECEPCION_COMBUSTIBLE->movimientoRecepcion->inserta());
+		if($respuesta eq 1){
+			return {data => "OKComputer"};
+		} else {
+			status 401;
+			return {error => "NOTOKComputer"};
+		}
+	} else {
+		status 401;
+		return {error => "NOTOKComputer"};
+	}
 };
 
 del '/lecturas_tls' => sub {

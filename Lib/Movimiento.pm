@@ -177,6 +177,7 @@ sub transactionId {
 sub insertaMDB{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $return = 0;
 	my $preps = "
 		INSERT INTO ci_movimientos VALUES('"  .
 			$self->{FECHA_HORA} . "','" .
@@ -202,11 +203,17 @@ sub insertaMDB{
 			$self->{PROCESADA} . "','" .
 			$self->{TRANSACTION_ID} . "',NULL)";
 	LOGGER->debug("Ejecutando sql[ ". $preps . " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-    $sth->finish;
-	$connector->destroy();
-	return $self;
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	    $sth->finish;
+		$connector->destroy();
+		$return = 1;
+	} catch {
+		$return = 0;
+	} finally {
+		return $return;		
+	};
 }
 
 sub insertaInf{
