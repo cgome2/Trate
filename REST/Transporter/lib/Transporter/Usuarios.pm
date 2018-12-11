@@ -41,13 +41,65 @@ get '/usuarios' => sub {
 	my $USUARIOS = Trate::Lib::Usuarios->new();
 	try {
 		$return = $USUARIOS->getUsuarios();
-		LOGGER->debug($return);
+		return $return;
 	} catch {
 		status 401;
 		$return = {error_message => "please implement me properly"};
-	} finally {
+		return $return;
+	};
+};
+
+get '/usuarios/:idusuarios' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
+	my $return = 0;
+	my $USUARIOS = Trate::Lib::Usuarios->new();
+	$USUARIOS->idusuarios(params->{idusuarios});
+	$return = $USUARIOS->getUsuariosFromId();
+	if ($return eq 0){
+		status 401;
+		return {data => "Usuario no existente"};
+	} else {
 		return $return;
 	}
 };
+
+put '/usuarios' => sub {
+	my $USUARIOS = Trate::Lib::Usuarios->new();
+	my $post = from_json( request->body );
+	$USUARIOS->usuario($post->{usuario});
+	$USUARIOS->nombre($post->{nombre});
+	$USUARIOS->nivel($post->{nivel});
+	$USUARIOS->estatus($post->{estatus});
+	$USUARIOS->password($post->{password});
+	if($USUARIOS->addUsuarios() eq 1){
+		return {data => "OKComputer"};
+	} else {
+		status 401;
+		return {data => "NotOkComputer"};
+	}
+};
+
+patch '/usuarios' => sub {
+	my $USUARIOS = Trate::Lib::Usuarios->new();
+	my $post = from_json( request->body );
+	$USUARIOS->idusuarios($post->{idusuarios});
+	$USUARIOS->usuario($post->{usuario});	
+	$USUARIOS->nombre($post->{nombre});
+	$USUARIOS->nivel($post->{nivel});
+	$USUARIOS->estatus($post->{estatus});
+	$USUARIOS->password($post->{password});
+	if($USUARIOS->updateUsuarios() eq 1){
+		return {data => "OKComputer"};
+	} else {
+		status 401;
+		return {data => "NotOkComputer"};
+	}
+};
+
 
 true;

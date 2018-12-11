@@ -239,7 +239,6 @@ sub getLecturasTls{
 	while (my $ref = $sth->fetchrow_hashref()) {
     	push @tdrs,$ref;
 	}
-	LOGGER->{dump(@tdrs)};
 	$sth->finish;
 	$connector->destroy();
 	return \@tdrs;	

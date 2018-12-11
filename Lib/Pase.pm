@@ -33,6 +33,7 @@ sub new
 	$self->{SUPERVISOR} = "";
 	$self->{OBSERVACIONES} = "";
 	$self->{ULTIMA_MODIFICACION} = "";
+	$self->{MEAN_CONTINGENCIA} = "";
 	bless $self;
 	return $self;	
 }
@@ -121,6 +122,12 @@ sub ultimaModificacion {
         return $self->{ULTIMA_MODIFICACION};
 }
 
+sub meanContingencia {
+        my ($self) = shift;
+        if (@_) { $self->{MEAN_CONTINGENCIA} = shift }        
+        return $self->{MEAN_CONTINGENCIA};
+}
+
 sub psInsertarPaseMariaDB {
 	my $self = shift;
 
@@ -177,8 +184,25 @@ sub getFromCamion(){
 	return $self;	
 }
 
-sub insertarPaseInformix {
-	#PLEASE IMPLEMENT ME 8-)
+sub updatePase{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s',litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d AND camion='%s' ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{MEAN_CONTINGENCIA}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE}, $self->{CAMION};
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+	    my $rowsaffected = $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	    $sth->finish;
+		$connector->destroy();
+		if ($rowsaffected ge 1){
+			return 1;			
+		} else {
+			LOGGER->info("El pase no se actualizó en MariaDB rolling back");
+			return 0;
+		}
+	} catch {
+		return 0;		
+	}
 }
 
 sub actualizaInformix {
@@ -188,30 +212,55 @@ sub actualizaInformix {
 	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {			
-		my $sth;
-		$sth = $connector->dbh->prepare($preps) or die(LOGGER->fatal("NO SE PUDO CONECTAR A INFORMIX:master"));
-	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:orpak: $preps");
+		my $sth = $connector->dbh->prepare($preps) or die(LOGGER->fatal("NO SE PUDO CONECTAR A INFORMIX:master"));
+	    my $rowsaffected = $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:orpak: $preps");
 	    $sth->finish;
 		$connector->destroy();
-		$return = 1;		
+		if ($rowsaffected ge 1){
+			return 1;			
+		} else {
+			LOGGER->info("El pase no se actualizó en informix rolling back");
+			return 0;
+		}
+		
 	} catch {
-		$return = 0;
-	} finally {
-		return $return;
-	};
+		return 0;
+	}
 }
 
-
-sub actualizaMDB{
+sub getPase {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+	my $preps = "SELECT
+					pase as pase_id,
+					fecha_solicitud,
+					viaje,
+					camion,
+					chofer,
+					litros,
+					contingencia,
+					status,
+					litros_real
+				FROM
+					ci_pases
+				WHERE
+					(pase='" . $self->{PASE} . "' AND status='A')
+				OR
+					(viaje='" . $self->{VIAJE} . "' AND camion='" . $self->{CAMION} . "' AND chofer='" . $self->{CHOFER} . "' AND status='A')
+				ORDER BY
+					fecha_solicitud
+				DESC";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-    $sth->finish;
-	$connector->destroy();
-	return $self;	
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		my $row = $sth->fetchrow_hashref();
+		$sth->finish;
+		$connector->destroy();
+		return ($row ? $row : 0);	
+	} catch {
+		return 0;
+	}
 }
 
 sub queueMe {
@@ -227,32 +276,6 @@ sub queueMe {
 	$connector->destroy();
 	return $self;		
 }
-
-sub borraPaseMariaDB{
-	#PLEASE IMPLEMENT ME
-}
-
-sub borraPaseInformix{
-	#PLEASE IMPLEMENT ME
-}
-
-sub actualiza{
-	my $self = shift;
-	actualizaMDB($self);
-	#actualizaInformix($self); Deprecated now its a trigger from mariadb
-}
-
-sub GET{
-    my ( $self , $req , $resp ) = @_ ;
-    
-    $resp->data()->{'pase_message'} = 'Yoadfadsfng user '.$self->paseid() ;
-    $resp->data()->{'pase'} = {
-        'name' => "\x{111}\x{103}ng t\x{1ea3}i t\x{1ea1}i",
-        'id' => '30001' ,
-    };
-    return Apache2::Const::HTTP_OK ;
-}
-
 
 
 1;

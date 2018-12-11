@@ -54,8 +54,23 @@ Martes:
 
 Miércoles:
 9.- get obtener pase especifico
+	tipo comando: get
+	header: token=>"token del login"
+	endpoint: /pases
+	body:
+		Búsqueda por camion viaje y chofer:   {"pase": "","viaje": "10002", "camion": "TagVehiculo", "chofer": "1002"}
+		Búsqueda por número de pase: {"pase": "30001","viaje": "", "camion": "", "chofer": ""}
+
 10.- patch reasignar pase
+	header: token=>"token del login"
+	endpoint: /pases
+	body:
+	{"pase": "30001","estatus": "T", "camion": "1000", "mean_contingencia": "8888", "observaciones": "Razon por la cual se esta reasignando como contingencia el pase","supervisor": "numero de empleado del supervisor que autoriza"}	
 11.- patch reabrir pase
+	header: token=>"token del login"
+	endpoint: /pases
+	body:
+	{"pase": "30001","estatus": "R", "camion": "1000", "mean_contingencia": "1000", "observaciones": "Razon por la cual se esta reasignando como contingencia el pase","supervisor": "numero de empleado del supervisor que autoriza"}	
 12.- get listar tags de contingencia
 
 Jueves:
@@ -80,5 +95,38 @@ Viernes:
 
 Sábado:
 19.- get listar usuarios
+		tipo comando: get
+		header: token=>"token del login"
+		endpoint: /usuarios
+		
 20.- put crear usuario
+		tipo comando: put
+		header: token=>"token del login"
+		endpoint: /usuarios
+		body:
+		{
+        "usuario": "cgomez",
+        "nombre": "Carlos Gomez",
+        "estatus": 1,
+        "nivel": 1,
+        "password": "ortech"
+        }
+	
 21.- update modificar usuario
+		tipo comando: patch
+		header: token=>"token del login"
+		endpoint: /usuarios
+		body:
+		{
+        "idusuarios": 3,
+        "usuario": "cgomez",
+        "nombre": "Carlos Gomez",
+        "estatus": 1,
+        "nivel": 1,
+        "password": "ortech"
+        }
+
+22.- get obtener usuario por id
+		tipo comando: get
+		header: token=>"token del login"
+		endpoint: /usuarios/:idusuarios

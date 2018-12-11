@@ -585,7 +585,6 @@ sub activarMean {
 	my $result = $wsc->execute(\%params);
 	LOGGER->info(dump($result));
 	return $result;
-	
 }
 
 sub desactivarMean {

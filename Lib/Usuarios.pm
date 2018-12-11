@@ -2,7 +2,8 @@ package Trate::Lib::Usuarios;
 
 use Trate::Lib::Constants qw(LOGGER);
 use Data::Dump qw(dump);
-
+use Try::Catch;
+use Digest::SHA1 qw(sha1_hex);
 
 sub new 
 {
@@ -33,10 +34,28 @@ sub usuario {
     return $self->{USUARIO};
 }
 
+sub nombre {
+    my ($self) = shift;
+    if (@_) { $self->{NOMBRE} = shift }        
+    return $self->{NOMBRE};
+}
+
+sub estatus {
+    my ($self) = shift;
+    if (@_) { $self->{ESTATUS} = shift }        
+    return $self->{ESTATUS};
+}
+
 sub password {
     my ($self) = shift;
-    if (@_) { $self->{PASSWORD} = shift }        
+    if (@_) { $self->{PASSWORD} = shift; }        
     return $self->{PASSWORD};	
+}
+
+sub nivel {
+    my ($self) = shift;
+    if (@_) { $self->{NIVEL} = shift }        
+    return $self->{NIVEL};	
 }
 
 sub caducidadToken {
@@ -148,10 +167,69 @@ sub getUsuarios {
 	while (my $ref = $sth->fetchrow_hashref()) {
     	push @usuarios,$ref;
 	}
-	LOGGER->debug(dump(@usuarios));
 	$sth->finish;
 	$connector->destroy();
 	return \@usuarios;	
+}
+
+sub addUsuarios {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "INSERT INTO usuarios (idusuarios,usuario,nombre,password,nivel,estatus) VALUES (NULL,'" .
+		$self->{USUARIO} . "','" .
+		$self->{NOMBRE} . "','" .
+		sha1_hex($self->{PASSWORD}) . "','" .
+		$self->{NIVEL} . "','" .
+		$self->{ESTATUS} . "')";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+    try {
+		my $sth = $connector->dbh->prepare($preps);
+	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		$sth->finish;
+		$connector->destroy();
+		return 1;
+    } catch {
+			return 0;				    
+    }
+}
+
+sub updateUsuarios {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "UPDATE usuarios set nombre='" . $self->{NOMBRE} . "'," .
+		"password = '" . sha1_hex($self->{PASSWORD}) . "'," .
+		"estatus = '" . $self->{ESTATUS} . "'," .
+		"nivel = '" . $self->{NIVEL} . "' WHERE idusuarios = '" . $self->{IDUSUARIOS} . "' LIMIT 1";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+    try {
+		my $sth = $connector->dbh->prepare($preps);
+	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		$sth->finish;
+		$connector->destroy();
+		return 1;
+    } catch {
+			return 0;				    
+    }
+}
+
+sub getUsuariosFromId {
+	my $self = shift;
+	my $return = 0;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT idusuarios,nombre,nivel,password,estatus,usuario FROM usuarios 
+				WHERE idusuarios = '" . $self->{IDUSUARIOS} . "' LIMIT 1";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		my $row = $sth->fetchrow_hashref();
+		$sth->finish;
+		$connector->destroy();
+		return ($row ? $row : 0);	
+	} catch {
+		return 0;
+	}
+	
 }
 
 1;
