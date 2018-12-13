@@ -8,15 +8,15 @@ use Digest::SHA1 qw(sha1_hex);
 sub new 
 {
 	my $self = {};
-	$self->{IDUSUARIOS} = undef;
-	$self->{USUARIO} = undef;
-	$self->{NOMBRE} = undef;
-	$self->{PASSWORD} = undef;
-	$self->{NIVEL} = undef;
-	$self->{ESTATUS} = undef;
-	$self->{SESSION_ID} = 0;
-	$self->{TOKEN} = undef;
-	$self->{CADUCIDAD_TOKEN} = undef;
+	$self->{idusuarios} = undef;
+	$self->{usuario} = undef;
+	$self->{nombre} = undef;
+	$self->{password} = undef;
+	$self->{nivel} = undef;
+	$self->{estatus} = undef;
+	$self->{session_id} = 0;
+	$self->{token} = undef;
+	$self->{caducidad_token} = undef;
 
 	bless($self);
 	return $self;
@@ -24,44 +24,44 @@ sub new
 
 sub idusuarios {
     my ($self) = shift;
-    if (@_) { $self->{IDUSUARIOS} = shift }        
-    return $self->{IDUSUARIOS};
+    if (@_) { $self->{idusuarios} = shift }        
+    return $self->{idusuarios};
 }
 
 sub usuario {
     my ($self) = shift;
-    if (@_) { $self->{USUARIO} = shift }        
-    return $self->{USUARIO};
+    if (@_) { $self->{usuario} = shift }        
+    return $self->{usuario};
 }
 
 sub nombre {
     my ($self) = shift;
-    if (@_) { $self->{NOMBRE} = shift }        
-    return $self->{NOMBRE};
+    if (@_) { $self->{nombre} = shift }        
+    return $self->{nombre};
 }
 
 sub estatus {
     my ($self) = shift;
-    if (@_) { $self->{ESTATUS} = shift }        
-    return $self->{ESTATUS};
+    if (@_) { $self->{estatus} = shift }        
+    return $self->{estatus};
 }
 
 sub password {
     my ($self) = shift;
-    if (@_) { $self->{PASSWORD} = shift; }        
-    return $self->{PASSWORD};	
+    if (@_) { $self->{password} = shift }        
+    return $self->{password};	
 }
 
 sub nivel {
     my ($self) = shift;
-    if (@_) { $self->{NIVEL} = shift }        
-    return $self->{NIVEL};	
+    if (@_) { $self->{nivel} = shift }        
+    return $self->{nivel};	
 }
 
 sub caducidadToken {
     my ($self) = shift;
-    if (@_) { $self->{CADUCIDAD_TOKEN} = shift }        
-    return $self->{CADUCIDAD_TOKEN};	
+    if (@_) { $self->{caducidad_token} = shift }        
+    return $self->{caducidad_token};	
 }
 
 sub token {
@@ -74,18 +74,18 @@ sub token {
 						DATE_ADD(now(), INTERVAL 1 HOUR) AS caducidad_token,
 						estatus 
 				FROM usuarios 
-				WHERE usuario = '" . $self->{USUARIO} . "' AND password = '" . $self->{PASSWORD} . "' AND ESTATUS = 1 LIMIT 1";
+				WHERE usuario = '" . $self->{usuario} . "' AND password = '" . $self->{password} . "' AND ESTATUS = 1 LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 
 	(
-	$self->{IDUSUARIOS},	
-	$self->{NOMBRE},
-	$self->{TOKEN},
-	$self->{NIVEL},
-	$self->{CADUCIDAD_TOKEN},
-	$self->{ESTATUS}
+	$self->{idusuarios},	
+	$self->{nombre},
+	$self->{token},
+	$self->{nivel},
+	$self->{caducidad_token},
+	$self->{estatus}
 	) = $sth->fetchrow_array;
 	$sth->finish;
 	$connector->destroy();
@@ -96,7 +96,7 @@ sub token {
 sub login {
 	my $self = shift;
 	$self = token($self);
-	if(length($self->{TOKEN}) ge 1){
+	if(length($self->{token}) ge 1){
 		return 1;
 	} else {
 		return "Usuario o password no existentes";
@@ -106,7 +106,7 @@ sub login {
 sub setCaducidadToken {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "UPDATE usuarios SET token = '" . $self->{TOKEN} . "',caducidad_token = '" . $self->{CADUCIDAD_TOKEN} . "' WHERE idusuarios = '" . $self->{IDUSUARIOS} . "' LIMIT 1";
+	my $preps = "UPDATE usuarios SET token = '" . $self->{token} . "',caducidad_token = '" . $self->{caducidad_token} . "' WHERE idusuarios = '" . $self->{idusuarios} . "' LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -165,6 +165,10 @@ sub getUsuarios {
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	my @usuarios;
 	while (my $ref = $sth->fetchrow_hashref()) {
+		$ref->{password} = "";
+		delete $ref->{session_id};
+		delete $ref->{token};
+		delete $ref->{caducidad_token};
     	push @usuarios,$ref;
 	}
 	$sth->finish;
@@ -176,11 +180,12 @@ sub addUsuarios {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "INSERT INTO usuarios (idusuarios,usuario,nombre,password,nivel,estatus) VALUES (NULL,'" .
-		$self->{USUARIO} . "','" .
-		$self->{NOMBRE} . "','" .
-		sha1_hex($self->{PASSWORD}) . "','" .
-		$self->{NIVEL} . "','" .
-		$self->{ESTATUS} . "')";
+		$self->{usuario} . "','" .
+		$self->{nombre} . "','" .
+		sha1_hex($self->{password}) . "','" .
+#		$self->{password} . "','" .
+		$self->{nivel} . "','" .
+		$self->{estatus} . "')";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
     try {
 		my $sth = $connector->dbh->prepare($preps);
@@ -196,10 +201,12 @@ sub addUsuarios {
 sub updateUsuarios {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "UPDATE usuarios set nombre='" . $self->{NOMBRE} . "'," .
-		"password = '" . sha1_hex($self->{PASSWORD}) . "'," .
-		"estatus = '" . $self->{ESTATUS} . "'," .
-		"nivel = '" . $self->{NIVEL} . "' WHERE idusuarios = '" . $self->{IDUSUARIOS} . "' LIMIT 1";
+	my $preps = "UPDATE usuarios set nombre='" . $self->{nombre} . "'," ;
+	if($self->{password}) {
+		$preps = $preps . "password = '" . sha1_hex($self->{password}) . "',";
+		}
+		 $preps = $preps ."estatus = '" . $self->{estatus} . "'," .
+		"nivel = '" . $self->{nivel} . "' WHERE idusuarios = '" . $self->{idusuarios} . "' LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
     try {
 		my $sth = $connector->dbh->prepare($preps);
@@ -217,7 +224,7 @@ sub getUsuariosFromId {
 	my $return = 0;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT idusuarios,nombre,nivel,password,estatus,usuario FROM usuarios 
-				WHERE idusuarios = '" . $self->{IDUSUARIOS} . "' LIMIT 1";
+				WHERE idusuarios = '" . $self->{idusuarios} . "' LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {
 		my $sth = $connector->dbh->prepare($preps);
@@ -225,7 +232,15 @@ sub getUsuariosFromId {
 		my $row = $sth->fetchrow_hashref();
 		$sth->finish;
 		$connector->destroy();
-		return ($row ? $row : 0);	
+		if($row){
+			$row->{password} = "";
+			delete $row->{session_id};
+			delete $row->{token};
+			delete $row->{caducidad_token};
+			return $row;
+		} else {
+			return 0;
+		}
 	} catch {
 		return 0;
 	}

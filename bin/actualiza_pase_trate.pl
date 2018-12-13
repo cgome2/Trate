@@ -46,12 +46,3 @@ if($resultado->{rc} eq 0){
 	$return = $PASE->actualizaInformix() or warn(LOGGER->fatal("ERROR AL ENVIAR PASE A INFORMIX"));
 }
 print $return;
-
-
-
-
-#} finally {
-#	LOGGER->debug("el return: $return");
-#	($return == 0 ? $PASE->queueMe() : exit $return);
-#	printf $return;
-#};

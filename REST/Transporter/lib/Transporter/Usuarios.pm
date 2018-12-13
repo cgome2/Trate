@@ -1,26 +1,34 @@
 package Transporter::Usuarios;
 
 use Dancer ':syntax';
-use Trate::Lib::Constants qw(LOGGER);
+use Try::Catch;
 use Data::Dump qw(dump);
-use Trate::Lib::Usuarios;
 use Data::Structure::Util qw( unbless );
+use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Usuarios;
 
 our $VERSION = '0.1';
 
 set serializer => 'JSON';
 
 post '/login' => sub {
+	my $post;
 	my $USUARIOS = Trate::Lib::Usuarios->new();
-	my $post = from_json( request->body );
-	$USUARIOS->usuario($post->{usuario});
-	$USUARIOS->password($post->{password});
-	if($USUARIOS->login() eq 1){
-		return unbless($USUARIOS);
-	} else {
-		status 401;
-		return {data => "Usuario o password incorrectos"};
-	}
+	try {
+		$post = from_json(request->body);
+		$USUARIOS->usuario($post->{usuario});
+		$USUARIOS->password($post->{password});
+		if($USUARIOS->login() eq 1){
+			return unbless($USUARIOS);
+		} else {
+			status 404	;
+			return {message => "Usuario o password incorrectos"};
+		}	
+	} catch {
+		status 400;
+		LOGGER->fatal($@);
+		return {message => "Error en la estructura del body"};
+	};
 };
 
 del '/logout' => sub {
@@ -29,7 +37,8 @@ del '/logout' => sub {
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	}
 	my $USUARIOS = Trate::Lib::Usuarios->new();
-	return {data => $USUARIOS->logout(request->headers->{token})};
+	$USUARIOS->logout(request->headers->{token});
+	return {message => "Fin de sesion correcto"};
 };
 
 get '/usuarios' => sub {
@@ -37,14 +46,17 @@ get '/usuarios' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else  {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
+
 	my $USUARIOS = Trate::Lib::Usuarios->new();
 	try {
 		$return = $USUARIOS->getUsuarios();
 		return $return;
 	} catch {
 		status 401;
-		$return = {error_message => "please implement me properly"};
+		$return = {message => "Error al obtener la lista de usuarios"};
 		return $return;
 	};
 };
@@ -53,7 +65,7 @@ get '/usuarios/:idusuarios' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
+	} else  {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
 	my $return = 0;
@@ -61,8 +73,8 @@ get '/usuarios/:idusuarios' => sub {
 	$USUARIOS->idusuarios(params->{idusuarios});
 	$return = $USUARIOS->getUsuariosFromId();
 	if ($return eq 0){
-		status 401;
-		return {data => "Usuario no existente"};
+		status 404;
+		return {message => "Usuario no existente"};
 	} else {
 		return $return;
 	}
@@ -77,10 +89,10 @@ put '/usuarios' => sub {
 	$USUARIOS->estatus($post->{estatus});
 	$USUARIOS->password($post->{password});
 	if($USUARIOS->addUsuarios() eq 1){
-		return {data => "OKComputer"};
+		return {message => "OKComputer"};
 	} else {
-		status 401;
-		return {data => "NotOkComputer"};
+		status 405;
+		return {message => "NotOkComputer"};
 	}
 };
 

@@ -171,7 +171,7 @@ sub procesaTransacciones($){
 			$return = 0;			
 		} finally {
 			LOGGER->info(dump($self));
-		}
+		};
 	}
 	try {
 		$self = setLastTransactionRetreived($self);	
@@ -180,7 +180,7 @@ sub procesaTransacciones($){
 		$return = 0;			
 	} finally {
 		return $return;
-	}
+	};
 }
 
 sub insertaTransaccion{

@@ -113,10 +113,10 @@ patch '/lecturas_tls' => sub {
 	if ($respuesta eq 1){
 		$respuesta = $RECEPCION_COMBUSTIBLE->movimientoRecepcion($RECEPCION_COMBUSTIBLE->movimientoRecepcion->inserta());
 		if($respuesta eq 1){
-			return {data => "OKComputer"};
+			return {message => "OKComputer"};
 		} else {
 			status 401;
-			return {error => "NOTOKComputer"};
+			return {message => "NOTOKComputer"};
 		}
 	} else {
 		status 401;
