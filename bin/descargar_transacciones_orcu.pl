@@ -23,7 +23,7 @@ try {
 		$return = $transacciones->procesaTransacciones($message);
 	} else {
 		LOGGER->info("Ninguna transaccion por descargar");
-		$return = 1:
+		$return = 1;
 	}
 } catch {
 	$return = 0;

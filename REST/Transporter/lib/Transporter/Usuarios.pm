@@ -88,6 +88,7 @@ put '/usuarios' => sub {
 	$USUARIOS->nivel($post->{nivel});
 	$USUARIOS->estatus($post->{estatus});
 	$USUARIOS->password($post->{password});
+	$USUARIOS->numeroEmpleado($post->{numero_empleado});
 	if($USUARIOS->addUsuarios() eq 1){
 		return {message => "OKComputer"};
 	} else {
@@ -104,6 +105,7 @@ patch '/usuarios' => sub {
 	$USUARIOS->nombre($post->{nombre});
 	$USUARIOS->nivel($post->{nivel});
 	$USUARIOS->estatus($post->{estatus});
+	$USUARIOS->numeroEmpleado($post->{numero_empleado});
 	$USUARIOS->password($post->{password});
 	if($USUARIOS->updateUsuarios() eq 1){
 		return {data => "OKComputer"};

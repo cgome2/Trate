@@ -127,8 +127,13 @@ sub getLastTransactionsFromORCU{
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);	
 	LOGGER->info($result->{num_transactions});
-	if ($result->{num_transactions} > 0){
+	if ($result->{num_transactions} gt 1){
 		return procesaTransacciones($self,$result->{a_soTransaction}->{soTransaction});
+	} elsif ($result->{num_transactions} eq 1){
+		LOGGER->info(dump($result->{a_soTransaction}->{soTransaction}));
+		my @arregloTransaccionesProcesar;
+		push @arregloTransaccionesProcesar, $result->{a_soTransaction}->{soTransaction};
+		return procesaTransacciones($self, \@arregloTransaccionesProcesar);
 	} else {
 		LOGGER->info("NINGUNA TRANSACCION POR DESCARGAR");
 		$self->{IDTRANSACCIONES} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} eq 0 ? $self->{LAST_TRANSACTION_ID} + 10 : $self->{LAST_TRANSACTION_ID};
@@ -162,6 +167,9 @@ sub procesaTransacciones($){
 		LOGGER->info("pase " . $self->{PASE}->pase());
 		try {
 			insertaTransaccion($self);
+			if($self->{ID_VEHICULOS} eq "666"){
+				insertaJarreo($self);
+			}
 			insertaMovimiento($self);
 			actualizaPase($self);
 			limpiaReglaCarga($self);
@@ -245,14 +253,30 @@ sub insertaMovimiento{
 	return $self;
 }
 
+sub insertaJarreo{
+	my $self = shift;
+	my $jarreo = Trate::Lib::Jarreo->new();
+	$jarreo->transactionId($self->{IDTRANSACCIONES});
+	$jarreo->transactionTimestamp($self->{FECHA});
+	$jarreo->transactionDispensedQuantity($self->{TRANSACTION_DISPENSED_QUANTITY});
+	$jarreo->transactionPpv($self->{TRANSACTION_PPV});
+	$jarreo->transactionTotalPrice($self->{TRANSACTION_TOTAL_PRICE});
+	$jarreo->transactionIva($self->{TRANSACTION_IVA});
+	$jarreo->transactionIeps($self->{TRANSACTION_IEPS});
+	$jarreo->transactionPumpHeadExternalCode($self->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE});
+	$jarreo->{STATUS_CODE} = 2;
+	$jarreo->inserta();	
+}
+
 sub actualizaPase{
 	my $self = shift;
 	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD} . ", nuevo status: D]");
 	$self->{PASE}->status('D');
-	$self->{PASE}->supervisor($self->{IDCORTES}->recibeTurno());
+	#$self->{PASE}->supervisor($self->{IDCORTES}->recibeTurno());
+	$self->{PASE}->supervisor(191919);
 	$self->{PASE}->observaciones('');
 	$self->{PASE}->litrosReal($self->{CANTIDAD});
-	$self->{PASE}->actualiza();
+	$self->{PASE}->updatePase();
 	return $self;
 }
 

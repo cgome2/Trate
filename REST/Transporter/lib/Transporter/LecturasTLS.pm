@@ -23,27 +23,35 @@ get '/lecturas_tls' => sub {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
 
+	my $sort = params->{sort};
+	my $order = params->{order};
+	my $page = params->{page};
+	my $limit = params->{limit};
+	my $search = params->{search};
+	
+	LOGGER->debug(request->params->{sort});
+	
 	my $LECTURAS_TLS = Trate::Lib::LecturasTLS->new();	
-	if($LECTURAS_TLS->getLastLecturasTlsFromOrcu() eq 1){
-		my $lecturasTls = $LECTURAS_TLS->getLecturasTls;	
+	#if($LECTURAS_TLS->getLastLecturasTlsFromOrcu() eq 1){
+		my $lecturasTls = $LECTURAS_TLS->getLecturasTls($sort,$order,$page,$limit,$search);	
 		return $lecturasTls;
-	} else {
-		status 401;
-		return {error_message => "please implement me properly"};
-	}
+	#} else {
+	#	status 401;
+	#	return {error_message => "please implement me properly"};
+	#}
 };
 
-get '/lecturas_tls/:rui' => sub {
+get '/lecturas_tls/:reception_unique_id' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-    my $rui = params->{rui};
+    my $reception_unique_id = params->{reception_unique_id};
 	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
 
-	$RECEPCION_COMBUSTIBLE->lecturaTls->receptionUniqueId($rui);
+	$RECEPCION_COMBUSTIBLE->lecturaTls->receptionUniqueId($reception_unique_id);
 	$RECEPCION_COMBUSTIBLE->lecturaTls($RECEPCION_COMBUSTIBLE->lecturaTls->getLecturasTlsFromId());
 	$RECEPCION_COMBUSTIBLE->movimientoRecepcion($RECEPCION_COMBUSTIBLE->movimientoRecepcion->getFromId($RECEPCION_COMBUSTIBLE->lecturaTls->{ci_movimientos}));
 	LOGGER->info(dump(unbless($RECEPCION_COMBUSTIBLE)));

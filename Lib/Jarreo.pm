@@ -119,5 +119,32 @@ sub statusCode {
         return $self->{STATUS_CODE};
 }
 
+sub inserta {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "
+		INSERT INTO jarreos_t VALUES('"  .
+			$self->{TRANSACTION_ID} . "','" .
+			$self->{TRANSACTION_TIMESTAMP} . "','" .
+			$self->{TRANSACTION_DISPENSED_QUANTITY} . "','" .
+			$self->{TRANSACTION_PPV} . "','" .
+			$self->{TRANSACTION_TOTAL_PRICE} . "','" .
+			$self->{TRANSACTION_IVA} . "','" .
+			$self->{TRANSACTION_IEPS} . "','" .
+			$self->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE} . "','" .
+			$self->{RETURN_TIMESTAMP} . "','" .
+			$self->{RETURN_TOTAL_PRICE} . "','" .
+			$self->{RETURN_TANK_OBJECT_ID} . "','" .
+			$self->{RETURN_DATE} . "','" .
+			$self->{RETURN_TIME} . "','" .
+			$self->{STATUS_CODE} . "')";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+	return $self;
+}
+
 1;
 #EOF

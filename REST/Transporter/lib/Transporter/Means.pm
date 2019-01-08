@@ -4,6 +4,7 @@ use Dancer ':syntax';
 use Trate::Lib::Constants qw(LOGGER);
 use Trate::Lib::Mean;
 use Data::Dump qw(dump);
+use List::Util qw(all);
 
 
 our $VERSION = '0.1';
@@ -15,12 +16,24 @@ get '/' => sub {
 };
 
 get '/means' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
 	my $MEAN = Trate::Lib::Mean->new();
 	my $means = $MEAN->getMeans();
 	return $means;
 };
 
 get '/means/:id' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
     my $id = params->{id};
     my $mean = 0;
     my $MEAN = Trate::Lib::Mean->new();
@@ -34,7 +47,37 @@ get '/means/:id' => sub {
 	}
 };
 
+get '/means/auttyp/:auttyp' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
+	my $auttyp = params->{auttyp};
+    if(all { $_ ne $auttyp } (20)) {
+	    status 405;
+		return {message => "Tipo de Mean inválido"};
+	}
+	my $means;
+	my $MEAN = Trate::Lib::Mean->new();
+	$MEAN->auttyp($auttyp);
+	$means = $MEAN->getMeansFromAuttyp();
+	if($means eq 0){
+		status 404;
+		return {message => "Means inexistentes"};
+	} else {
+		return $means;
+	}
+};
+
 put '/means' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
 	my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
 	my $MEAN = Trate::Lib::Mean->new();
@@ -59,6 +102,12 @@ put '/means' => sub {
 };
 
 patch '/means' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
 	my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
 	my $MEAN = Trate::Lib::Mean->new();

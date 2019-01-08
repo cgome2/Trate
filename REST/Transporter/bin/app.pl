@@ -5,4 +5,6 @@ use Transporter::Means;
 use Transporter::LecturasTLS;
 use Transporter::Usuarios;
 use Transporter::Pases;
+use Transporter::TransaccionManual;
+use Transporter::Estatus;
 dance;

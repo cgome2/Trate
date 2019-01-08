@@ -406,6 +406,23 @@ sub getMeans{
 	return \@means;	
 }
 
+sub getMeansFromAuttyp{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp FROM means WHERE auttyp=" . $self->{AUTTYP};
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @means;
+	while (my $ref = $sth->fetchrow_hashref()) {
+    	push @means,$ref;
+	}
+	LOGGER->{dump(@means)};
+	$sth->finish;
+	$connector->destroy();
+	return \@means;	
+}
+
 sub getMeanFromId {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
@@ -470,7 +487,45 @@ sub assignRuleToVehicleOrcu{
 	return $result;	
 }
 
+#
+#<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sit="http://orpak.com/SiteOmatServices/">
+#   <soap:Header/>
+#   <soap:Body>
+#      <sit:SOAuthorizeRequest>
+#         <!--Optional:-->
+#         <sit:SessionID>?</sit:SessionID>
+#         <sit:site_code>?</sit:site_code>
+#         <!--Optional:-->
+#         <sit:card_num>?</sit:card_num>
+#         <sit:fleet_code>?</sit:fleet_code>
+#         <sit:fuel_type>?</sit:fuel_type>
+#         <!--Optional:-->
+#         <sit:mean_plate>?</sit:mean_plate>
+#         <!--Optional:-->
+#         <sit:organization_id>?</sit:organization_id>
+#         <!--Optional:-->
+#         <sit:pump_number>?</sit:pump_number>
+#      </sit:SOAuthorizeRequest>
+#   </soap:Body>
+#</soap:Envelope>
 
+#<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sit="http://orpak.com/SiteOmatServices/">
+#   <soap:Header/>
+#   <soap:Body>
+#      <sit:SOGetMeanDetails>
+#         <!--Optional:-->
+#         <sit:SessionID>?</sit:SessionID>
+#         <sit:site_code>?</sit:site_code>
+#         <!--Optional:-->
+#         <sit:card_num>?</sit:card_num>
+#         <!--Optional:-->
+#         <sit:in_plate>?</sit:in_plate>
+#         <!--Optional:-->
+#         <sit:in_name>?</sit:in_name>
+#         <sit:mean_id>?</sit:mean_id>
+#      </sit:SOGetMeanDetails>
+#   </soap:Body>
+#</soap:Envelope>
 
 1;
 #EOF

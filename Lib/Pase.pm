@@ -187,7 +187,7 @@ sub getFromCamion(){
 sub updatePase{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s',litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d AND camion='%s' ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{MEAN_CONTINGENCIA}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE}, $self->{CAMION};
+	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s',litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {
 		my $sth = $connector->dbh->prepare($preps);
@@ -244,9 +244,9 @@ sub getPase {
 				FROM
 					ci_pases
 				WHERE
-					(pase='" . $self->{PASE} . "' AND status='A')
+					(pase='" . $self->{PASE} . "' AND status IN ('A','D'))
 				OR
-					(viaje='" . $self->{VIAJE} . "' AND camion='" . $self->{CAMION} . "' AND chofer='" . $self->{CHOFER} . "' AND status='A')
+					(camion='" . $self->{CAMION} . "' AND status IN ('A','D'))
 				ORDER BY
 					fecha_solicitud
 				DESC";
@@ -254,10 +254,16 @@ sub getPase {
 	try {
 		my $sth = $connector->dbh->prepare($preps);
 		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-		my $row = $sth->fetchrow_hashref();
-		$sth->finish;
-		$connector->destroy();
-		return ($row ? $row : 0);	
+		if ($sth->rows gt 0) {		
+			my $row = $sth->fetchrow_hashref();
+			$sth->finish;
+			$connector->destroy();
+			return $row;
+		} else {
+			$sth->finish;
+			$connector->destroy();
+			return 0;
+		}
 	} catch {
 		return 0;
 	}
@@ -277,6 +283,44 @@ sub queueMe {
 	return $self;		
 }
 
+sub getPaseByPase {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT
+					pase as pase_id,
+					fecha_solicitud,
+					viaje,
+					camion,
+					chofer,
+					litros,
+					contingencia,
+					status,
+					litros_real
+				FROM
+					ci_pases
+				WHERE
+					(pase='" . $self->{PASE} . "')
+				ORDER BY
+					fecha_solicitud
+				DESC";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		if ($sth->rows gt 0) {		
+			my $row = $sth->fetchrow_hashref();
+			$sth->finish;
+			$connector->destroy();
+			return $row;
+		} else {
+			$sth->finish;
+			$connector->destroy();
+			return 0;
+		}
+	} catch {
+		return 0;
+	}
+}
 
 1;
 #EOF

@@ -17,6 +17,7 @@ sub new
 	$self->{session_id} = 0;
 	$self->{token} = undef;
 	$self->{caducidad_token} = undef;
+	$self->{numero_empleado} = undef;
 
 	bless($self);
 	return $self;
@@ -62,6 +63,12 @@ sub caducidadToken {
     my ($self) = shift;
     if (@_) { $self->{caducidad_token} = shift }        
     return $self->{caducidad_token};	
+}
+
+sub numeroEmpleado {
+    my ($self) = shift;
+    if (@_) { $self->{numero_empleado} = shift }        
+    return $self->{numero_empleado};	
 }
 
 sub token {
@@ -130,6 +137,20 @@ sub verificaToken($) {
 	return $total;		
 }
 
+sub getUsuarioByToken($) {
+	my $self = shift;
+	my $token = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT * FROM usuarios WHERE token = '" . $token . "' LIMIT 1";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref;
+	$sth->finish;
+	$connector->destroy();
+	return $row;		
+}
+
 sub renuevaToken($){
 	my $self = shift;
 	my $token = shift;
@@ -179,12 +200,13 @@ sub getUsuarios {
 sub addUsuarios {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "INSERT INTO usuarios (idusuarios,usuario,nombre,password,nivel,estatus) VALUES (NULL,'" .
+	my $preps = "INSERT INTO usuarios (idusuarios,usuario,nombre,password,nivel,numero_empleado,estatus) VALUES (NULL,'" .
 		$self->{usuario} . "','" .
 		$self->{nombre} . "','" .
 		sha1_hex($self->{password}) . "','" .
 #		$self->{password} . "','" .
 		$self->{nivel} . "','" .
+		$self->{numero_empleado} . "','" .
 		$self->{estatus} . "')";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
     try {
@@ -205,7 +227,8 @@ sub updateUsuarios {
 	if($self->{password}) {
 		$preps = $preps . "password = '" . sha1_hex($self->{password}) . "',";
 		}
-		 $preps = $preps ."estatus = '" . $self->{estatus} . "'," .
+		$preps = $preps . "numero_empleado = '" . $self->{numero_empleado} . "',";
+		$preps = $preps . "estatus = '" . $self->{estatus} . "'," .
 		"nivel = '" . $self->{nivel} . "' WHERE idusuarios = '" . $self->{idusuarios} . "' LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
     try {
@@ -223,7 +246,7 @@ sub getUsuariosFromId {
 	my $self = shift;
 	my $return = 0;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT idusuarios,nombre,nivel,password,estatus,usuario FROM usuarios 
+	my $preps = "SELECT idusuarios,nombre,nivel,password,estatus,usuario,numero_empleado FROM usuarios 
 				WHERE idusuarios = '" . $self->{idusuarios} . "' LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {

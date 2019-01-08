@@ -230,8 +230,22 @@ sub setLastLecturaTLSRetreived {
 
 sub getLecturasTls{
 	my $self = shift;
+	my ($sort,$order,$page,$limit,$search) = @_;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT * FROM tank_delivery_readings_t"; 
+	my $where_stmt = "";
+	
+	if (length($sort) ge 1){
+		$where_stmt .= " ORDER BY " . $sort;
+		if (length($order) gt 1){
+			$where_stmt .= " " . $order . " ";
+		}
+	}
+
+	if (length($page) ge 1 && length($limit) ge 1){
+		$where_stmt .= " LIMIT " . $page . "," . $limit;
+	}	
+	
+	my $preps = "SELECT * FROM tank_delivery_readings_t " . $where_stmt ; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
