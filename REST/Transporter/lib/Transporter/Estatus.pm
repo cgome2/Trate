@@ -49,6 +49,8 @@ get '/estatusBombas1/:id' => sub {
 	
 	my $bombas = params->{id};
 	return {bombas => $bombas};	
+
+
 };
 
 
