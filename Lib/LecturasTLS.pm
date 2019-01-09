@@ -45,6 +45,7 @@ sub new
 	$self->{QUANTITY_TLS} = undef;
 	$self->{QUANTITY_TRAN} = undef;
 	$self->{CI_MOVIMIENTOS} = undef;
+	$self->{ORIGEN_REGISTRO} = undef;
 	
 	$self->{ORCURETRIEVEFILE} = ORCURETRIEVEFILE;
 	$self->{LAST_TLS_READING_ID} = undef; #ULTIMA RECEPCION DESCARGADA
@@ -69,6 +70,12 @@ sub ciMovimientos {
         my ($self) = shift;
         if (@_) { $self->{CI_MOVIMIENTOS} = shift }        
         return $self->{CI_MOVIMIENTOS};
+}
+
+sub origenRegistro {
+	my ($self) = shift;
+	if (@_) { $self->{ORIGEN_REGISTRO} = shift }
+	return $self->{ORIGEN_REGISTRO};
 }
 
 # Método para obtener la ultima lectura descargada desde el orcu

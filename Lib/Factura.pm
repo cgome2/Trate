@@ -1,7 +1,5 @@
 package Trate::Lib::Factura;
 #########################################################
-#Jarreo - Clase Jarreo									#
-#                                                       #
 #Autor: Ramses                                          #
 #Fecha: Octubre, 2018                                   #
 #Revision: 1.0                                          #

@@ -244,9 +244,9 @@ sub getPase {
 				FROM
 					ci_pases
 				WHERE
-					(pase='" . $self->{PASE} . "' AND status IN ('A','D'))
+					(pase='" . $self->{PASE} . "' AND status IN ('A','D','R','T'))
 				OR
-					(camion='" . $self->{CAMION} . "' AND status IN ('A','D'))
+					(camion='" . $self->{CAMION} . "' AND status IN ('A','D','R','T'))
 				ORDER BY
 					fecha_solicitud
 				DESC";

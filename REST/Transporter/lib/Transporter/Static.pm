@@ -14,7 +14,7 @@ set serializer => "JSON";
 get "/menu" => sub {
 	return {
 		title => "Siteomat",
-		modules =>[
+		modules => [
 			{
 				label => "Estatus",
 				path => "/estatus",
@@ -53,7 +53,11 @@ get "/menu" => sub {
 					{
 						header => "Documentos",
 						path => "/recepcion/documentos"
-					}
+					},
+					{
+						header => "Contingencias",
+						path => "/recepcion/contingencias"
+					},
 				]
 			},
 			{
@@ -138,22 +142,22 @@ get "/components" => sub {
   my $endpoint;
 
   switch ($uri) {
-    case "/estatus/dispensarios"              { $component = "superFrame"; $endpoint = "/estatusBombas"; }
-    case "/estatus/tanques"                   { $component = "superFrame"; $endpoint = "/estatusTanques"; }
+    case "/estatus/dispensarios"        { $component = "superFrame"; $endpoint = "/estatusBombas"; }
+    case "/estatus/tanques"             { $component = "superFrame"; $endpoint = "/estatusTanques"; }
 
-    case "/despacho/contingencias"            { $component = "superTable"; $endpoint = "/pases"; }
-    # case "/despacho/jarreos"                  { $component = "superTable"; $endpoint = ""; }
+    case "/despacho/contingencias"      { $component = "superTable"; $endpoint = "/pases"; }
+    # case "/despacho/jarreos"            { $component = "superTable"; $endpoint = ""; }
 
-    case "/recepcion/documentos"             { $component = "superTable"; $endpoint = "/lecturas_tls"; }
+    case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/lecturas_tls"; }
 
-    # case "/turnos/turnos"                     { $component = "superTable"; $endpoint = ""; }
+    # case "/turnos/turnos"               { $component = "superTable"; $endpoint = ""; }
 
-    # case "/reportes/transacciones"            { $component = "superTable"; $endpoint = ""; }
-    # case "/reportes/turnos"                   { $component = "superTable"; $endpoint = ""; }
+    # case "/reportes/transacciones"      { $component = "superTable"; $endpoint = ""; }
+    # case "/reportes/turnos"             { $component = "superTable"; $endpoint = ""; }
 
-    case "/configuracion/usuarios"            { $component = "superTable"; $endpoint = "/usuarios"; }
-    # case "/configuracion/perfiles"            { $component = "superTable"; $endpoint = ""; }
-    case "/configuracion/vehiculos"           { $component = "superTable"; $endpoint = "/means"; }
+    case "/configuracion/usuarios"      { $component = "superTable"; $endpoint = "/usuarios"; }
+    # case "/configuracion/perfiles"      { $component = "superTable"; $endpoint = ""; }
+    case "/configuracion/vehiculos"     { $component = "superTable"; $endpoint = "/means"; }
   }
 
   return {
@@ -165,7 +169,7 @@ get "/components" => sub {
 
 get "/lecturas_tls/table" => sub {
   return {
-    icon => "receipt",
+    icon => "file-document",
     title => "Documentos",
     id => "id",
     buttons => [
@@ -204,6 +208,7 @@ get "/lecturas_tls/table" => sub {
         label => "Volumen recibido",
         format => "number:1.2-2:",
         operations => "end_volume -start_volume",
+        footer => "sum",
         align => "right"
       },
       {
@@ -240,6 +245,7 @@ get "/lecturas_tls/form" => sub {
         key => "terminal_embarque",
         label => "Terminal de Embarque",
         type => "text",
+        minlength => 3,
         maxlength => 3,
         regex => "[0-9]{3}",
         required => 1
@@ -288,8 +294,7 @@ get "/lecturas_tls/form" => sub {
         label => "Numero Vehiculo",
         type => "number",
         required => 1
-      },
-      
+      }
     ],
     details => [
       {
@@ -362,18 +367,19 @@ get "/pases/table" => sub {
         label => "Camion"
       },
       {
-        key => "fecha_solicitud",
-        label => "Fecha de Solicitud"
-      },
-      {
         key => "viaje",
         label => "Viaje"
+      },
+      {
+        key => "fecha_solicitud",
+        label => "Fecha de Solicitud"
       }
     ],
     options => [
       {
         icon => 'undo',
         label => 'Reabrir',
+        condition => "status D",
         action => {
           type => 'form',
           form => '/pases/reabrir'
@@ -382,6 +388,7 @@ get "/pases/table" => sub {
       {
         icon => 'transfer',
         label => 'Reasignar',
+        condition => "status A|T|R",
         action => {
           type => 'form',
           form => '/pases/reasignar'
@@ -390,6 +397,7 @@ get "/pases/table" => sub {
       {
         icon => 'hand',
         label => 'Manual',
+        condition => "status A|T|R",
         action => {
           type => 'form',
           form => '/pases/manual'
@@ -399,36 +407,17 @@ get "/pases/table" => sub {
   };
 };
 
-
 get "/pases/reabrir/form" => sub {
   return {
     icon => "undo",
     title => "Reabrir",
     getFrom => "/pases",
-    sendTo => "/pases/reabrir",
+    sendTo => "/pases",
+    override => { status => "R" },
     fields => [
       {
         key => "pase_id",
         label => "Pase",
-        type => "text",
-        readonly => 1
-      },
-      {
-        key => "status",
-        label => "Estatus",
-        type => "text",
-        readonly => 1,
-        value => "R"
-      },
-      {
-        key => "fecha_solicitud",
-        label => "Fecha de Solicitud",
-        type => "text",
-        readonly => 1
-      },
-      {
-        key => "camion",
-        label => "Camion",
         type => "text",
         readonly => 1
       },
@@ -441,6 +430,12 @@ get "/pases/reabrir/form" => sub {
       {
         key => "viaje",
         label => "Viaje",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "camion",
+        label => "Camion",
         type => "text",
         readonly => 1
       },
@@ -460,24 +455,12 @@ get "/pases/reasignar/form" => sub {
     icon => "transfer",
     title => "Reasignar",
     getFrom => "/pases",
-    sendTo => "/pases/reasignar",
+    sendTo => "/pases",
+    override => { status => "T" },
     fields => [
       {
         key => "pase_id",
         label => "Pase",
-        type => "text",
-        readonly => 1
-      },
-      {
-        key => "status",
-        label => "Estatus",
-        type => "text",
-        readonly => 1,
-        value => "R"
-      },
-      {
-        key => "fecha_solicitud",
-        label => "Fecha de Solicitud",
         type => "text",
         readonly => 1
       },
@@ -512,28 +495,9 @@ get "/pases/manual/form" => sub {
     getFrom => "/pases",
     sendTo => "/pases/manual",
     fields => [
-            {
+      {
         key => "pase_id",
         label => "Pase",
-        type => "text",
-        readonly => 1
-      },
-      {
-        key => "status",
-        label => "Estatus",
-        type => "text",
-        readonly => 1,
-        value => "R"
-      },
-      {
-        key => "fecha_solicitud",
-        label => "Fecha de Solicitud",
-        type => "text",
-        readonly => 1
-      },
-      {
-        key => "camion",
-        label => "Camion",
         type => "text",
         readonly => 1
       },
@@ -550,12 +514,33 @@ get "/pases/manual/form" => sub {
         readonly => 1
       },
       {
+        key => "camion",
+        label => "Camion",
+        type => "text",
+        readonly => 1
+      },
+      {
         key => "despachador",
         label => "Despachador",
         type => "select",
         optionsSource => "/despachadores",
         optionsKey => "mean_id",
         optionsValue => "NAME",
+        required => 1
+      },
+      {
+        key => "producto",
+        label => "Producto",
+        type => "select",
+        optionsSource => "/productos",
+        optionsKey => "id",
+        optionsValue => "name",
+        required => 1
+      },
+      {
+        key => "litros",
+        label => "Litros Despachados",
+        type => "number",
         required => 1
       },
       {
@@ -568,12 +553,6 @@ get "/pases/manual/form" => sub {
         required => 1
       },
       {
-        key => "litros",
-        label => "Litros Despachados",
-        type => "number",
-        required => 1
-      },
-      {
         key => "fecha_transaccion",
         label => "Fecha Transaccion",
         type => "date",
@@ -583,15 +562,6 @@ get "/pases/manual/form" => sub {
         key => "hora_transaccion",
         label => "Hora Transaccion",
         type => "time",
-        required => 1
-      },
-      {
-        key => "producto",
-        label => "Producto",
-        type => "select",
-        optionsSource => "/productos",
-        optionsKey => "id_producto",
-        optionsValue => "bomba",
         required => 1
       },
       {
@@ -762,26 +732,6 @@ get "/usuarios/table" => sub {
     icon => "account-multiple",
     title => 'Usuarios',
     id => "idusuarios",
-    options => [
-      {
-        icon => 'pencil',
-        label => 'Editar',
-        action => {
-          type => 'form',
-          form => '/usuarios'
-        }
-      }
-    ],
-    buttons => [
-      {
-        icon => 'plus',
-        label => 'Nuevo',
-        action => {
-          type => 'form',
-          form => '/usuarios'
-        }
-      }
-    ],
     columns => [
       {
         key => "usuario",
@@ -804,6 +754,26 @@ get "/usuarios/table" => sub {
       {
         key => "numero_empleado",
         label => "Numero de Empleado"
+      }
+    ],
+    options => [
+      {
+        icon => 'pencil',
+        label => 'Editar',
+        action => {
+          type => 'form',
+          form => '/usuarios'
+        }
+      }
+    ],
+    buttons => [
+      {
+        icon => 'plus',
+        label => 'Nuevo',
+        action => {
+          type => 'form',
+          form => '/usuarios'
+        }
       }
     ]
   };

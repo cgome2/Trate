@@ -34,6 +34,7 @@ sub new
 	$self->{END_TEMP} = undef;
 	$self->{PRODUCT_ID} = undef;
 	$self->{INVOICE_ID} = undef;
+	$self->{ORIGEN_REGISTRO} = "TLS";
 	bless($self);
 	return $self;	
 }
@@ -136,6 +137,11 @@ sub productId {
 sub invoiceId {
         my ($self) = @_;
         return $self->{INVOICE_ID};
+}
+
+sub origenRegistro {
+        my ($self) = @_;
+        return $self->{ORIGEN_REGISTRO};
 }
 
 1;

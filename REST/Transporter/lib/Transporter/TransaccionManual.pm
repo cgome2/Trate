@@ -2,6 +2,7 @@ package Transporter::TransaccionManual;
 
 use Dancer ':syntax';
 use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Lists;
 use Data::Dump qw(dump);
 use List::Util qw(all);
 
@@ -17,10 +18,8 @@ get '/bombas' => sub {
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	my @bombas = ();
-	push @bombas, {'id_bomba' => 1, 'bomba' => 'Posicion de carga 1'};
-	push @bombas, {'id_bomba' => 2, 'bomba' => 'Posicion de carga 2'};
-	return \@bombas;
+	my $lists = Trate::Lib::Lists->new();
+	return $lists->getBombas();	
 };
 
 get '/productos' => sub {
@@ -30,9 +29,8 @@ get '/productos' => sub {
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	my @productos = ();
-	push @productos, {'id_producto' => 1, 'bomba' => 'Diesel'};
-	return \@productos;
+	my $lists = Trate::Lib::Lists->new();
+	return $lists->getProductos();	
 };
 
 get '/despachadores' => sub {
@@ -42,10 +40,8 @@ get '/despachadores' => sub {
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	my @despachadores = ();
-	push @despachadores, {'mean_id' => 1, 'NAME' => 'Despachador 1'};
-	push @despachadores, {'mean_id' => 2, 'NAME' => 'Despachador 2'};
-	return \@despachadores;
+	my $lists = Trate::Lib::Lists->new();
+	return $lists->getDespachadores();	
 };
 
 true;

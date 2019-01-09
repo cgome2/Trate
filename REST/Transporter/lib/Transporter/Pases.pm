@@ -70,42 +70,13 @@ patch '/pases' => sub {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
 	}
-	LOGGER->debug(dump($usuario));
-	my $post = from_json( request->body );
-	my $return = 0;	
-	my $PASE = Trate::Lib::Pase->new();
-	$PASE->pase($post->{pase});
-	$PASE->camion($post->{camion});
-	$PASE->status($post->{status});
-	$PASE->observaciones($post->{observaciones});
-	$PASE->supervisor($usuario->{numero_empleado});
-	$PASE->meanContingencia($post->{mean_contingencia});
-	try {
-		$return = $PASE->updatePase();
-		return ($return eq 1 ?  {message => "OkComputer"} : {message => "NotOkComputer"});
-	} catch {
-		$return = 0;
-		return ($return eq 1 ?  {message => "OkComputer"} : {message => "NotOkComputer"});
-	}
-	
-};
-
-patch '/pases/reabrir' => sub {
-	my $usuario;
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
-	}
 	my $post = from_json( request->body );
 	LOGGER->debug(dump($post));
 	my $return = 0;	
 	my $PASE = Trate::Lib::Pase->new();
 	$PASE->pase($post->{pase_id});
 	$PASE->camion($post->{camion});
-	$PASE->status('R');
+	$PASE->status($post->{status});
 	$PASE->observaciones($post->{observaciones});
 	$PASE->supervisor($usuario->{numero_empleado});
 	$PASE->meanContingencia($post->{mean_contingencia});
@@ -124,73 +95,4 @@ patch '/pases/reabrir' => sub {
 		status 500;
 		return ($return eq 1 ?  {message => "OkComputer"} : {message => "NotOkComputer"});
 	}
-	
 };
-
-patch '/pases/reasignar' => sub {
-	my $usuario;
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
-	}
-	my $post = from_json( request->body );
-	LOGGER->debug(dump($post));
-	my $return = 0;	
-	my $PASE = Trate::Lib::Pase->new();
-	$PASE->pase($post->{pase_id});
-	$PASE->camion($post->{camion});
-	$PASE->status('T');
-	$PASE->observaciones($post->{observaciones});
-	$PASE->supervisor($usuario->{numero_empleado});
-	$PASE->meanContingencia($post->{mean_contingencia});
-	try {
-		$return = $PASE->updatePase();
-		LOGGER->info("el return es: [" . $return . "]");
-		if($return eq 0){
-			status 500;
-			return {message => "NotOkComputer"};
-		} else {
-			status 200;
-			return {message => "OkComputer"};
-		}
-	} catch {
-		$return = 0;
-		status 500;
-		return ($return eq 1 ?  {message => "OkComputer"} : {message => "NotOkComputer"});
-	}
-	
-};
-
-
-post '/pases/reabrir/:pase' => sub {
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	}
-
-	my $post = from_json( request->body );
-	my $return = 0;	
-	my $PASE = Trate::Lib::Pase->new();
-	$PASE->pase($post->{pase});
-	$PASE->camion($post->{camion});
-	$PASE->status($post->{status});
-	$PASE->observaciones($post->{observaciones});
-	$PASE->supervisor($post->{supervisor});
-	$PASE->meanContingencia($post->{mean_contingencia});
-	try {
-		$return = $PASE->updatePase();
-		return ($return eq 1 ?  {message => "OkComputer"} : {message => "NotOkComputer"});
-	} catch {
-		$return = 0;
-		return ($return eq 1 ?  {message => "OkComputer"} : {message => "NotOkComputer"});
-	}
-
-
-};
-
-true;
