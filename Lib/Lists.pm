@@ -10,6 +10,7 @@
 package Trate::Lib::Lists;
 
 use Trate::Lib::Constants qw(LOGGER);
+use Data::Dump qw(dump);
 use XML::LibXML;
 
 use strict;
@@ -65,42 +66,39 @@ sub getBombas {
 	$wsc->callName("SOGetStationSetup");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);	
-	LOGGER->info($result);
-
-	#my @bombas = ();
-	#my %tanque = ();
-
-	#my $dom = XML::LibXML->load_xml(string => $result);
-	#foreach my $tanque_e ($dom->findnodes('row')) {
-	#	%tanque = (
-	#		"name" => $tanque_name,
-	#		"tank_id" => $tanque_id,
-	#		"date" => $tanque_e->findvalue('date'),
-	#		"date_sql" => $tanque_e->findvalue('date_sql'),
-	#		"fuel_height" => $tanque_e->findvalue('fuel_height'),
-	#		"water_height" => $tanque_e->findvalue('water_height'),
-	#		"fuel_volume" => $tanque_e->findvalue('fuel_volume'),
-	#		"water_volume" => $tanque_e->findvalue('water_volume'),
-	#		"temperature" => $tanque_e->findvalue('temperature'),
-	#		"tc_volume" => $tanque_e->findvalue('tc_volume'),
-	#		"density" => $tanque_e->findvalue('density'),
-	#		"density_15" => $tanque_e->findvalue('density_15'),
-	#		"tlh_id" => $tanque_e->findvalue('tlh_id'),
-	#		"user" => $tanque_e->findvalue('user'),
-	#		"probe_id" => $tanque_e->findvalue('probe_id'),
-	#		"shift_id" => $tanque_e->findvalue('shift_id'),
-	#		"ullage" => $tanque_e->findvalue('ullage')
-	#   );
-	#}
-	#return \%tanque;
-
-
-	my @bombas = ();
-	push @bombas, {'id_bomba' => 1, 'bomba' => 'Posicion de carga 1'};
-	push @bombas, {'id_bomba' => 2, 'bomba' => 'Posicion de carga 2'};
-	return \@bombas;
-	
-		
+	my @bombas = @{$result->{SiteOmat}->{setup}->{pumps}->{pump}};
+	foreach (@bombas){
+		delete $_->{add_tot_to_txn};
+		delete $_->{auth_retry_interval};
+		delete $_->{auth_retry_num};
+		delete $_->{bus_name};
+		delete $_->{cluster};
+		delete $_->{currency_factor};
+		delete $_->{default_device_type};
+		delete $_->{enable_ext_eft};
+		delete $_->{flow_ratio_per_min};
+		delete $_->{lift_nzl_policy_flag};
+		delete $_->{master_pump};
+		delete $_->{model_code};
+		delete $_->{payment_method};
+		delete $_->{ppv_no_match_price_update};
+		delete $_->{presetfuc};
+		delete $_->{presetfucvol};
+		delete $_->{price_factor};
+		delete $_->{nozzle_mode};
+		delete $_->{price_update_flag};
+		delete $_->{price_update_retry};
+		delete $_->{prifac};
+		delete $_->{pump_type_flag};
+		delete $_->{pumpserver_name};
+		delete $_->{specific};
+		delete $_->{suspend_auth_check_interval};
+		delete $_->{tot_curfac};
+		delete $_->{tot_ppvfac};
+		delete $_->{tot_volfac};
+		delete $_->{volume_factor};
+	}	
+	return \@bombas;	
 }
 1;
 #EOF

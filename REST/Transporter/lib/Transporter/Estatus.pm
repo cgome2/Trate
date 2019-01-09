@@ -54,6 +54,5 @@ get '/estatusBombas/:id' => sub {
 
 };
 
-
 true;
 
