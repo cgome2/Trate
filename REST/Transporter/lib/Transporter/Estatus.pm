@@ -35,7 +35,7 @@ get '/estatusTanques' => sub {
 	
 	my $tanques = Trate::Lib::Tanques->new();
 	my @return = $tanques->getTanquesEstatus();
-	return {tanques => \@return};	
+	return \@return;	
 };
 
 
@@ -50,7 +50,7 @@ get '/estatusBombas/:id' => sub {
 	my $b = params->{id};
 	my $bomba = Trate::Lib::Bombas->new();
 	$bomba->number($b);
-	return {estatus => $bomba->getStatus()};
+	return $bomba->getStatus();
 
 };
 

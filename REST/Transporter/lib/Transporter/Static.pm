@@ -143,7 +143,7 @@ get "/components" => sub {
 
   switch ($uri) {
     case "/estatus/dispensarios"        { $component = "superFrame"; $endpoint = "/estatusBombas"; }
-    case "/estatus/tanques"             { $component = "superFrame"; $endpoint = "/estatusTanques"; }
+    case "/estatus/tanques"             { $component = "tanks"; $endpoint = "/estatusTanques"; }
 
     case "/despacho/contingencias"      { $component = "superTable"; $endpoint = "/pases"; }
     # case "/despacho/jarreos"            { $component = "superTable"; $endpoint = ""; }
