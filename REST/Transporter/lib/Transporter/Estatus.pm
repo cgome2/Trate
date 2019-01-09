@@ -39,7 +39,7 @@ get '/estatusTanques' => sub {
 };
 
 
-get '/estatusBombas1/:id' => sub {
+get '/estatusBombas/:id' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
@@ -47,9 +47,10 @@ get '/estatusBombas1/:id' => sub {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
 	
-	my $bombas = params->{id};
-	return {bombas => $bombas};	
-
+	my $b = params->{id};
+	my $bomba = Trate::Lib::Bombas->new();
+	$bomba->number($b);
+	return {estatus => $bomba->getStatus()};
 
 };
 
