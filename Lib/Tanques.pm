@@ -56,7 +56,7 @@ sub getTanquesEstatus {
 	
 	foreach (@{$self->{TANQUES}}){
 		
-		push @tanques, getTanqueEstatus($_->id,$_->name);
+		push @tanques, getTanqueEstatus($_->id,$_->name,$_->capacity);
 	}
 	return @tanques;
 }
@@ -64,6 +64,7 @@ sub getTanquesEstatus {
 sub getTanqueEstatus {
 	my $tanque_id = shift;
 	my $tanque_name = shift;
+	my $tanque_capacity = shift;
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	my $url = ORCUURL . "get_tls_wet_inventory.xml?ID=" . $wsc->sessionId() . "&tank_id=" . $tanque_id . "&tank_name=" . $tanque_name;
 	my $contents = get($url);
@@ -88,7 +89,8 @@ sub getTanqueEstatus {
 			"user" => $tanque_e->findvalue('user'),
 			"probe_id" => $tanque_e->findvalue('probe_id'),
 			"shift_id" => $tanque_e->findvalue('shift_id'),
-			"ullage" => $tanque_e->findvalue('ullage')
+			"ullage" => $tanque_e->findvalue('ullage'),
+			"capacity" => $tanque_capacity
 	    );
 	}
 	return \%tanque;
