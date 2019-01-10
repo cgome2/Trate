@@ -46,7 +46,7 @@ sub getTanques {
 			push (@{$self->{TANQUES}},$tanque);
 		}
 	}
-	return $self;
+	return @{$self->{TANQUES}};
 }
 
 sub getTanquesEstatus {
