@@ -3,6 +3,7 @@
 use Dancer ':syntax';
 use Trate::Lib::Tanques;
 use Trate::Lib::Bombas;
+use Trate::Lib::Transacciones;
 use Trate::Lib::Constants qw(LOGGER ORCUURL);
 use Trate::Lib::WebServicesClient;
 use Data::Dump qw(dump);
@@ -72,7 +73,15 @@ get '/last_transactions' => sub {
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	return {message => "... en implementacion"};	
+
+	my $sort = params->{sort};
+	my $order = params->{order};
+	my $page = params->{page};
+	my $limit = params->{limit};
+	my $search = params->{search};
+
+	my $transacciones = Trate::Lib::Transacciones->new();
+	return $transacciones->getLastNTransactions($sort,$order,$page,$limit,$search);
 };
 
 true;

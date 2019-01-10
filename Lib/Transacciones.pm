@@ -323,5 +323,41 @@ sub getCorte {
 	return $corte;
 }
 
+sub getLastNTransactions{
+	my $self = shift;
+	my ($sort,$order,$page,$limit,$search) = @_;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $where_stmt = "";
+	
+	if (length($sort) ge 1){
+		$where_stmt .= " ORDER BY " . $sort;
+		if (length($order) gt 1){
+			$where_stmt .= " " . $order . " ";
+		}
+	}
+
+	if (length($page) ge 1 && length($limit) ge 1){
+		$where_stmt .= " LIMIT " . $page . "," . $limit;
+	}	
+
+	my $preps = "SELECT idtransacciones,placa,fecha,bomba,cantidad,sale,pase from transacciones " . $where_stmt ; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @transacciones;
+	my $size = 0;
+	while (my $ref = $sth->fetchrow_hashref()) {
+		$size ++;
+    	push @transacciones,$ref;
+	}
+	$sth->finish;
+	$connector->destroy();
+	my %return = (
+		"data" => \@transacciones,
+		"size" => $size
+	);
+	return \%return;	
+}
+
 1;
 #EOF
