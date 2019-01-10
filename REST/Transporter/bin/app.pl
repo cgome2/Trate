@@ -7,4 +7,5 @@ use Transporter::Usuarios;
 use Transporter::Pases;
 use Transporter::TransaccionManual;
 use Transporter::Estatus;
+use Transporter::RecepcionCombustible;
 dance;
