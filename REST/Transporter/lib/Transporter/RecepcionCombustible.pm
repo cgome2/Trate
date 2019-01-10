@@ -15,7 +15,7 @@ our $VERSION = '0.1';
 
 set serializer => 'JSON';
 
-put '/recepcion_combustible' => sub {
+put '/recepciones_combustible' => sub {
 	my $usuario;
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
