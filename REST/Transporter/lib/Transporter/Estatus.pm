@@ -1,4 +1,4 @@
-package Transporter::Estatus;
+ package Transporter::Estatus;
 
 use Dancer ':syntax';
 use Trate::Lib::Tanques;
@@ -13,7 +13,7 @@ our $VERSION = '0.1';
 
 set serializer => 'JSON';
 
-get '/estatusBombas' => sub {
+get '/estatusBombas/framelink' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
@@ -38,6 +38,18 @@ get '/estatusTanques' => sub {
 	return \@return;	
 };
 
+get '/estatusBombas' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
+	
+	my $bombas = Trate::Lib::Bombas->new();
+	my @return = $bombas->getBombasEstatus();
+	return \@return;	
+};
 
 get '/estatusBombas/:id' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){

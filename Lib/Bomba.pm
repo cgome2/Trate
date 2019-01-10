@@ -6,52 +6,44 @@ use Trate::Lib::Constants qw(LOGGER);
 sub new
 {
 	my $self = {};
-	$self->{NUMBER} = undef;
-	$self->{STATUS} = undef;
-	$self->{FUEL_ID} = undef; 
-	$self->{FUEL_SALE} = undef; 
-	$self->{FUEL_VOLUME} = undef;
-	$self->{NOZZLE_ID} = undef;
+	$self->{ID} = undef;
+	$self->{PUMP_HEAD} = undef;
+	$self->{NOZZLES} = undef; 
+	$self->{SIDE} = undef; 
+	$self->{STATUS_CODE} = undef;
 
 	bless($self);
 	return $self;	
 }
 
-sub number {
+sub id {
         my ($self) = shift;
-        if (@_) { $self->{NUMBER} = shift }        
-        return $self->{NUMBER};
+        if (@_) { $self->{ID} = shift }        
+        return $self->{ID};
 }
 
-
-sub status {
+sub pumpHead {
         my ($self) = shift;
-        if (@_) { $self->{STATUS} = shift }        
-        return $self->{STATUS};
+        if (@_) { $self->{PUMP_HEAD} = shift }        
+        return $self->{PUMP_HEAD};
 }
 
-sub fuel_id {
+sub nozzles {
         my ($self) = shift;
-        if (@_) { $self->{FUEL_ID} = shift }        
-        return $self->{FUEL_ID};
+        if (@_) { $self->{NOZZLES} = shift }        
+        return $self->{NOZZLES};
 }
 
-sub fuel_sale {
+sub side {
         my ($self) = shift;
-        if (@_) { $self->{FUEL_SALE} = shift }        
-        return $self->{FUEL_SALE};
+        if (@_) { $self->{SIDE} = shift }        
+        return $self->{SIDE};
 }
 
-sub fuel_volume {
+sub statusCode {
         my ($self) = shift;
-        if (@_) { $self->{FUEL_VOLUME} = shift }        
-        return $self->{FUEL_VOLUME};
-}
-
-sub nozzle_id {
-        my ($self) = shift;
-        if (@_) { $self->{NOZZLE_ID} = shift }        
-        return $self->{NOZZLE_ID};
+        if (@_) { $self->{STATUS_CODE} = shift }        
+        return $self->{STATUS_CODE};
 }
 
 1;
