@@ -736,6 +736,44 @@ INSERT INTO `product_ieps` VALUES (142300000000001,0.2988,0.1600,'2011-09-07','2
 UNLOCK TABLES;
 
 --
+-- Table structure for table `recepciones_combustible`
+--
+
+DROP TABLE IF EXISTS `recepciones_combustible`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recepciones_combustible` (
+  `id_recepcion` int(11) NOT NULL AUTO_INCREMENT,
+  `fecha_recepcion` datetime DEFAULT NULL,
+  `fecha_documento` date DEFAULT NULL,
+  `terminal_embarque` varchar(255) DEFAULT NULL,
+  `sello_pemex` varchar(255) DEFAULT NULL,
+  `folio_documento` varchar(255) DEFAULT NULL,
+  `tipo_documento` varchar(10) DEFAULT NULL,
+  `serie_documento` varchar(10) DEFAULT NULL,
+  `numero_proveedor` int(11) DEFAULT '15002',
+  `empleado_captura` int(11) DEFAULT NULL,
+  `litros_documento` decimal(11,2) DEFAULT NULL,
+  `ppv_documento` decimal(11,2) DEFAULT NULL,
+  `importe_documento` decimal(11,2) DEFAULT NULL,
+  `iva_documento` decimal(11,2) DEFAULT NULL,
+  `ieps_documento` decimal(11,4) DEFAULT NULL,
+  `status` tinyint(1) unsigned DEFAULT '0',
+  PRIMARY KEY (`id_recepcion`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `recepciones_combustible`
+--
+
+LOCK TABLES `recepciones_combustible` WRITE;
+/*!40000 ALTER TABLE `recepciones_combustible` DISABLE KEYS */;
+INSERT INTO `recepciones_combustible` VALUES (2,'2018-11-21 12:37:24','2018-11-21','1989','678912','293112','Factura','RP',15002,99998,20000.00,19.29,385800.00,53213.79,1879.2000,1),(3,'2019-01-09 20:05:24','2019-01-09','1989','721912','294001','Factura','RP',15002,99998,20000.00,19.29,385800.00,53213.79,1879.2000,1);
+/*!40000 ALTER TABLE `recepciones_combustible` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `tank_delivery_readings_t`
 --
 
@@ -743,7 +781,7 @@ DROP TABLE IF EXISTS `tank_delivery_readings_t`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tank_delivery_readings_t` (
-  `reception_unique_id` int(11) NOT NULL DEFAULT '0',
+  `reception_unique_id` int(11) DEFAULT '0',
   `tank_id` int(11) DEFAULT '0',
   `start_volume` float DEFAULT '0',
   `end_volume` float DEFAULT '0',
@@ -764,8 +802,7 @@ CREATE TABLE `tank_delivery_readings_t` (
   `quantity_tls` float DEFAULT NULL,
   `quantity_tran` float DEFAULT NULL,
   `ci_movimientos` int(11) DEFAULT NULL,
-  `origen_registro` varchar(10) DEFAULT 'TLS',
-  PRIMARY KEY (`reception_unique_id`)
+  `origen_registro` varchar(10) DEFAULT 'TLS'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -851,7 +888,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (1,'admin','Administrador','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,'915ba0481ffc18a687b81a3662e1d161fd4ad8e6','2019-01-08 22:29:08',46),(2,'tecflo','Tecflo','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,'149ae7c4d2d096bbb9347c9eb2819df162b40c54','2019-01-08 22:38:57',99998),(3,'cgomez','Carlos Gomez','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,NULL,NULL,NULL),(4,'luis','Luis Angel Morales Romo','2d25b85d53a57f3a064d821d4f640977ccab63dd',2,1,NULL,'d7bb8d26d1e2074906df3b5a28466a222a66b94b','2019-01-08 22:44:24',1),(6,'josue','Josue Jimenez','',1,1,NULL,NULL,NULL,NULL),(7,'test','Usuario de Prueba','7c4a8d09ca3762af61e59520943dc26494f8941b',3,0,NULL,NULL,NULL,NULL),(8,'Mario','Mario Alberto','2d25b85d53a57f3a064d821d4f640977ccab63dd',1,0,NULL,NULL,NULL,5);
+INSERT INTO `usuarios` VALUES (1,'admin','Administrador','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,'915ba0481ffc18a687b81a3662e1d161fd4ad8e6','2019-01-08 22:29:08',46),(2,'tecflo','Tecflo','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,'d7c29f7060416593bb3cc9b04e754125f7945953','2019-01-09 22:20:31',99998),(3,'cgomez','Carlos Gomez','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,NULL,NULL,NULL),(4,'luis','Luis Angel Morales Romo','2d25b85d53a57f3a064d821d4f640977ccab63dd',2,1,NULL,'d7bb8d26d1e2074906df3b5a28466a222a66b94b','2019-01-08 22:44:24',1),(6,'josue','Josue Jimenez','',1,1,NULL,NULL,NULL,NULL),(7,'test','Usuario de Prueba','7c4a8d09ca3762af61e59520943dc26494f8941b',3,0,NULL,NULL,NULL,NULL),(8,'Mario','Mario Alberto','2d25b85d53a57f3a064d821d4f640977ccab63dd',1,0,NULL,NULL,NULL,5);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -895,4 +932,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-01-08 22:13:00
+-- Dump completed on 2019-01-09 21:34:15
