@@ -57,7 +57,7 @@ sub getBombasEstatus {
 }
 
 sub getBombaEstatus {
-	my $id = shift;
+	my $id = pop;
 	my %params = (
 		SessionID => "",
 		site_code => "",
