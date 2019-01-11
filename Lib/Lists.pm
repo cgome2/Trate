@@ -100,5 +100,27 @@ sub getBombas {
 	}	
 	return \@bombas;	
 }
+
+sub getProveedoresTrate {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT id,proveedor FROM proveedores_trate WHERE status = 2";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		my @proveedores;
+		while (my $ref = $sth->fetchrow_hashref()) {
+    		push @proveedores,$ref;
+		}
+		LOGGER->{dump(@proveedores)};
+		$sth->finish;
+		$connector->destroy();
+		return \@proveedores;	
+		} catch {
+			return 0;
+		}	
+}
+
 1;
 #EOF
