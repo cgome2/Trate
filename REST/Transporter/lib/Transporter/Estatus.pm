@@ -48,8 +48,7 @@ get '/estatusBombas' => sub {
 	}
 	
 	my $bombas = Trate::Lib::Bombas->new();
-	my @return = $bombas->getBombasEstatus();
-	return \@return;	
+	return $bombas->getBombasEstatus();	
 };
 
 get '/estatusBombas/:id' => sub {

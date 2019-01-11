@@ -46,15 +46,15 @@ sub getBombas {
 	return \@{$self->{BOMBAS}};	
 }
 
-sub getBombasEstatus {
-	my $self = shift;
-	getBombas($self);
-	my @bombas;
-	foreach (@{$self->{BOMBAS}}){
-		push @bombas, getBombaEstatus($_->pumpHead());
-	}
-	return @bombas;
-}
+#sub getBombasEstatus {
+#	my $self = shift;
+#	getBombas($self);
+#	my @bombas;
+#	foreach (@{$self->{BOMBAS}}){
+#		push @bombas, getBombaEstatus($_->pumpHead());
+#	}
+#	return @bombas;
+#}
 
 sub getBombaEstatus {
 	my $id = pop;
@@ -62,6 +62,20 @@ sub getBombaEstatus {
 		SessionID => "",
 		site_code => "",
 		pump_num => $id
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOGetPumpRunningData");
+	$wsc->sessionId();
+	my $result = $wsc->execute(\%params);	
+	return $result->{a_soPumpData}->{soPumpData};
+}
+
+sub getBombasEstatus {
+	my $id = pop;
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		pump_num => ""
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOGetPumpRunningData");
