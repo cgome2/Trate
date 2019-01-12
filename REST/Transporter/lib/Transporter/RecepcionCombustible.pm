@@ -36,9 +36,7 @@ put '/recepciones_combustible' => sub {
 	$RECEPCION_COMBUSTIBLE->folioDocumento($post->{folio_documento});
 	$RECEPCION_COMBUSTIBLE->tipoDocumento($post->{tipo_documento});
 	$RECEPCION_COMBUSTIBLE->serieDocumento($post->{serie_documento});
-	if (length($post->{numero_proveedor}) gt 0) {
-		$RECEPCION_COMBUSTIBLE->numeroProveedor($post->{numero_proveedor});
-	}
+	$RECEPCION_COMBUSTIBLE->numeroProveedor($post->{numero_proveedor});
 	$RECEPCION_COMBUSTIBLE->empleadoCaptura($usuario->{numero_empleado});
 	$RECEPCION_COMBUSTIBLE->litrosDocumento($post->{litros_documento});
 	$RECEPCION_COMBUSTIBLE->ppvDocumento($post->{ppv_documento});
@@ -58,7 +56,45 @@ put '/recepciones_combustible' => sub {
 	}
 };
 
+patch '/recepciones_combustible' => sub {
+	my $usuario;
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
+	}
 
+	my $post = from_json( request->body );
+	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
+
+	$RECEPCION_COMBUSTIBLE->idRecepcion($post->{id_recepcion});
+	$RECEPCION_COMBUSTIBLE->fechaRecepcion($post->{fecha_recepcion});
+	$RECEPCION_COMBUSTIBLE->fechaDocumento($post->{fecha_documento});
+	$RECEPCION_COMBUSTIBLE->terminalEmbarque($post->{terminal_embarque});
+	$RECEPCION_COMBUSTIBLE->selloPemex($post->{sello_pemex});
+	$RECEPCION_COMBUSTIBLE->folioDocumento($post->{folio_documento});
+	$RECEPCION_COMBUSTIBLE->tipoDocumento($post->{tipo_documento});
+	$RECEPCION_COMBUSTIBLE->serieDocumento($post->{serie_documento});
+	$RECEPCION_COMBUSTIBLE->numeroProveedor($post->{numero_proveedor});
+	$RECEPCION_COMBUSTIBLE->empleadoCaptura($usuario->{numero_empleado});
+	$RECEPCION_COMBUSTIBLE->litrosDocumento($post->{litros_documento});
+	$RECEPCION_COMBUSTIBLE->ppvDocumento($post->{ppv_documento});
+	$RECEPCION_COMBUSTIBLE->importeDocumento($post->{importe_documento});
+	$RECEPCION_COMBUSTIBLE->ivaDocumento($post->{iva_documento});
+	$RECEPCION_COMBUSTIBLE->iepsDocumento($post->{ieps_documento});
+	$RECEPCION_COMBUSTIBLE->status(2);	
+
+	my $respuesta = $RECEPCION_COMBUSTIBLE->actualizarRecepcionCombustible();
+	LOGGER->info($respuesta);
+	if ($respuesta eq 1){
+		return {message => "OKComputer"};
+	} else {
+		status 401;
+		return {error => "NOTOKComputer"};
+	}
+};
 
 patch '/recepciones_combustible_old/:id' => sub {
 	my $usuario;

@@ -296,5 +296,57 @@ sub getFromId{
 	}	
 }
 
+sub actualizarRecepcionCombustible {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $return = 0;
+	my $preps = "
+		UPDATE recepciones_combustible(
+				fecha_recepcion,
+				fecha_documento,
+				terminal_embarque,
+				sello_pemex,
+				folio_documento,
+				tipo_documento,
+				serie_documento,
+				numero_proveedor,
+				empleado_captura,
+				litros_documento,
+				ppv_documento,
+				importe_documento,
+				iva_documento,
+				ieps_documento,
+				status)
+			VALUES('"  .
+				$self->{FECHA_RECEPCION} . "','" .
+				$self->{FECHA_DOCUMENTO} . "','" .
+				$self->{TERMINAL_EMBARQUE} . "','" .
+				$self->{SELLO_PEMEX} . "','" .
+				$self->{FOLIO_DOCUMENTO} . "','" .
+				$self->{TIPO_DOCUMENTO} . "','" .
+				$self->{SERIE_DOCUMENTO} . "','" .
+				$self->{NUMERO_PROVEEDOR} . "','" .
+				$self->{EMPLEADO_CAPTURA} . "','" .
+				$self->{LITROS_DOCUMENTO} . "','" .
+				$self->{PPV_DOCUMENTO} . "','" .
+				$self->{IMPORTE_DOCUMENTO} . "','" .
+				$self->{IVA_DOCUMENTO} . "','" .
+				$self->{IEPS_DOCUMENTO} . "','" .
+				$self->{STATUS} . "')
+			WHERE reception_id = '" . $self->{RECEPTION_ID} . "'";
+	LOGGER->debug("Ejecutando sql[ ". $preps . " ]");
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	    $sth->finish;
+		$connector->destroy();
+		$return = 1;
+	} catch {
+		$return = 0;
+	} finally {
+		return $return;		
+	};	
+}
+
 1;
 #EOF
