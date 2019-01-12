@@ -58,7 +58,9 @@ put '/recepciones_combustible' => sub {
 	}
 };
 
-patch '/recepciones_combustible/:id' => sub {
+
+
+patch '/recepciones_combustible_old/:id' => sub {
 	my $usuario;
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
@@ -124,23 +126,23 @@ get '/recepciones_combustible' => sub{
 };
 
 get '/recepciones_combustible/:id' => sub {
-#	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-#		status 401;
-#		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-#	} else {
-#		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-#	}
-#
-#   my $id = params->{id};
-#   my $RECEPCION_COMBUSTIBLE = Trate::Lib::Factura->new();
-#    $RECEPCION_COMBUSTIBLE->getFromId($id);
-#    if($FACTURA->existeFactura() eq 0){
-#	    status 404;
-#	    return {error => "NotOkComputer"};
-#    } else {
-#	    status 200;
-#	    return {data => "OkComputer"}
-#    }
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
+
+	my $id = params->{id};
+	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
+	my $result = $RECEPCION_COMBUSTIBLE->getFromId($id);
+	if($result eq 0){
+		status 404;
+		return {message => "No existe la recepción solicitada"};
+	} else {
+		status 200;
+		return $result;
+	}
 };
 
 get '/recepcionCombustible/verificarFactura/:fecha/:factura/:serie' => sub {

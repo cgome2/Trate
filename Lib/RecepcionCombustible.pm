@@ -252,5 +252,49 @@ sub getRecepcionesCombustible {
 	}
 }
 
+sub getFromId{
+	my $self = shift;
+	my $idRecepcion = pop;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT
+					id_recepcion,
+					fecha_recepcion,
+					fecha_documento,
+					terminal_embarque,
+					sello_pemex,
+					folio_documento,
+					tipo_documento,
+					serie_documento,
+					numero_proveedor,
+					empleado_captura,
+					litros_documento,
+					ppv_documento,
+					importe_documento,
+					iva_documento,
+					ieps_documento,
+					status
+				FROM
+					recepciones_combustible
+				WHERE
+					id_recepcion = " . $idRecepcion;
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		if ($sth->rows gt 0) {		
+			my $row = $sth->fetchrow_hashref();
+			$sth->finish;
+			$connector->destroy();
+			return $row;
+		} else {
+			$sth->finish;
+			$connector->destroy();
+			return 0;
+		}
+	} catch {
+		return 0;
+	}	
+}
+
 1;
 #EOF
