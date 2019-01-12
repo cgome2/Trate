@@ -301,39 +301,23 @@ sub actualizarRecepcionCombustible {
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $return = 0;
 	my $preps = "
-		UPDATE recepciones_combustible(
-				fecha_recepcion,
-				fecha_documento,
-				terminal_embarque,
-				sello_pemex,
-				folio_documento,
-				tipo_documento,
-				serie_documento,
-				numero_proveedor,
-				empleado_captura,
-				litros_documento,
-				ppv_documento,
-				importe_documento,
-				iva_documento,
-				ieps_documento,
-				status)
-			VALUES('"  .
-				$self->{FECHA_RECEPCION} . "','" .
-				$self->{FECHA_DOCUMENTO} . "','" .
-				$self->{TERMINAL_EMBARQUE} . "','" .
-				$self->{SELLO_PEMEX} . "','" .
-				$self->{FOLIO_DOCUMENTO} . "','" .
-				$self->{TIPO_DOCUMENTO} . "','" .
-				$self->{SERIE_DOCUMENTO} . "','" .
-				$self->{NUMERO_PROVEEDOR} . "','" .
-				$self->{EMPLEADO_CAPTURA} . "','" .
-				$self->{LITROS_DOCUMENTO} . "','" .
-				$self->{PPV_DOCUMENTO} . "','" .
-				$self->{IMPORTE_DOCUMENTO} . "','" .
-				$self->{IVA_DOCUMENTO} . "','" .
-				$self->{IEPS_DOCUMENTO} . "','" .
-				$self->{STATUS} . "')
-			WHERE reception_id = '" . $self->{RECEPTION_ID} . "'";
+		UPDATE recepciones_combustible SET " .
+				"fecha_recepcion='" . $self->{FECHA_RECEPCION} . "'," .
+				"fecha_documento='" . $self->{FECHA_DOCUMENTO} . "'," .
+				"terminal_embarque='" . $self->{TERMINAL_EMBARQUE} . "'," .
+				"sello_pemex='" . $self->{SELLO_PEMEX} . "'," .
+				"folio_documento='" . $self->{FOLIO_DOCUMENTO} . "'," .
+				"tipo_documento='" . $self->{TIPO_DOCUMENTO} . "'," .
+				"serie_documento='" . $self->{SERIE_DOCUMENTO} . "'," .
+				"numero_proveedor='" . $self->{NUMERO_PROVEEDOR} . "'," .
+				"empleado_captura='" . $self->{EMPLEADO_CAPTURA} . "'," .
+				"litros_documento='" . $self->{LITROS_DOCUMENTO} . "'," .
+				"ppv_documento='" . $self->{PPV_DOCUMENTO} . "'," .
+				"importe_documento='" . $self->{IMPORTE_DOCUMENTO} . "'," .
+				"iva_documento='" . $self->{IVA_DOCUMENTO} . "'," .
+				"ieps_documento='" . $self->{IEPS_DOCUMENTO} . "'," .
+				"status='" . $self->{STATUS} . 
+				"' WHERE id_recepcion = '" . $self->{ID_RECEPCION} . "'";
 	LOGGER->debug("Ejecutando sql[ ". $preps . " ]");
 	try {
 		my $sth = $connector->dbh->prepare($preps);
