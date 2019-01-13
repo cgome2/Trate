@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+x#!/usr/bin/perl
 ##########################################################################
 # Name: 
 # Description: 
@@ -9,6 +9,7 @@
 ##########################################################################
 use Trate::Lib::Movimiento;
 use Try::Catch;
+use Data::Dump qw(dump);
 use Trate::Lib::Constants qw(LOGGER);
 use strict;
 
@@ -47,9 +48,10 @@ $MOVIMIENTO->ieps($ieps);
 $MOVIMIENTO->status($status);
 $MOVIMIENTO->procesada($procesada);
 $MOVIMIENTO->transactionId($transaction_id);
-
+LOGGER->info("El movimiento para informix seria \n" . dump($MOVIMIENTO));
 try { 
-	$return = $MOVIMIENTO->enviarMovimientoInformix() or die(LOGGER->fatal("ERROR AL ENVIAR MOVIMIENTO A INFORMIX"));
+	#$return = $MOVIMIENTO->enviarMovimientoInformix() or die(LOGGER->fatal("ERROR AL ENVIAR MOVIMIENTO A INFORMIX"));
+	$return = 1;
 } catch {
 	$return = 0;
 } finally {

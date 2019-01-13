@@ -68,49 +68,6 @@ sub getLastRetrievedTransactions{
 	return $self;
 }
 
-sub getLastTransactionsFromORCUDeprecated{
-	my $self = shift;
-	$self = getLastRetrievedTransactions($self);
-	my $remex = Trate::Lib::RemoteExecutor->new();
-	my $query = "
-				SELECT  
-				        t.id,
-				        t.product_code,
-				        t.shift_id,
-				        t.mean_id,
-				        t.driver_object_id,
-				        t.tank_id,
-				        t.TIMESTAMP,
-				        t.pump,
-				        t.nozzle,
-				        t.quantity,
-				        t.odometer,
-				        t.previous_odometer,
-				        t.engine_hours,
-				        t.previous_engine_hours,
-				        t.plate,
-				        t.receipt_id,
-				        t.totalizer_vol,
-				        t.totalizer_original,
-				        t.ppv,
-				        t.sale,
-				        m.rule AS group_rule_id,
-				        m.fleet_id,
-				        gr.NAME AS rule_name,
-				        gr.NAME AS pase,
-				        gr.limits AS limit_rule_id,
-				        gr.fuel AS fuel_rule_id,
-				        gr.visits AS visit_rule_id
-				FROM 
-				        transactions as t left join means AS m on t.mean_id=m.id left join group_rules gr on gr.id=m.rule	
-				WHERE 
-						t.id>" . 
-						$self->{LAST_TRANSACTION_ID} . " AND t.TIMESTAMP>'" .
-						$self->{LAST_TRANSACTION_TIMESTAMP} . "' limit 1";
-	LOGGER->debug($query);
-	return $remex->remoteQuery($query);
-}
-
 sub getLastTransactionsFromORCU{
 	my $self = shift;
 	$self = getLastRetrievedTransactions($self);
@@ -126,11 +83,9 @@ sub getLastTransactionsFromORCU{
 	$wsc->callName("SOHOGetTransactionsByRange");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);	
-	LOGGER->info($result->{num_transactions});
 	if ($result->{num_transactions} gt 1){
 		return procesaTransacciones($self,$result->{a_soTransaction}->{soTransaction});
 	} elsif ($result->{num_transactions} eq 1){
-		LOGGER->info(dump($result->{a_soTransaction}->{soTransaction}));
 		my @arregloTransaccionesProcesar;
 		push @arregloTransaccionesProcesar, $result->{a_soTransaction}->{soTransaction};
 		return procesaTransacciones($self, \@arregloTransaccionesProcesar);
@@ -164,16 +119,24 @@ sub procesaTransacciones($){
 		$self->{PPV} = $row->{'ppv'};
 		$self->{VENTA} = $row->{'total_price'};
 		$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'});
-		LOGGER->info("pase " . $self->{PASE}->pase());
 		try {
 			insertaTransaccion($self);
-			if($self->{ID_VEHICULOS} eq "666"){
+			insertaMovimiento($self);
+			my $meanTransaction = Trate::Lib::Mean->new();
+			$meanTransaction->id($row->{mean_id});
+			$meanTransaction = Trate::Lib::Mean->getMeanFromId();
+			
+			if ($meanTransaction->auttyp() ne 21){
+				LOGGER->info("Insertar jarreo para el dispositivo <" . $meanTransaction->NAME() . ">");
+				actualizaPase($self);
+				limpiaReglaCarga($self);
+			} else {
+				LOGGER->info("Insertar jarreo para el dispositivo <" . $meanTransaction->NAME() . ">");
 				insertaJarreo($self);
 			}
-			insertaMovimiento($self);
-			actualizaPase($self);
-			limpiaReglaCarga($self);
+			
 			$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} + 1;
+			LOGGER->info(dump($meanTransaction));
 			$return = 1;
 		} catch {
 			$return = 0;			

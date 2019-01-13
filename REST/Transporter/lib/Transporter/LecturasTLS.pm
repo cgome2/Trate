@@ -74,7 +74,38 @@ put '/lecturas_tls' => sub {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
 
-	return {transporter_says => "please implement me soon..."};
+	my $post = from_json( request->body );
+
+	my $ltls = Trate::Lib::LecturasTLS->new();
+	$ltls->tankId($post->{tank_id});
+	$ltls->startVolume($post->{start_volume});
+	$ltls->endVolume($post->{end_volume});
+	$ltls->endTemp($post->{end_temp});
+	$ltls->startDeliveryTimestamp($post->{start_delivery_timestamp});
+	$ltls->endDeliveryTimestamp($post->{end_delivery_timestamp});
+	$ltls->rui($post->{rui});
+	$ltls->status(0);
+	$ltls->startTcVolume($post->{start_tc_volume});
+	$ltls->endTcVolume($post->{end_tc_volume});
+	$ltls->startHeight($post->{start_height});
+	$ltls->endHeight($post->{end_height});
+	$ltls->startWater($post->{start_water});
+	$ltls->endWater($post->{end_water});
+	$ltls->tankName($post->{tank_name});
+	$ltls->tankNumber($post->{tank_number});
+	$ltls->quantityTls($post->{quantity_tls});
+	$ltls->quantityTran($post->{quantity_tran});
+	$ltls->ciMovimientos($post->{ci_movimientos});
+	$ltls->origenRegistro("MANUAL");
+	my $resultado = $ltls->insertar();
+	if($resultado eq 0 ){
+		status 500;
+		return {message => "No pudo ser insertado el registro"};
+	} else {
+		status 200;
+		return {message => "OKComputer"};
+	}
+	
 };
 
 patch '/lecturas_tls' => sub {

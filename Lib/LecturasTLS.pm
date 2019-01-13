@@ -215,11 +215,16 @@ sub insertaLecturaTLS{
 			$self->{QUANTITY_TLS} . "','" .
 			$self->{QUANTITY_TRAN} . "',NULL)";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-    $sth->finish;
-	$connector->destroy();
-	return $self;
+    try {
+		my $sth = $connector->dbh->prepare($preps);
+	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		$sth->finish;
+		$connector->destroy();
+		return 1;
+    } catch {
+		return 0;				    
+    }
+	
 }
 
 sub setLastLecturaTLSRetreived {

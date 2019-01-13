@@ -86,7 +86,6 @@ patch '/recepciones_combustible' => sub {
 	$RECEPCION_COMBUSTIBLE->ivaDocumento($post->{iva_documento});
 	$RECEPCION_COMBUSTIBLE->iepsDocumento($post->{ieps_documento});
 	$RECEPCION_COMBUSTIBLE->status($post->{status});	
-		
 	if($post->{status} eq 1){
 		my $respuesta = $RECEPCION_COMBUSTIBLE->actualizarRecepcionCombustible();
 		if ($respuesta eq 1){
@@ -135,7 +134,10 @@ patch '/recepciones_combustible' => sub {
 				LOGGER->info(dump($_));
 				LOGGER->info($_->{id_tank_delivery_reading});
 				push @readingstoburn, $_->{id_tank_delivery_reading};	
+				LOGGER->info("Hasta aqui todo va bien..." . $_->{id_tank_delivery_reading});	
 			}
+			
+
 			my $insertamovimiento = $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->inserta();
 			my $insertamovimiento = 1;
 			if($insertamovimiento eq 0){
