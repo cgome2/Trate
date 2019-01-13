@@ -24,6 +24,7 @@ use XML::Twig;
 sub new
 {
 	my $self = {};
+	$self->{ID_TANK_DELIVERY_READING} = undef;
 	$self->{RECEPTION_UNIQUE_ID} = undef;
 	$self->{TANK_ID} = undef;
 	$self->{START_VOLUME} = undef;
@@ -52,6 +53,12 @@ sub new
 	$self->{LAST_TLS_READING_TIMESTAMP} = undef;
 	bless($self);
 	return $self;	
+}
+
+sub idTankDeliveryReading {
+	my $self = shift;
+    if (@_) { $self->{ID_TANK_DELIVERY_READING} = shift }        
+    return $self->{ID_TANK_DELIVERY_READING};
 }
 
 sub receptionUniqueId {
@@ -186,7 +193,7 @@ sub insertaLecturaTLS{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
-		INSERT INTO tank_delivery_readings_t VALUES('"  .
+		INSERT INTO tank_delivery_readings_t VALUES(NULL,'"  .
 			$self->{RECEPTION_UNIQUE_ID} . "','" .
 			$self->{TANK_ID} . "','" .
 			$self->{START_VOLUME} . "','" .
@@ -268,7 +275,7 @@ sub getLecturasTls{
 sub getLecturasTlsFromId {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT * FROM tank_delivery_readings_t WHERE reception_unique_id='" . $self->{RECEPTION_UNIQUE_ID} . "' LIMIT 1"; 
+	my $preps = "SELECT * FROM tank_delivery_readings_t WHERE id_tank_delivery_reading='" . $self->{ID_TANK_DELIVERY_READING} . "' LIMIT 1"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -284,7 +291,7 @@ sub updateLecturasTlsMariaDb {
 	my $preps = " UPDATE tank_delivery_readings_t SET " .
 		"reception_unique_id = '" . $self->{RECEPTION_UNIQUE_ID} . "'," .
 		"status = '" . $self->{STATUS} . "'," . 
-		"ci_movimientos = '" . $self->{CI_MOVIMIENTOS} . "' WHERE reception_unique_id='" . $self->{RECEPTION_UNIQUE_ID} . "'";
+		"ci_movimientos = '" . $self->{CI_MOVIMIENTOS} . "' WHERE id_tank_delivery_reading='" . $self->{ID_TANK_DELIVERY_READING} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -296,13 +303,29 @@ sub updateLecturasTlsMariaDb {
 sub deleteLecturasTlsMariaDb {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = " DELETE FROM tank_delivery_readings_t WHERE reception_unique_id='" . $self->{RECEPTION_UNIQUE_ID} . "' LIMIT 1";
+	my $preps = " DELETE FROM tank_delivery_readings_t WHERE id_tank_delivery_reading='" . $self->{ID_TANK_DELIVERY_READING} . "' LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	$sth->finish;
 	$connector->destroy();
 	return $self;
+}
+
+sub quemarLecturas($$){
+	my $id_recepcion = pop;
+	my $lecturas = pop;
+	my $in = join(",", @{$lecturas});
+	LOGGER->debug(dump($lecturas));
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = " UPDATE tank_delivery_readings_t SET " .
+		"id_recepcion = '" . $id_recepcion . "'," .
+		"status = '" . 1 . "' WHERE id_tank_delivery_reading in(" . $in . ")";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
 }
 
 1;

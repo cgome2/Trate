@@ -249,6 +249,7 @@ sub insertaMovimiento{
 	$movimiento->{STATUS} = '0';
 	$movimiento->{PROCESADA} = 'N';
 	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
+	$movimiento->{ID_RECEPCION} = 'NULL';
 	$movimiento->inserta();
 	return $self;
 }

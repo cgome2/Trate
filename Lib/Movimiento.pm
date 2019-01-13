@@ -36,6 +36,7 @@ sub new
 	$self->{PROCESADA} = undef;
 	$self->{TRANSACTION_ID} = undef;
 	$self->{ID} = undef;
+	$self->{ID_RECEPCION} = undef;
 	bless($self);
 	return $self;	
 }
@@ -172,7 +173,11 @@ sub transactionId {
         return $self->{TRANSACTION_ID};
 }
 
-
+sub idRecepcion {
+	my $self = shift;
+	if(@_) { $self->{ID_RECEPCION} = shift }
+	return $self->{ID_RECEPCION};
+}
 
 sub insertaMDB{
 	my $self = shift;
@@ -201,7 +206,8 @@ sub insertaMDB{
 			$self->{IEPS} . "','" .
 			$self->{STATUS} . "','" .
 			$self->{PROCESADA} . "','" .
-			$self->{TRANSACTION_ID} . "',NULL)";
+			$self->{TRANSACTION_ID} . "',NULL, '" . 
+			$self->{ID_RECEPCION} . "')";
 	LOGGER->debug("Ejecutando sql[ ". $preps . " ]");
 	try {
 		my $sth = $connector->dbh->prepare($preps);
@@ -276,7 +282,8 @@ sub actualizaMDB{
 					"ieps='" . $self->{IEPS} . "'," .
 					"status='" . $self->{STATUS} . "'," .
 					"procesada='" . $self->{PROCESADA} . "'," .
-					"transaction_id='" . $self->{TRANSACTION_ID} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
+					"transaction_id='" . $self->{TRANSACTION_ID} . "'" .
+					"id_recepcion='" . $self->{ID_RECEPCION} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");

@@ -83,5 +83,36 @@ get '/last_transactions' => sub {
 	return $transacciones->getLastNTransactions($sort,$order,$page,$limit,$search);
 };
 
+put '/cambiar_precio' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
+
+#	Agregar cambio de precio se tendrá una tabla con los productos de forma local, listaremos el producto
+#	Se pondra el nuevo precio y la fecha a partir de la cual aplicará
+#	Durante el cron que se ejecuta cada minuto, se verificará si se debe realizar un cambio de precio, en caso afirmativo se procederá ejecutando el servicio web
+#	
+#	<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sit="http://orpak.com/SiteOmatServices/">
+#	   <soapenv:Header/>
+#	   <soapenv:Body>
+#	      <sit:SOUpdatePrice>
+#	         <!--Optional:-->
+#	         <sit:SessionID>JSknLvNHOErpoWNPNncxixuaAIGWFda/B4jQzm2AD51DG8HfUd2g</sit:SessionID>
+#	         <sit:site_code>5</sit:site_code>
+#	         <sit:product_code>1</sit:product_code>
+#	         <sit:new_price>15.00</sit:new_price>
+#	         <!--Optional:-->
+#	         <sit:timestamp>2019-01-13 18:00:00</sit:timestamp>
+#	         <!--Optional:-->
+#	         <sit:username>Admin</sit:username>
+#	      </sit:SOUpdatePrice>
+#	   </soapenv:Body>
+#	</soapenv:Envelope>
+			
+};
+
 true;
 

@@ -86,10 +86,9 @@ patch '/recepciones_combustible' => sub {
 	$RECEPCION_COMBUSTIBLE->ivaDocumento($post->{iva_documento});
 	$RECEPCION_COMBUSTIBLE->iepsDocumento($post->{ieps_documento});
 	$RECEPCION_COMBUSTIBLE->status($post->{status});	
-	
+		
 	if($post->{status} eq 1){
 		my $respuesta = $RECEPCION_COMBUSTIBLE->actualizarRecepcionCombustible();
-		LOGGER->info($respuesta);
 		if ($respuesta eq 1){
 			return {message => "OKComputer"};
 		} else {
@@ -97,53 +96,90 @@ patch '/recepciones_combustible' => sub {
 			return {error => "NOTOKComputer"};
 		}
 	} elsif ($post->{status} eq 2){
-		return {message => "Recepcion con TLS procesada"};
+
+		my $respuesta = $RECEPCION_COMBUSTIBLE->actualizarRecepcionCombustible();
+		if ($respuesta ne 1){
+			status 401;
+			return {message => "NOTOKComputer"};
+		} else {
+			my @lecturas_por_asignar = @{$post->{lecturas_combustible}};		
+			LOGGER->info("el valor para la recepcion {" . $RECEPCION_COMBUSTIBLE->idRecepcion() . "}");
+			my @readingstoburn = ();
+			my $existenciaFinal = 0;
+			foreach (@lecturas_por_asignar){
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->fechaHora($_->{end_delivery_timestamp});
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->dispensador('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->supervisor($usuario->{numero_empleado});
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->despachador('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->viaje('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->camion('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->chofer('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->sello('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->tipoReferencia('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->serie('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->referencia('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->movimiento(0);
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->litrosEsp('NULL');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->litrosReal((length($RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->litrosReal()) gt 0 ) ? $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->litrosReal() : 0);
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->litrosReal($RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->litrosReal() + $_->{end_volume} - $_->{start_volume});	
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->costoEsp('NULL');
+				
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->costoReal($RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->litrosReal()*20);
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->iva(1);
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->ieps(1);
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->status(0);
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->procesada('N');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->idRecepcion($RECEPCION_COMBUSTIBLE->idRecepcion());
+				$existenciaFinal = $_->{end_volume} ge $existenciaFinal ? $_->{end_volume} : $existenciaFinal;
+				
+				LOGGER->info(dump($_));
+				LOGGER->info($_->{id_tank_delivery_reading});
+				push @readingstoburn, $_->{id_tank_delivery_reading};	
+			}
+			my $insertamovimiento = $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->inserta();
+			my $insertamovimiento = 1;
+			if($insertamovimiento eq 0){
+				status 401;
+				return {message => "Error al insertar el movimiento inventario se ejecuta un rollback"};
+			} else {
+				LOGGER->info(Trate::Lib::LecturasTLS->quemarLecturas(\@readingstoburn,$RECEPCION_COMBUSTIBLE->idRecepcion()));
+			}
+			# Agregar movimiento documental
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->fechaHora($RECEPCION_COMBUSTIBLE->fechaDocumento($post->{fecha_documento}));
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->dispensador('NULL');
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->supervisor($usuario->{numero_empleado});
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->despachador('NULL');
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->viaje('NULL');
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->camion('NULL');
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->chofer('NULL');
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->sello($post->{sello_pemex});
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->tipoReferencia(2);
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->serie($post->{serie_documento});
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->referencia($post->{folio_documento});
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->movimiento(1);
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->litrosEsp($post->{litros_documento});
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->litrosReal($existenciaFinal);
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->costoEsp($post->{importe_documento});
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->costoReal(1);
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->iva(1);
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->ieps(1);
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->status(0);
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->procesada('N');
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->idRecepcion($RECEPCION_COMBUSTIBLE->idRecepcion());
+			
+			$insertamovimiento = $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->inserta();
+			$insertamovimiento = 1;
+			if($insertamovimiento eq 0){
+				status 401;
+				return {message => "Error al insertar el movimiento recepcion se ejecuta un rollback"};
+			} else {
+				return {message => "Recepcion con TLS procesada"};
+			}
+		}
+
 	} else {
 		status 401;
 		return {message => "Error en la estructura del JSON no se encuentra el nodal status"};
-	}
-};
-
-patch '/recepciones_combustible_old/:id' => sub {
-	my $usuario;
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
-	}
-
-	my $post = from_json( request->body );
-	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
-
-	#insertar ci_movimientos con los datos de la factura
-	$RECEPCION_COMBUSTIBLE->fechaRecepcion($post->{fecha_recepcion});
-	$RECEPCION_COMBUSTIBLE->fechaDocumento($post->{fecha_documento});
-	$RECEPCION_COMBUSTIBLE->terminalEmbarque($post->{terminal_embarque});
-	$RECEPCION_COMBUSTIBLE->selloPemex($post->{sello_pemex});
-	$RECEPCION_COMBUSTIBLE->folioDocumento($post->{folio_documento});
-	$RECEPCION_COMBUSTIBLE->tipoDocumento($post->{tipo_documento});
-	$RECEPCION_COMBUSTIBLE->serieDocumento($post->{serie_documento});
-	if (length($post->{numero_proveedor}) gt 0) {
-		$RECEPCION_COMBUSTIBLE->numeroProveedor($post->{numero_proveedor});
-	}
-	$RECEPCION_COMBUSTIBLE->empleadoCaptura($usuario->{numero_empleado});
-	$RECEPCION_COMBUSTIBLE->litrosDocumento($post->{litros_documento});
-	$RECEPCION_COMBUSTIBLE->ppvDocumento($post->{ppv_documento});
-	$RECEPCION_COMBUSTIBLE->importeDocumento($post->{importe_documento});
-	$RECEPCION_COMBUSTIBLE->ivaDocumento($post->{iva_documento});
-	$RECEPCION_COMBUSTIBLE->iepsDocumento($post->{ieps_documento});
-	$RECEPCION_COMBUSTIBLE->status(1);	
-
-
-	my $respuesta = $RECEPCION_COMBUSTIBLE->insertarRecepcionCombustible();
-	LOGGER->info($respuesta);
-	if ($respuesta eq 1){
-		return {message => "OKComputer"};
-	} else {
-		status 401;
-		return {error => "NOTOKComputer"};
 	}
 };
 
