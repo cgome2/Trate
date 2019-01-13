@@ -5,6 +5,7 @@ use Trate::Lib::Constants qw(LOGGER);
 use Trate::Lib::LecturasTLS;
 use Trate::Lib::RecepcionCombustible;
 use Trate::Lib::Factura;
+use Trate::Lib::ProveedoresTrate;
 use Trate::Lib::Usuarios;
 
 use Try::Catch;
@@ -185,8 +186,10 @@ get '/recepciones_combustible/:id' => sub {
 		my $lecturas_combustible = $RECEPCION_COMBUSTIBLE->lecturaTls()->getLecturasTls();
 		my @lc = @{$lecturas_combustible};
 		$rc{'lecturas_combustible'} = $lecturas_combustible;
-		LOGGER->info($recepcion_combustible);
-		return \%rc;	
+		LOGGER->info(dump(\%rc));
+		my @array = ();
+		push @array, \%rc;
+		return \@array;
 	} else {
 		status 404;
 		return {message => "No existe la recepción solicitada"};
@@ -218,20 +221,22 @@ get '/recepcionCombustible/verificarFactura/:fecha/:factura/:serie' => sub {
 };
 
 get '/proveedores' => sub {
+
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	my $lists = Trate::Lib::Lists->new();
-	my $result = $lists->getProveedoresTrate();
-	if($result eq 0){
+	my $proveedores = Trate::Lib::ProveedoresTrate->new();
+	my $prov = $proveedores->getProveedoresTrate();
+	if($prov eq 0){
 		status 404;
 		return {error => "No existen proveedores"};
 	} else {
 		status 200;
-		return $result;
+		LOGGER->info(dump($prov));
+		return $prov;
 	}
 };
 
