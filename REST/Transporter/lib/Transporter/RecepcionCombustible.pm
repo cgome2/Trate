@@ -84,15 +84,22 @@ patch '/recepciones_combustible' => sub {
 	$RECEPCION_COMBUSTIBLE->importeDocumento($post->{importe_documento});
 	$RECEPCION_COMBUSTIBLE->ivaDocumento($post->{iva_documento});
 	$RECEPCION_COMBUSTIBLE->iepsDocumento($post->{ieps_documento});
-	$RECEPCION_COMBUSTIBLE->status(2);	
-
-	my $respuesta = $RECEPCION_COMBUSTIBLE->actualizarRecepcionCombustible();
-	LOGGER->info($respuesta);
-	if ($respuesta eq 1){
-		return {message => "OKComputer"};
+	$RECEPCION_COMBUSTIBLE->status($post->{status});	
+	
+	if($post->{status} eq 1){
+		my $respuesta = $RECEPCION_COMBUSTIBLE->actualizarRecepcionCombustible();
+		LOGGER->info($respuesta);
+		if ($respuesta eq 1){
+			return {message => "OKComputer"};
+		} else {
+			status 401;
+			return {error => "NOTOKComputer"};
+		}
+	} elsif ($post->{status} eq 2){
+		return {message => "Recepcion con TLS procesada"};
 	} else {
 		status 401;
-		return {error => "NOTOKComputer"};
+		return {message => "Error en la estructura del JSON no se encuentra el nodal status"};
 	}
 };
 
@@ -171,13 +178,18 @@ get '/recepciones_combustible/:id' => sub {
 
 	my $id = params->{id};
 	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
-	my $result = $RECEPCION_COMBUSTIBLE->getFromId($id);
-	if($result eq 0){
+	my $recepcion_combustible = $RECEPCION_COMBUSTIBLE->getFromId($id);
+	if ($recepcion_combustible ne 0){
+		status 200;
+		my %rc = %$recepcion_combustible;
+		my $lecturas_combustible = $RECEPCION_COMBUSTIBLE->lecturaTls()->getLecturasTls();
+		my @lc = @{$lecturas_combustible};
+		$rc{'lecturas_combustible'} = $lecturas_combustible;
+		LOGGER->info($recepcion_combustible);
+		return \%rc;	
+	} else {
 		status 404;
 		return {message => "No existe la recepción solicitada"};
-	} else {
-		status 200;
-		return $result;
 	}
 };
 

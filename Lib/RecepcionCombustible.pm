@@ -306,7 +306,7 @@ sub actualizarRecepcionCombustible {
 				"fecha_documento='" . $self->{FECHA_DOCUMENTO} . "'," .
 				"terminal_embarque='" . $self->{TERMINAL_EMBARQUE} . "'," .
 				"sello_pemex='" . $self->{SELLO_PEMEX} . "'," .
-				"folio_documento='" . $self->{FOLIO_DOCUMENTO} . "'," .
+				"folio_documento='" . $self->{FOLIO_DOCUMENTO} . "','" .
 				"tipo_documento='" . $self->{TIPO_DOCUMENTO} . "'," .
 				"serie_documento='" . $self->{SERIE_DOCUMENTO} . "'," .
 				"numero_proveedor='" . $self->{NUMERO_PROVEEDOR} . "'," .

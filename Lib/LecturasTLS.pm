@@ -252,7 +252,7 @@ sub getLecturasTls{
 		$where_stmt .= " LIMIT " . $page . "," . $limit;
 	}	
 	
-	my $preps = "SELECT * FROM tank_delivery_readings_t " . $where_stmt ; 
+	my $preps = "SELECT * FROM tank_delivery_readings_t WHERE status=0 AND id_recepcion IS NULL AND ci_movimientos IS NULL " . $where_stmt ; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
