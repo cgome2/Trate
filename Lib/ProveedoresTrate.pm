@@ -1,4 +1,12 @@
 package Trate::Lib::ProveedoresTrate;
+#########################################################
+#ProveedoresTrate - Clase ProveedoresTrate				#
+#                                                       #
+#Autor: Ramses                                          #
+#Fecha: Noviembre, 2018                                 #
+#Revision: 1.0                                          #
+#                                                       #
+#########################################################
 
 use strict;
 use Trate::Lib::ConnectorMariaDB;

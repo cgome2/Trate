@@ -1,7 +1,9 @@
 package Trate::Lib::Factura;
 #########################################################
+#Factura - Clase Factura								#
+#                                                       #
 #Autor: Ramses                                          #
-#Fecha: Octubre, 2018                                   #
+#Fecha: Diciembre, 2019                                 #
 #Revision: 1.0                                          #
 #                                                       #
 #########################################################

@@ -12,6 +12,8 @@ package Trate::Lib::Jarreo;
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::Constants qw(LOGGER);
+use Try::Catch;
+
 use strict;
 
 sub new
@@ -144,6 +146,101 @@ sub inserta {
 	$sth->finish;
 	$connector->destroy();
 	return $self;
+}
+
+sub getJarreos{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT 
+					transaction_id,
+					transaction_timestamp,
+					transaction_dispensed_quantity,
+					transaction_ppv,
+					transaction_total_price,
+					transaction_pump_head_external_code,
+					status_code
+				FROM 
+					jarreos_t 
+				WHERE 
+					status_code=2"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	try {
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		if ($sth->rows gt 0) {
+			my @jarreos;
+			while (my $jarreo = $sth->fetchrow_hashref()) {
+				push @jarreos,$jarreo;
+			}
+			$sth->finish;
+			$connector->destroy();
+			return \@jarreos;	
+		} else {
+			$sth->finish;
+			$connector->destroy();
+			return 0;
+		}
+	} catch {
+		return 0;
+	}
+}
+
+sub fillJarreoFromTransactionId {
+	my $self = shift;
+	LOGGER->info($self->{TRANSACTION_ID});
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT 
+					*
+				FROM 
+					jarreos_t 
+				WHERE transaction_id='" . $self->{TRANSACTION_ID} . "' LIMIT 1"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	if($row){
+		$self->{TRANSACTION_ID} = $row->{transaction_id};
+		$self->{TRANSACTION_TIMESTAMP} = $row->{transaction_timestamp};
+		$self->{TRANSACTION_DISPENSED_QUANTITY} = $row->{transaction_dispensed_quantity};
+		$self->{TRANSACTION_PPV} = $row->{transaction_ppv};
+		$self->{TRANSACTION_TOTAL_PRICE} = $row->{transaction_total_price};
+		$self->{TRANSACTION_IVA} = $row->{transaction_iva};
+		$self->{TRANSACTION_IEPS} = $row->{transaction_ieps};
+		$self->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE} = $row->{transaction_pump_head_external_code};
+		$self->{RETURN_TIMESTAMP} = $row->{return_timestamp};
+		$self->{RETURN_TOTAL_PRICE} = $row->{return_total_price};
+		$self->{RETURN_TANK_OBJECT_ID} = $row->{return_tank_object_id};
+		$self->{RETURN_DATE} = $row->{return_date};
+		$self->{RETURN_TIME} = $row->{return_time};
+		$self->{STATUS_CODE} = $row->{status_code};
+		return $self;
+	} else {
+		return 0;
+	}
+}
+
+sub insertaDevolucionJarreo {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "UPDATE jarreos_t SET 
+					return_timestamp=NOW(),
+					return_total_price=transaction_total_price,
+					return_date=NOW(),
+					return_time=NOW(),
+					status_code=1
+				WHERE transaction_id='" . $self->{TRANSACTION_ID} . "' LIMIT 1"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+    try {
+		my $sth = $connector->dbh->prepare($preps);
+	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		$sth->finish;
+		$connector->destroy();
+		return 1;
+    } catch {
+		return 0;				    
+    }
 }
 
 1;

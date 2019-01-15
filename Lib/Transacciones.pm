@@ -1,4 +1,12 @@
 package Trate::Lib::Transacciones;
+#########################################################
+#Transacciones - Clase Transacciones					#
+#                                                       #
+#Autor: Ramses                                          #
+#Fecha: Noviembre, 2018                                 #
+#Revision: 1.0                                          #
+#                                                       #
+#########################################################
 
 use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE);
 use Trate::Lib::WebServicesClient;
@@ -9,6 +17,7 @@ use Trate::Lib::Movimiento;
 use Trate::Lib::Pase;
 use Trate::Lib::Corte;
 use Trate::Lib::Mean;
+use Trate::Lib::Jarreo;
 use Try::Catch;
 use Data::Dump qw(dump);
 
@@ -121,27 +130,25 @@ sub procesaTransacciones($){
 		$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'});
 		try {
 			insertaTransaccion($self);
-			insertaMovimiento($self);
 			my $meanTransaction = Trate::Lib::Mean->new();
 			$meanTransaction->id($row->{mean_id});
-			$meanTransaction = Trate::Lib::Mean->getMeanFromId();
-			
-			if ($meanTransaction->auttyp() ne 21){
-				LOGGER->info("Insertar jarreo para el dispositivo <" . $meanTransaction->NAME() . ">");
+			$meanTransaction->fillMeanFromId();			
+			if($meanTransaction->auttyp() eq 21){
+				insertaMovimientoJarreo($self);
+				insertaJarreo($self);
+			} else {
+				insertaMovimiento($self);
 				actualizaPase($self);
 				limpiaReglaCarga($self);
-			} else {
-				LOGGER->info("Insertar jarreo para el dispositivo <" . $meanTransaction->NAME() . ">");
-				insertaJarreo($self);
 			}
 			
 			$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} + 1;
-			LOGGER->info(dump($meanTransaction));
+			#LOGGER->info(dump($meanTransaction));
 			$return = 1;
 		} catch {
 			$return = 0;			
 		} finally {
-			LOGGER->info(dump($self));
+			LOGGER->info("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
 		};
 	}
 	try {
@@ -213,22 +220,53 @@ sub insertaMovimiento{
 	$movimiento->{PROCESADA} = 'N';
 	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
 	$movimiento->{ID_RECEPCION} = 'NULL';
-	$movimiento->inserta();
+	$movimiento->insertaMDB();
+	return $self;
+}
+
+sub insertaMovimientoJarreo{
+	my $self = shift;
+	my $supervisor = pop;
+	my $movimiento = Trate::Lib::Movimiento->new();
+	$movimiento->{FECHA_HORA} = $self->{FECHA};
+	$movimiento->{DISPENSADOR} = $self->{BOMBA};
+	$movimiento->{SUPERVISOR} = $supervisor;
+	$movimiento->{DESPACHADOR} = $self->{IDDESPACHADORES};
+	$movimiento->{VIAJE} = 0;
+	$movimiento->{CAMION} = 0;
+	$movimiento->{CHOFER} = 0;
+	$movimiento->{SELLO} = 'NULL';
+	$movimiento->{TIPO_REFERENCIA} = '3';
+	$movimiento->{SERIE} = 'NULL';
+	$movimiento->{REFERENCIA} = 0;
+	$movimiento->{MOVIMIENTO} = '3';
+	$movimiento->{LITROS_ESP} = 0;
+	$movimiento->{LITROS_REAL} = $self->{CANTIDAD};
+	$movimiento->{COSTO_ESP} = '0';
+	$movimiento->{COSTO_REAL} = $self->{VENTA};
+	$movimiento->{IVA} = '0';
+	$movimiento->{IEPS} = '0';
+	$movimiento->{STATUS} = '0';
+	$movimiento->{PROCESADA} = 'N';
+	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
+	$movimiento->{ID_RECEPCION} = 'NULL';
+	$movimiento->insertaMDB();
 	return $self;
 }
 
 sub insertaJarreo{
 	my $self = shift;
 	my $jarreo = Trate::Lib::Jarreo->new();
-	$jarreo->transactionId($self->{IDTRANSACCIONES});
-	$jarreo->transactionTimestamp($self->{FECHA});
-	$jarreo->transactionDispensedQuantity($self->{TRANSACTION_DISPENSED_QUANTITY});
-	$jarreo->transactionPpv($self->{TRANSACTION_PPV});
-	$jarreo->transactionTotalPrice($self->{TRANSACTION_TOTAL_PRICE});
-	$jarreo->transactionIva($self->{TRANSACTION_IVA});
-	$jarreo->transactionIeps($self->{TRANSACTION_IEPS});
-	$jarreo->transactionPumpHeadExternalCode($self->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE});
+	$jarreo->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
+	$jarreo->{TRANSACTION_TIMESTAMP} = $self->{FECHA};
+	$jarreo->{TRANSACTION_DISPENSED_QUANTITY} = $self->{CANTIDAD};
+	$jarreo->{TRANSACTION_PPV} = $self->{PPV};
+	$jarreo->{TRANSACTION_TOTAL_PRICE} = $self->{VENTA};
+	$jarreo->{TRANSACTION_IVA} = 1;
+	$jarreo->{TRANSACTION_IEPS} = 1;
+	$jarreo->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE} = $self->{BOMBA};
 	$jarreo->{STATUS_CODE} = 2;
+	LOGGER->debug(dump($jarreo));
 	$jarreo->inserta();	
 }
 
@@ -321,6 +359,66 @@ sub getLastNTransactions{
 		"size" => $size
 	);
 	return \%return;	
+}
+
+sub getTransaccionFromId{
+	my $self = shift;
+	my $id = pop;
+
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	
+	my $preps = "SELECT * from transacciones WHERE idtransacciones =" . $id ; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	if($row){
+		return $row;
+	} else {
+		return 0;
+	}
+}
+
+sub fillTransaccionFromId{
+	my $self = shift;
+
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	
+	my $preps = "SELECT * from transacciones WHERE idtransacciones =" . $self->{IDTRANSACCIONES} ; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	if($row){
+		$self->{IDTRANSACCIONES} = $row->{idtransacciones}; 				
+		$self->{IDPRODUCTOS} = $row->{idproductos};
+		$self->{IDCORTES} = $row->{idcortes};
+		$self->{IDVEHICULOS} = $row->{idvehiculos};
+		$self->{IDDESPACHADORES} = $row->{iddespachadores};
+		$self->{IDTANQUES} = $row->{idtanques};
+		$self->{FECHA} = $row->{fecha};
+		$self->{BOMBA} = $row->{bomba};
+		$self->{MANGUERA} = $row->{manguera};
+		$self->{CANTIDAD} = $row->{cantidad};
+		$self->{ODOMETRO} = $row->{odometro};
+		$self->{ODOMETROANTERIOR} = $row->{odometroanterior};
+		$self->{HORASMOTOR} = $row->{horasMotor};
+		$self->{HORASMOTORANTERIOR} = $row->{horasMotorAnterior};
+		$self->{PLACA} = $row->{placa};
+		$self->{RECIBO} = $row->{recibo};
+		$self->{TOTALIZADOR} = $row->{totalizador};
+		$self->{TOTALIZADOR_ANTERIOR} = $row->{totalizador_anterior};
+		$self->{PPV} = $row->{ppv};
+		$self->{VENTA} = $row->{ppv};
+		$self->{PASE} = $row->{pase};
+		return $self;
+	} else {
+		return 0;
+	}
 }
 
 1;

@@ -1,5 +1,14 @@
 package Trate::Lib::Movimiento;
 
+#########################################################
+#Movimiento - Clase Movimiento							#
+#                                                       #
+#Autor: Ramses                                          #
+#Fecha: Noviembre, 2018                                 #
+#Revision: 1.0                                          #
+#                                                       #
+#########################################################
+
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
 use Try::Catch;
@@ -353,7 +362,6 @@ sub borraInf{
 sub inserta{
 	my $self = shift;
 	$self = insertaMDB($self);
-	#insertaInf($self);
 	return $self;
 }
 

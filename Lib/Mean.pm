@@ -1,4 +1,12 @@
 package Trate::Lib::Mean;
+#########################################################
+#Mean - Clase Mean										#
+#                                                       #
+#Autor: Ramses                                          #
+#Fecha: Noviembre, 2018                                 #
+#Revision: 1.0                                          #
+#                                                       #
+#########################################################
 
 use strict;
 use Trate::Lib::RemoteExecutor;
@@ -438,6 +446,29 @@ sub getMeanFromId {
 	} else {
 		return 0;
 	}
+}
+
+sub fillMeanFromId {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	$self->{NAME}=$row->{NAME};
+	$self->{STRING}=$row->{string};
+	$self->{TYPE}=$row->{TYPE};
+	$self->{STATUS}=$row->{status};
+	$self->{RULE}=$row->{rule};
+	$self->{HARDWARE_TYP}=$row->{hardware_type};
+	$self->{PLATE}=$row->{plate};
+	$self->{FLEET_ID}=$row->{fleet_id};
+	$self->{DEPT_ID}=$row->{dept_id};
+	$self->{AUTTYP}=$row->{auttyp};
+	return $self;
 }
 
 sub assignRuleToVehicleOrcu{
