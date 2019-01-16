@@ -12,4 +12,4 @@ $soap->readable(1);
 print $soap->call('ns1:SOGetPumpStatus',
         SOAP::Data->name("SessionID")->value($sessionId)->type(''),
         SOAP::Data->name("site_code")->value($siteCode)->type(''),
-        SOAP::Data->name("pump_id")->value($pumpId))->result;
+        SOAP::Data->name("pump_id")->value(''))->result;

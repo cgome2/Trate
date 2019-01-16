@@ -234,7 +234,7 @@ get '/recepciones_combustible/:id' => sub {
 	}
 };
 
-get '/recepcionCombustible/verificarFactura/:fecha/:factura/:serie' => sub {
+get '/recepciones_combustible/verificarFactura/:fecha/:factura/:serie' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
