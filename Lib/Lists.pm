@@ -22,33 +22,6 @@ sub new
 	return $self;	
 }
 
-sub getProductos{
-	my $self = shift;
-	my %params = (
-		SessionID => "",
-		site_code => ""
-	);
-	my $wsc = Trate::Lib::WebServicesClient->new();
-	$wsc->callName("SOGetProductList");
-	$wsc->sessionId();
-	my $result = $wsc->execute(\%params);	
-
-	my @productos = ();
-	if($result->{num_of_products} gt 0){
-		my @produkts = @{$result->{a_soProduct}->{soProduct}};
-		foreach my $produkt (@produkts) {
-			my %producto = (
-				"id" => $produkt->{id},
-				"name" => $produkt->{name},
-				"code" => $produkt->{code},
-				"status" => $produkt->{status}
-			);
-			push (@productos,\%producto);
-		}
-	}
-	return \@productos;
-}
-
 sub getDespachadores{
 	my @despachadores = ();
 	push @despachadores, {'mean_id' => 1, 'NAME' => 'Despachador 1'};

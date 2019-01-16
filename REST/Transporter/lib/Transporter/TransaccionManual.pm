@@ -22,17 +22,6 @@ get '/bombas' => sub {
 	return $lists->getBombas();	
 };
 
-get '/productos' => sub {
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	}
-	my $lists = Trate::Lib::Lists->new();
-	return $lists->getProductos();	
-};
-
 get '/despachadores' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;

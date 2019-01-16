@@ -751,8 +751,9 @@ CREATE TABLE `productos` (
   `NAME` varchar(255) NOT NULL DEFAULT 'Diesel',
   `code` int(11) DEFAULT NULL,
   `last_updated` datetime DEFAULT NULL,
-  `next_updated` datetime DEFAULT NULL,
-  `next_price` decimal(11,2) DEFAULT NULL
+  `next_update` datetime DEFAULT NULL,
+  `next_price` decimal(11,2) DEFAULT NULL,
+  `usuario` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -762,6 +763,7 @@ CREATE TABLE `productos` (
 
 LOCK TABLES `productos` WRITE;
 /*!40000 ALTER TABLE `productos` DISABLE KEYS */;
+INSERT INTO `productos` VALUES (200000008,2,18.00,'Magna',1,'2019-01-15 21:50:39',NULL,NULL,NULL),(200000009,2,21.20,'Premium',2,'2019-01-15 21:48:06',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `productos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -947,7 +949,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (1,'admin','Administrador','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,'915ba0481ffc18a687b81a3662e1d161fd4ad8e6','2019-01-08 22:29:08',46),(2,'tecflo','Tecflo','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,'ffdce2c32c1cb83697c1d4e59181db380b27d052','2019-01-15 13:34:40',99998),(3,'cgomez','Carlos Gomez','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,NULL,NULL,NULL),(4,'luis','Luis Angel Morales Romo','2d25b85d53a57f3a064d821d4f640977ccab63dd',2,1,NULL,'d7bb8d26d1e2074906df3b5a28466a222a66b94b','2019-01-08 22:44:24',1),(6,'josue','Josue Jimenez','',1,1,NULL,NULL,NULL,NULL),(7,'test','Usuario de Prueba','7c4a8d09ca3762af61e59520943dc26494f8941b',3,0,NULL,NULL,NULL,NULL),(8,'Mario','Mario Alberto','2d25b85d53a57f3a064d821d4f640977ccab63dd',1,0,NULL,NULL,NULL,5);
+INSERT INTO `usuarios` VALUES (1,'admin','Administrador','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,'915ba0481ffc18a687b81a3662e1d161fd4ad8e6','2019-01-08 22:29:08',46),(2,'tecflo','Tecflo','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,'310c401aa766c0ba4906465375529e403e009800','2019-01-15 22:49:28',99998),(3,'cgomez','Carlos Gomez','896aaa556c2ac9ab6a3415540b8111d17328ce01',1,1,NULL,NULL,NULL,NULL),(4,'luis','Luis Angel Morales Romo','2d25b85d53a57f3a064d821d4f640977ccab63dd',2,1,NULL,'d7bb8d26d1e2074906df3b5a28466a222a66b94b','2019-01-08 22:44:24',1),(6,'josue','Josue Jimenez','',1,1,NULL,NULL,NULL,NULL),(7,'test','Usuario de Prueba','7c4a8d09ca3762af61e59520943dc26494f8941b',3,0,NULL,NULL,NULL,NULL),(8,'Mario','Mario Alberto','2d25b85d53a57f3a064d821d4f640977ccab63dd',1,0,NULL,NULL,NULL,5);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -991,4 +993,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-01-15 13:11:37
+-- Dump completed on 2019-01-15 22:02:58
