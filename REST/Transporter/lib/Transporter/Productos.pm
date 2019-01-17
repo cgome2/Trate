@@ -58,7 +58,7 @@ patch '/productos/:id' => sub {
 	$productos->nextPrice($post->{next_price});
 	$productos->usuario($usuario->{numero_empleado});
 	if($productos->programarCambioPrecio() eq 1){
-		status: 200;
+		status 200;
 		return {message => "Cambio de precio programado correctamente"};
 	} else {
 		status 500;

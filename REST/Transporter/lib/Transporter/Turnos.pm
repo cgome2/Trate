@@ -5,20 +5,31 @@ use Trate::Lib::Constants qw(LOGGER);
 use Trate::Lib::Turnos;
 use Data::Dump qw(dump);
 use List::Util qw(all);
+use Trate::Lib::Usuarios;
 
 
 our $VERSION = '0.1';
 
 set serializer => 'JSON';
 
-get '/turnos' => sub {
+get '/shifts' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	return {message=>"Listado de turnos"};	
+
+	my $return = 0;	
+	my $TURNOS = Trate::Lib::Turnos->new();
+	$return = $TURNOS->getTurnos();
+	LOGGER->info(dump($return));
+	if ($return eq 0){
+		status 404;
+		return {message => "No existen turnos en el sistema"};
+	} else {
+		return $return;
+	}
 };
 
 get '/turnos/:id' => sub {
@@ -64,7 +75,7 @@ patch '/turnos/cerrar/:id_turno' => sub {
 	# Obtener totalizadores de bombas
 	# Obtener lecturas de tanques
 	# Calcular movimiento de entrega de turno
-	return {message=>"Cierre de un turno"}
+	return {message=>"Cierre de un turno"};
 };
 
 put '/turnos/abrir' => sub {
@@ -93,4 +104,5 @@ get '/turnos/despachadores' => sub {
 	}
 	return {message=>"Regresa listado de despachadores"};		
 };
+
 true;
