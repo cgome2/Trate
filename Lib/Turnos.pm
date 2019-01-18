@@ -6,6 +6,7 @@ use Trate::Lib::BombaTurno;
 use Trate::Lib::TanqueTurno;
 use Trate::Lib::MeanTurno;
 use Data::Dump qw(dump);
+use Data::Structure::Util qw( unbless );
 
 
 sub new
@@ -140,6 +141,7 @@ sub getTurnos {
 			$bombaTurno->totalizadorAlCerrar($b->{totalizador_al_cerrar});
 			$bombaTurno->timestampAbrir($b->{timestamp_abrir});
 			$bombaTurno->timestampCerrar($b->{timestamp_cerrar});
+			unbless($bombaTurno);
 			push @bombasTurno,$bombaTurno;
 		}
 
@@ -155,6 +157,7 @@ sub getTurnos {
 			$tanqueTurno->volumenFinal($t->{volumen_final});
 			$tanqueTurno->timestampInicial($t->{timestamp_inicial});
 			$tanqueTurno->timestampFinal($t->{timestamp_final});
+			unbless($tanqueTurno);			
 			push @tanquesTurno,$tanqueTurno;
 		}
 
@@ -170,6 +173,7 @@ sub getTurnos {
 			$meanTurno->timestampRm($m->{timestamp_rm});
 			$meanTurno->usuarioAdd($m->{usuario_add});
 			$meanTurno->usuarioRm($m->{usuario_rm});
+			unbless($meanTurno);
 			push @meansTurno,$meanTurno;
 		}
 		
