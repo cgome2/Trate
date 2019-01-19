@@ -171,7 +171,7 @@ get "/lecturas_tls/table" => sub {
   return {
     icon => "file-document",
     title => "Documentos",
-    id => "id",
+    id => "id_recepcion",
     buttons => [
       {
         icon => 'receipt',
@@ -224,6 +224,8 @@ get "/lecturas_tls/form" => sub {
   return {
     icon => "receipt",
     title => "Agregar Documento",
+    getFrom => "/recepciones_combustible",
+    sendTo => "/recepciones_combustible",
     fields => [
       {
         key => "fecha_documento",
@@ -296,11 +298,112 @@ get "/lecturas_tls/form" => sub {
         required => 1
       }
     ],
+  };
+};
+
+get "/recepciones_combustible/tls/form" => sub {
+  return {
+    icon => "playlist-plus",
+    title => "Agregar TLS",
+    getFrom => "/recepciones_combustible",
+    sendTo => "/recepciones_combustible",
+    override => { status => "2" },
+    fields => [
+      {
+        key => "fecha_recepcion",
+        label => "Fecha de Recepcion",
+        type => "date",
+        readonly => 1
+      },
+      {
+        key => "fecha_documento",
+        label => "Fecha del Documento",
+        type => "date",
+        readonly => 1
+      },
+      {
+        key => "terminal_embarque",
+        label => "Terminal de Embarque",
+        type => "text",
+        minlength => 3,
+        maxlength => 3,
+        regex => "[0-9]{3}",
+        readonly => 1
+      },
+      {
+        key => "sello_pemex",
+        label => "Sello PEMEX",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "folio_documento",
+        label => "Folio Documento",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "tipo_documento",
+        label => "Tipo",
+        type => "select",
+        options => [
+          { key => "CP", value => "CP"},
+          { key => "RP", value => "RP"}
+        ],
+        readonly => 1
+      },
+      {
+        key => "serie_documento",
+        label => "Serie Documento",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "numero_proveedor",
+        label => "Proveedor",
+        type => "select",
+        optionsSource => "/proveedores",
+        optionsKey => "id",
+        optionsValue => "proveedor"
+      },
+      {
+        key => "litros_documento",
+        label => "Litros",
+        type => "number",
+        readonly => 1
+      },
+      {
+        key => "ppv_documento",
+        label => "Precio por Litro",
+        type => "number",
+        readonly => 1,
+        operation => "division",
+        operands => ["importe_documento", "litros_documento"],
+        readonly => 1
+      },
+      {
+        key => "importe_documento",
+        label => "Importe",
+        type => "number",
+        readonly => 1
+      },
+      {
+        key => "iva_documento",
+        label => "IVA",
+        type => "number",
+        readonly => 1
+      },
+      {
+        key => "ieps_documento",
+        label => "IEPS",
+        type => "number",
+        readonly => 1
+      },
+    ],
     details => [
       {
-        key => "tls",
+        key => "lecturas_combustible",
         label => " Lecturas",
-        endpoint => "lecturas_tls/lecturas",
         columns => [
           {
             key => "start_delivery_timestamp",
@@ -335,7 +438,6 @@ get "/lecturas_tls/form" => sub {
             align => "right"
           }
         ],
-        unique => "ci_movimientos",
         required  => 1,
       }
     ]
@@ -672,34 +774,31 @@ get "/means/form" => sub {
   return {
     icon => "car",
     title => "Vehiculo",
+    transformer => { typeee => 'TYPE,hardware_type,auttyp' },
     fields => [
       {
+        required => 1,
         key => "NAME",
         label => "Nombre",
         type => "text"
       },
       {
+        required => 1,
         key => "plate",
         label => "Placa",
         type => "text"
       },
       {
-        key => "TYPE",
-        label => "Tipo",
+        required => 1,
+        key => "typeee",
+        label => "Tipo de dispositivo",
         type => "select",
-        options => @means_type_options,
-        optionsKey => 'from',
-        optionsValue => 'to'
+        optionsSource => '/means/types/mono',
+        optionsKey => 'value',
+        optionsValue => 'label'
       },
       {
-        key => "auttyp",
-        label => "Tipo de auto",
-        type => "select",
-        options => @means_auttyp_options,
-        optionsKey => 'from',
-        optionsValue => 'to'
-      },
-      {
+        required => 1,
         key => "status",
         label => "Estatus",
         type => "select",
@@ -708,6 +807,7 @@ get "/means/form" => sub {
         optionsValue => 'to'
       },
       {
+        required => 1,
         key => "string",
         label => "String",
         type => "text"
@@ -789,7 +889,7 @@ get "/usuarios/form" => sub {
       {
         key => "usuario",
         label => "Usuario",
-        type => "text",
+        type => "text"
       },
       {
         key => "nombre",
