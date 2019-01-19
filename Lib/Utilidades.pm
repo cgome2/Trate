@@ -16,13 +16,13 @@ sub getCurrentTimestampMariaDB {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
 	my $mysqlDate = $year + 1900;
 	$mysqlDate .= "-";
-	$mysqlDate .= $mon + 1;
+	$mysqlDate .= sprintf("%02d", $mon);
 	$mysqlDate .= "-";
-	$mysqlDate .= $mday;
+	$mysqlDate .= sprintf("%02d", $mday);
 	$mysqlDate .= " ";
-	$mysqlDate .= $hour;
+	$mysqlDate .= sprintf("%02d", $hour);
 	$mysqlDate .= ":";
-	$mysqlDate .= $min;
+	$mysqlDate .= sprintf("%02d", $min);
 	$mysqlDate .= ":";
 	$mysqlDate .= sprintf("%02d", $sec);
 	return $mysqlDate;

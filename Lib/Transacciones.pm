@@ -134,7 +134,7 @@ sub procesaTransacciones($){
 			my $meanTransaction = Trate::Lib::Mean->new();
 			$meanTransaction->id($row->{mean_id});
 			$meanTransaction->fillMeanFromId();			
-			if($meanTransaction->auttyp() eq 21){
+			if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type eq 2){
 				insertaMovimientoJarreo($self);
 				insertaJarreo($self);
 			} else {
@@ -144,7 +144,7 @@ sub procesaTransacciones($){
 			}
 			
 			$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} + 1;
-			#LOGGER->info(dump($meanTransaction));
+			LOGGER->info(dump($meanTransaction));
 			$return = 1;
 		} catch {
 			$return = 0;			

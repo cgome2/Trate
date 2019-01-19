@@ -30,12 +30,12 @@ get '/means' => sub {
 get '/means/types/mono' => sub {
 	my $meansOptions = 
 	[
-		{"value" => {"TYPE" => 3,"hardware_type" => 6,"auttyp" => 1},"label" => "Fuelopass"},
-		{"value" => {"TYPE" => 3,"hardware_type" => 6,"auttyp" => 23},"label" => "VIU35 NT"},
-		{"value" => {"TYPE" => 3,"hardware_type" => 6,"auttyp" => 26},"label" => "DATAPASS"},
-		{"value" => {"TYPE" => 2,"hardware_type" => 1,"auttyp" => 6},"label" => "Tag de Contingencia"},
-		{"value" => {"TYPE" => 2,"hardware_type" => 1,"auttyp" => 21},"label" => "Jarreo"},
-		{"value" => {"TYPE" => 4,"hardware_type" => 1,"auttyp" => 6},"label" => "Despachador"}
+		{"value" => {"TYPE" => 3,"hardware_type" => "6","auttyp" => 1},"label" => "Fuelopass"},
+		{"value" => {"TYPE" => 3,"hardware_type" => "6","auttyp" => 23},"label" => "VIU35 NT"},
+		{"value" => {"TYPE" => 3,"hardware_type" => "6","auttyp" => 26},"label" => "DATAPASS"},
+		{"value" => {"TYPE" => 2,"hardware_type" => "1","auttyp" => 6},"label" => "Tag de Contingencia"},
+		{"value" => {"TYPE" => 2,"hardware_type" => "1","auttyp" => 21},"label" => "Jarreo"},
+		{"value" => {"TYPE" => 4,"hardware_type" => "1","auttyp" => 6},"label" => "Despachador"}
 	];
 	return $meansOptions;	
 };
