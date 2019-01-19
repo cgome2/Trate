@@ -27,6 +27,41 @@ get '/means' => sub {
 	return $means;
 };
 
+get '/means/types' => sub {
+	my $meansOptions = 
+	[
+		{
+		"TYPE" => 3,
+		"label" => "Dispositivo montado en vehículo",
+		"hardware_types" => 
+			[
+				{
+				"hardware_type" => 6,
+				"label" => "Vehículo",
+				"auttypes" => [
+					{"auttyp" => 1,"label" => "Fuelopass"},
+					{"auttyp" => 10,"label" => "TRU"},
+					{"auttyp" => 11,"label" => "VIU3"},
+					{"auttyp" => 12,"label" => "VIU35 E"},
+					{"auttyp" => 13,"label" => "VIU35 NT"},
+					{"auttyp" => 14,"label" => "FP HS"},
+					{"auttyp" => 15,"label" => "DP only"},
+					{"auttyp" => 16,"label" => "VIU 4"},					
+					{"auttyp" => 17,"label" => "FP + DP"},					
+					{"auttyp" => 18,"label" => "VIU 45"},					
+					{"auttyp" => 19,"label" => "FP HS + DP"},					
+					{"auttyp" => 20,"label" => "URD"},					
+					{"auttyp" => 21,"label" => "URD + DP"},					
+					{"auttyp" => 22,"label" => "VIU 35"}
+					]
+				}
+			]
+		}
+	];
+	LOGGER->info(dump($meansOptions));
+	return $meansOptions;
+};
+
 get '/means/:id' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
@@ -102,13 +137,13 @@ put '/means' => sub {
 };
 
 patch '/means' => sub {
-	#if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-	#	status 401;
-	#	return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	#} else {
-	#	Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	#}
-	#my $request = Dancer::Request->new(env => \%ENV);
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
+	my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
 
 	LOGGER->info(dump($post));
