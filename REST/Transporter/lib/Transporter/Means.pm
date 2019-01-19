@@ -36,29 +36,50 @@ get '/means/types' => sub {
 		"hardware_types" => 
 			[
 				{
-				"hardware_type" => 6,
-				"label" => "Vehículo",
-				"auttypes" => [
-					{"auttyp" => 1,"label" => "Fuelopass"},
-					{"auttyp" => 10,"label" => "TRU"},
-					{"auttyp" => 11,"label" => "VIU3"},
-					{"auttyp" => 12,"label" => "VIU35 E"},
-					{"auttyp" => 13,"label" => "VIU35 NT"},
-					{"auttyp" => 14,"label" => "FP HS"},
-					{"auttyp" => 15,"label" => "DP only"},
-					{"auttyp" => 16,"label" => "VIU 4"},					
-					{"auttyp" => 17,"label" => "FP + DP"},					
-					{"auttyp" => 18,"label" => "VIU 45"},					
-					{"auttyp" => 19,"label" => "FP HS + DP"},					
-					{"auttyp" => 20,"label" => "URD"},					
-					{"auttyp" => 21,"label" => "URD + DP"},					
-					{"auttyp" => 22,"label" => "VIU 35"}
+					"hardware_type" => 6,
+					"label" => "Vehículo",
+					"auttypes" => [
+						{"auttyp" => 1,"label" => "Fuelopass"},
+						{"auttyp" => 10,"label" => "TRU"},
+						{"auttyp" => 11,"label" => "VIU3"},
+						{"auttyp" => 12,"label" => "VIU35 E"},
+						{"auttyp" => 13,"label" => "VIU35 NT"},
+						{"auttyp" => 14,"label" => "FP HS"},
+						{"auttyp" => 15,"label" => "DP only"},
+						{"auttyp" => 16,"label" => "VIU 4"},					
+						{"auttyp" => 17,"label" => "FP + DP"},					
+						{"auttyp" => 18,"label" => "VIU 45"},					
+						{"auttyp" => 19,"label" => "FP HS + DP"},					
+						{"auttyp" => 20,"label" => "URD"},					
+						{"auttyp" => 21,"label" => "URD + DP"},					
+						{"auttyp" => 22,"label" => "VIU 35"}
+					]
+				}
+			]
+		},
+		{
+		"TYPE" => 2,
+		"label" => "Dispositivo de mano del usuario",
+		"hardware_types" =>
+			[
+				{
+					"hardware_type" => 1,
+					"label" => "Despacho de combustible",
+					"auttypes" => [
+						{"auttyp" => 6,"label" => "Tag de Contingencia"},	
+						{"auttyp" => 21,"label" => "Jarreo"}
+					]
+				},
+				{
+					"hardware_type" => 2,
+					"label" => "Despachador",
+					"auttypes" => [
+						{"auttyp" => 6,"label" => "Despachador"}	
 					]
 				}
 			]
 		}
 	];
-	LOGGER->info(dump($meansOptions));
 	return $meansOptions;
 };
 
