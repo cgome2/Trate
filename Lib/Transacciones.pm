@@ -64,13 +64,11 @@ sub new
 }
 
 sub getLastRetrievedTransactions{
-    my $self = shift;
-    my $twig= new XML::Twig;
-    $twig->parsefile($self->{ORCURETRIEVEFILE});
-    my $root = $twig->root;
- #	LOGGER->info(dump($root));
-    my @transporter_transaction = $root->descendants('transporter:transaction');
-    $self->{LAST_TRANSACTION_ID} = $transporter_transaction[0]->{'att'}->{'id'};
+    	my $self = shift;
+    	my $twig= XML::Twig->new->parsefile(ORCURETRIEVEFILE);
+    	my $root = $twig->root;
+    	my @transporter_transaction = $root->descendants('transporter:transaction');
+	$self->{LAST_TRANSACTION_ID} = $transporter_transaction[0]->{'att'}->{'id'};
 	$self->{LAST_TRANSACTION_TIMESTAMP} = $transporter_transaction[0]->{'att'}->{'TIMESTAMP'};
 	$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $transporter_transaction[0]->{'att'}->{'total_retrieved_transactions'};
 	
@@ -80,6 +78,7 @@ sub getLastRetrievedTransactions{
 sub getLastTransactionsFromORCU{
 	my $self = shift;
 	$self = getLastRetrievedTransactions($self);
+	LOGGER->info("ramses carmona");
 	my %params = (
 		SessionID => "",
 		site_code => "",
@@ -88,6 +87,7 @@ sub getLastTransactionsFromORCU{
 		toID => $self->{LAST_TRANSACTION_ID} + 5,
 		extended_info => "1"
 	);
+	LOGGER->info("testing the test");
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOHOGetTransactionsByRange");
 	$wsc->sessionId();
@@ -114,12 +114,13 @@ sub procesaTransacciones($){
 	LOGGER->debug("transacciones a procesar [" . @$transaccionesarray . "]");
 	my @transacciones = @$transaccionesarray;
 	foreach my $row (@transacciones){
+		LOGGER->debug(dump($row));
 		$self->{IDTRANSACCIONES} = $row->{'id'};
 		$self->{IDPRODUCTOS} = $row->{'product_code'};
 		$self->{IDCORTES} = getCorte($row->{'shift_id'} eq "" ? 0 : $row->{'shift_id'});
 		$self->{IDVEHICULOS} = $row->{'mean_name'} eq "" ? "" : $row->{'mean_name'};
 		$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
-		$self->{FECHA} = $row->{'date'};
+		$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
 		$self->{BOMBA} = $row->{'pump'};
 		$self->{MANGUERA} = $row->{'nozzle'};
 		$self->{CANTIDAD} = $row->{'quantity'};
@@ -127,7 +128,7 @@ sub procesaTransacciones($){
 		$self->{PLACA} = $row->{'plate'};
 		$self->{PPV} = $row->{'ppv'};
 		$self->{VENTA} = $row->{'total_price'};
-		$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'});
+		$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'} . ' ' . $row->{'time'});
 		try {
 			insertaTransaccion($self);
 			my $meanTransaction = Trate::Lib::Mean->new();
@@ -147,7 +148,8 @@ sub procesaTransacciones($){
 			$return = 1;
 		} catch {
 			$return = 0;			
-		} finally {
+		} 
+		finally {
 			LOGGER->info("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
 		};
 	}

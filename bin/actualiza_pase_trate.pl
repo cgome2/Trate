@@ -34,6 +34,7 @@ $PASE->viajeSust($viaje_sust);
 $PASE->supervisor($supervisor);
 $PASE->observaciones($observaciones);
 $PASE->ultimaModificacion($ultima_modificacion);
+LOGGER->info(dump($PASE));
 
 my $mean = Trate::Lib::Mean->new();
 $mean->name($old_mean);

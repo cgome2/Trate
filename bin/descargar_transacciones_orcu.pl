@@ -16,6 +16,7 @@ use Try::Catch;
 
 my $return = 0;
 my $transacciones = Trate::Lib::Transacciones->new();
+LOGGER->info("ramses lets start");
 try {
 	my $message = $transacciones->getLastTransactionsFromORCU();
 	LOGGER->debug($message);

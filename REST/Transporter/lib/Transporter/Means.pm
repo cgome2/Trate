@@ -102,27 +102,32 @@ put '/means' => sub {
 };
 
 patch '/means' => sub {
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	}
-	my $request = Dancer::Request->new(env => \%ENV);
+	#if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+	#	status 401;
+	#	return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	#} else {
+	#	Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	#}
+	#my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
+
+	LOGGER->info(dump($post));
+
+
 	my $MEAN = Trate::Lib::Mean->new();
-	$MEAN->name($post->{soMean}->[0]->{name});
-	$MEAN->string($post->{soMean}->[0]->{string});
-	$MEAN->type($post->{soMean}->[0]->{type});
-	$MEAN->id($post->{soMean}->[0]->{id});
-	$MEAN->status($post->{soMean}->[0]->{status});
-	$MEAN->rule($post->{soMean}->[0]->{rule});
-	$MEAN->hardwareType($post->{soMean}->[0]->{hardware_type});
-	$MEAN->plate($post->{soMean}->[0]->{plate});
-	$MEAN->fleetId($post->{soMean}->[0]->{fleet_id});
-	$MEAN->deptId($post->{soMean}->[0]->{dept_id});
-	$MEAN->auttyp($post->{soMean}->[0]->{auttyp});
-	
+	$MEAN->{NAME} = $post->{NAME};
+	$MEAN->{STRING} = $post->{string};
+	$MEAN->{TYPE} = $post->{TYPE};
+	$MEAN->{ID} = $post->{id};
+	$MEAN->{STATUS} = $post->{status};
+	$MEAN->{RULE} = $post->{rule};
+	$MEAN->{HARDWARE_TYPE} = $post->{hardware_type};
+	$MEAN->{PLATE} = $post->{plate};
+	$MEAN->{FLEET_ID} = $post->{fleet_id};
+	$MEAN->{DEPT_ID} = $post->{dept_id};
+	$MEAN->{AUTTYP} = $post->{auttyp};
+	LOGGER->info(dump($MEAN));
+
 	if($MEAN->updateMean() eq 1){
 		return {message => "OKComputer"};
 	} else {
@@ -130,7 +135,6 @@ patch '/means' => sub {
 		return {message => "NotOkComputer"};
 	}
 	
-	return 1;
 };
 
 true;
