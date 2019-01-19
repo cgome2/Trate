@@ -27,7 +27,26 @@ get '/means' => sub {
 	return $means;
 };
 
+get '/means/types/mono' => sub {
+	my $meansOptions = 
+	[
+		{"TYPE" => 3,"hardware_type" => 6,"auttyp" => 1,"label" => "Fuelopass"},
+		{"TYPE" => 3,"hardware_type" => 6,"auttyp" => 23,"label" => "VIU35 NT"},
+		{"TYPE" => 3,"hardware_type" => 6,"auttyp" => 26,"label" => "DATAPASS"},
+		{"TYPE" => 2,"hardware_type" => 1,"auttyp" => 6,"label" => "Tag de Contingencia"},
+		{"TYPE" => 2,"hardware_type" => 1,"auttyp" => 21,"label" => "Jarreo"},
+		{"TYPE" => 4,"hardware_type" => 1,"auttyp" => 6,"label" => "Despachador"}
+	];
+	return $meansOptions;	
+};
+
 get '/means/types' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
 	my $meansOptions = 
 	[
 		{
@@ -40,19 +59,8 @@ get '/means/types' => sub {
 					"label" => "Vehículo",
 					"auttypes" => [
 						{"auttyp" => 1,"label" => "Fuelopass"},
-						{"auttyp" => 10,"label" => "TRU"},
-						{"auttyp" => 11,"label" => "VIU3"},
-						{"auttyp" => 12,"label" => "VIU35 E"},
-						{"auttyp" => 13,"label" => "VIU35 NT"},
-						{"auttyp" => 14,"label" => "FP HS"},
-						{"auttyp" => 15,"label" => "DP only"},
-						{"auttyp" => 16,"label" => "VIU 4"},					
-						{"auttyp" => 17,"label" => "FP + DP"},					
-						{"auttyp" => 18,"label" => "VIU 45"},					
-						{"auttyp" => 19,"label" => "FP HS + DP"},					
-						{"auttyp" => 20,"label" => "URD"},					
-						{"auttyp" => 21,"label" => "URD + DP"},					
-						{"auttyp" => 22,"label" => "VIU 35"}
+						{"auttyp" => 23,"label" => "VIU35 NT"},
+						{"auttyp" => 26,"label" => "DATAPASS"}
 					]
 				}
 			]
@@ -69,16 +77,24 @@ get '/means/types' => sub {
 						{"auttyp" => 6,"label" => "Tag de Contingencia"},	
 						{"auttyp" => 21,"label" => "Jarreo"}
 					]
-				},
+				}			
+			]
+		},
+		{
+		"TYPE" => 4,
+		"label" => "Dispositivo de mano del usuario",
+		"hardware_types" =>
+			[
 				{
-					"hardware_type" => 2,
-					"label" => "Despachador",
+					"hardware_type" => 1,
+					"label" => "Despacho de combustible",
 					"auttypes" => [
-						{"auttyp" => 6,"label" => "Despachador"}	
+						{"auttyp" => 6,"label" => "Despachador"}
 					]
 				}
 			]
 		}
+		
 	];
 	return $meansOptions;
 };
@@ -137,9 +153,9 @@ put '/means' => sub {
 	my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
 	my $MEAN = Trate::Lib::Mean->new();
-	$MEAN->name($post->{name});
+	$MEAN->name($post->{NAME});
 	$MEAN->string($post->{string});
-	$MEAN->type($post->{type});
+	$MEAN->type($post->{TYPE});
 	$MEAN->id($post->{id});
 	$MEAN->status($post->{status});
 	$MEAN->rule($post->{rule});
