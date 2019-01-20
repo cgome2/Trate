@@ -499,7 +499,9 @@ get "/pases/table" => sub {
       {
         icon => 'undo',
         label => 'Reabrir',
-        condition => "status D",
+        condition => {
+          status => "D"
+        },
         action => {
           type => 'form',
           form => '/pases/reabrir'
@@ -508,7 +510,9 @@ get "/pases/table" => sub {
       {
         icon => 'transfer',
         label => 'Reasignar',
-        condition => "status A|T|R",
+        condition => { 
+          status => "A|T|R"
+        },
         action => {
           type => 'form',
           form => '/pases/reasignar'
@@ -517,7 +521,9 @@ get "/pases/table" => sub {
       {
         icon => 'hand',
         label => 'Manual',
-        condition => "status A|T|R",
+        condition => {
+          status => "A|T|R"
+        },
         action => {
           type => 'form',
           form => '/pases/manual'
@@ -746,13 +752,35 @@ get "/means/table" => sub {
         }
       },
       {
-        icon => 'pencil',
+        icon => 'water',
         label => 'Activar',
+        condition => {
+          auttyp => '21',
+          hardware_type => '1',
+          TYPE => '2',
+          status => '1'
+        },
         action => {
           type => 'http',
           endpoint => '/means',
           verb => 'patch',
           override => { status => 2 }
+        }
+      },
+      {
+        icon => 'water-off',
+        label => 'Desactivar',
+        condition => {
+          auttyp => '21',
+          hardware_type => '1',
+          TYPE => '2',
+          status => '2'
+        },
+        action => {
+          type => 'http',
+          endpoint => '/means',
+          verb => 'patch',
+          override => { status => 1 }
         }
       }
     ],
@@ -824,15 +852,6 @@ get "/means/form" => sub {
         optionsSource => '/means/types/mono',
         optionsKey => 'value',
         optionsValue => 'label'
-      },
-      {
-        required => 1,
-        key => "status",
-        label => "Estatus",
-        type => "select",
-        options => @means_status_options,
-        optionsKey => 'from',
-        optionsValue => 'to'
       },
       {
         required => 1,
