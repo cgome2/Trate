@@ -42,6 +42,10 @@ get "/menu" => sub {
 					{
 						header => "Jarreos",
 						path => "/despacho/jarreos"
+					},
+					{
+						header => "Precios",
+						path => "/despacho/precios"
 					}
 				]
 			},
@@ -147,6 +151,7 @@ get "/components" => sub {
 
     case "/despacho/contingencias"      { $component = "superTable"; $endpoint = "/pases"; }
     # case "/despacho/jarreos"            { $component = "superTable"; $endpoint = ""; }
+    case "/despacho/precios"      { $component = "superTable"; $endpoint = "/productos"; }
 
     case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/recepciones_combustible"; }
 
@@ -166,6 +171,91 @@ get "/components" => sub {
     id => $id
   };
 };
+
+get "/productos/table" => sub {
+  return {
+    icon => "currency-usd",
+    title => "Precios",
+    id => "id",
+    options => [
+      {
+        icon => 'currency-usd',
+        label => 'Cambio de precio',
+        action => {
+          type => 'form',
+          form => '/productos'
+        }
+      }
+    ],
+    columns => [
+      {
+        key => "NAME",
+        label => "Nombre"
+      },
+      {
+        key => "price",
+        label => "Precio",
+        format => "currency"
+      },
+      {
+        key => "last_updated",
+        label => "Ultimo cambio"
+      },
+      {
+        key => "next_price",
+        label => "Proximo precio",
+        format => "currency"
+      },
+      {
+        key => "next_update",
+        label => "Proximo cambio"
+      }
+    ]
+  };
+};
+
+get "/productos/form" => sub {
+  return {
+    icon => "currency-usd",
+    title => "Precios",
+    getFrom => "/productos",
+    sendTo => "/productos",
+    sqlDates => 1,
+    fields => [
+      {
+        key => "NAME",
+        label => "Nombre",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "last_updated",
+        label => "Ultimo cambio",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "price",
+        label => "Precio",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "next_price",
+        label => "Proximo precio",
+        type => "number", 
+        required => 1
+      },
+      {
+        key => "next_update",
+        label => "Proximo cambio",
+        type => "datetime", 
+        required => 1
+      }
+    ],
+  };
+};
+
 
 get "/recepciones_combustible/table" => sub {
   return {
