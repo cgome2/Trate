@@ -148,7 +148,7 @@ get "/components" => sub {
     case "/despacho/contingencias"      { $component = "superTable"; $endpoint = "/pases"; }
     # case "/despacho/jarreos"            { $component = "superTable"; $endpoint = ""; }
 
-    case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/lecturas_tls"; }
+    case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/recepciones_combustible"; }
 
     # case "/turnos/turnos"               { $component = "superTable"; $endpoint = ""; }
 
@@ -167,7 +167,7 @@ get "/components" => sub {
   };
 };
 
-get "/lecturas_tls/table" => sub {
+get "/recepciones_combustible/table" => sub {
   return {
     icon => "file-document",
     title => "Documentos",
@@ -178,7 +178,25 @@ get "/lecturas_tls/table" => sub {
         label => 'Nueva Factura',
         action => {
           type => 'form',
-          form => '/lecturas_tls'
+          form => '/recepciones_combustible'
+        }
+      }
+    ],
+    options => [
+      {
+        icon => 'receipt',
+        label => 'Editar',
+        action => {
+          type => 'form',
+          form => '/recepciones_combustible'
+        }
+      },
+      {
+        icon => 'playlist-plus',
+        label => 'Agregar TLS',
+        action => {
+          type => 'form',
+          form => '/recepciones_combustible/tls'
         }
       }
     ],
@@ -220,7 +238,7 @@ get "/lecturas_tls/table" => sub {
   };
 };
 
-get "/lecturas_tls/form" => sub {
+get "/recepciones_combustible/form" => sub {
   return {
     icon => "receipt",
     title => "Agregar Documento",
@@ -481,7 +499,9 @@ get "/pases/table" => sub {
       {
         icon => 'undo',
         label => 'Reabrir',
-        condition => "status D",
+        condition => {
+          status => "D"
+        },
         action => {
           type => 'form',
           form => '/pases/reabrir'
@@ -490,7 +510,9 @@ get "/pases/table" => sub {
       {
         icon => 'transfer',
         label => 'Reasignar',
-        condition => "status A|T|R",
+        condition => { 
+          status => "A|T|R"
+        },
         action => {
           type => 'form',
           form => '/pases/reasignar'
@@ -499,7 +521,9 @@ get "/pases/table" => sub {
       {
         icon => 'hand',
         label => 'Manual',
-        condition => "status A|T|R",
+        condition => {
+          status => "A|T|R"
+        },
         action => {
           type => 'form',
           form => '/pases/manual'
@@ -678,39 +702,39 @@ get "/pases/manual/form" => sub {
 };
 
 my @means_type_options = [
-  { from => 2, to => "Dispositivo montado en vehiculo"},
-  { from => 3, to => "Tag tipo vehiculo"},
-  { from => 4, to => "Tag despachador"}
+  { from => "2", to => "Dispositivo montado en vehiculo"},
+  { from => "3", to => "Tag tipo vehiculo"},
+  { from => "4", to => "Tag despachador"}
 ];
 
 my @means_auttyp_options = [
-  { from => 1,  to => "Tag" },
-  { from => 2,  to => "VIU 3" },
-  { from => 3,  to => "VIU 4" },
-  { from => 4,  to => "VIU 45" },
-  { from => 5,  to => "Electronic Key" },
-  { from => 6,  to => "Montado al Vehiculo" },
-  { from => 7,  to => "Authorizer" },
-  { from => 8,  to => "Master Authorizer" },
-  { from => 9,  to => "VIU 35" },
-  { from => 10, to => "TRU" },
-  { from => 14, to => "Fuel Card" },
-  { from => 20, to => "Gasboy Key" },
-  { from => 21, to => "Manual Entry" },
-  { from => 22, to => "VIU 35 E" },
-  { from => 23, to => "VIU 35 NT" },
-  { from => 25, to => "FP HS" },
-  { from => 26, to => "DP only" },
-  { from => 27, to => "DP H" },
-  { from => 30, to => "FP + DP" },
-  { from => 40, to => "FP HS + DP" },
-  { from => 41, to => "URD" },
-  { from => 42, to => "URD + DP" }
+  { from => "1",  to => "Tag" },
+  { from => "2",  to => "VIU 3" },
+  { from => "3",  to => "VIU 4" },
+  { from => "4",  to => "VIU 45" },
+  { from => "5",  to => "Electronic Key" },
+  { from => "6",  to => "Montado al Vehiculo" },
+  { from => "7",  to => "Authorizer" },
+  { from => "8",  to => "Master Authorizer" },
+  { from => "9",  to => "VIU 35" },
+  { from => "10", to => "TRU" },
+  { from => "14", to => "Fuel Card" },
+  { from => "20", to => "Gasboy Key" },
+  { from => "21", to => "Manual Entry" },
+  { from => "22", to => "VIU 35 E" },
+  { from => "23", to => "VIU 35 NT" },
+  { from => "25", to => "FP HS" },
+  { from => "26", to => "DP only" },
+  { from => "27", to => "DP H" },
+  { from => "30", to => "FP + DP" },
+  { from => "40", to => "FP HS + DP" },
+  { from => "41", to => "URD" },
+  { from => "42", to => "URD + DP" }
 ];
 
 my @means_status_options = [
-  { from => 1, to => "Inactivo"},
-  { from => 2, to => "Activo"},
+  { from => "1", to => "Inactivo"},
+  { from => "2", to => "Activo"},
 ];
 
 get "/means/table" => sub {
@@ -725,6 +749,38 @@ get "/means/table" => sub {
         action => {
           type => 'form',
           form => '/means'
+        }
+      },
+      {
+        icon => 'water',
+        label => 'Activar',
+        condition => {
+          auttyp => '21',
+          hardware_type => '1',
+          TYPE => '2',
+          status => '1'
+        },
+        action => {
+          type => 'http',
+          endpoint => '/means',
+          verb => 'patch',
+          override => { status => 2 }
+        }
+      },
+      {
+        icon => 'water-off',
+        label => 'Desactivar',
+        condition => {
+          auttyp => '21',
+          hardware_type => '1',
+          TYPE => '2',
+          status => '2'
+        },
+        action => {
+          type => 'http',
+          endpoint => '/means',
+          verb => 'patch',
+          override => { status => 1 }
         }
       }
     ],
@@ -796,15 +852,6 @@ get "/means/form" => sub {
         optionsSource => '/means/types/mono',
         optionsKey => 'value',
         optionsValue => 'label'
-      },
-      {
-        required => 1,
-        key => "status",
-        label => "Estatus",
-        type => "select",
-        options => @means_status_options,
-        optionsKey => 'from',
-        optionsValue => 'to'
       },
       {
         required => 1,
