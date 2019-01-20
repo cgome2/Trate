@@ -40,65 +40,6 @@ get '/means/types/mono' => sub {
 	return $meansOptions;	
 };
 
-get '/means/types' => sub {
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	}
-	my $meansOptions = 
-	[
-		{
-		"TYPE" => 3,
-		"label" => "Dispositivo montado en vehículo",
-		"hardware_types" => 
-			[
-				{
-					"hardware_type" => 6,
-					"label" => "Vehículo",
-					"auttypes" => [
-						{"auttyp" => 1,"label" => "Fuelopass"},
-						{"auttyp" => 23,"label" => "VIU35 NT"},
-						{"auttyp" => 26,"label" => "DATAPASS"}
-					]
-				}
-			]
-		},
-		{
-		"TYPE" => 2,
-		"label" => "Dispositivo de mano del usuario",
-		"hardware_types" =>
-			[
-				{
-					"hardware_type" => 1,
-					"label" => "Despacho de combustible",
-					"auttypes" => [
-						{"auttyp" => 6,"label" => "Tag de Contingencia"},	
-						{"auttyp" => 21,"label" => "Jarreo"}
-					]
-				}			
-			]
-		},
-		{
-		"TYPE" => 4,
-		"label" => "Dispositivo de mano del usuario",
-		"hardware_types" =>
-			[
-				{
-					"hardware_type" => 1,
-					"label" => "Despacho de combustible",
-					"auttypes" => [
-						{"auttyp" => 6,"label" => "Despachador"}
-					]
-				}
-			]
-		}
-		
-	];
-	return $meansOptions;
-};
-
 get '/means/:id' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
@@ -152,24 +93,32 @@ put '/means' => sub {
 	}
 	my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
-	my $MEAN = Trate::Lib::Mean->new();
-	$MEAN->name($post->{NAME});
-	$MEAN->string($post->{string});
-	$MEAN->type($post->{TYPE});
-	$MEAN->id($post->{id});
-	$MEAN->status($post->{status});
-	$MEAN->rule($post->{rule});
-	$MEAN->hardwareType($post->{hardware_type});
-	$MEAN->plate($post->{plate});
-	$MEAN->fleetId($post->{fleet_id});
-	$MEAN->deptId($post->{dept_id});
-	$MEAN->auttyp($post->{auttyp});
-
-	if($MEAN->createMean() eq 1){
-		return {message => "OKComputer"};
+	
+	if(
+		($post->{TYPE} eq 3 && $post->{hardware_type} eq 6 && $post->{auttyp} eq 1) ||
+		($post->{TYPE} eq 3 && $post->{hardware_type} eq 6 && $post->{auttyp} eq 23) ||
+		($post->{TYPE} eq 3 && $post->{hardware_type} eq 6 && $post->{auttyp} eq 26) ||
+		($post->{TYPE} eq 4 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 6) ||
+		($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 6) ||
+		($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 21)
+	){
+		my $MEAN = Trate::Lib::Mean->new();
+		LOGGER->debug(dump($MEAN));
+		$MEAN->name($post->{NAME});
+		$MEAN->string($post->{string});
+		$MEAN->type($post->{TYPE});
+		$MEAN->hardwareType($post->{hardware_type});
+		$MEAN->plate($post->{plate});
+		$MEAN->auttyp($post->{auttyp});
+		if($MEAN->createMean() eq 1){
+			return {message => "OKComputer"};
+		} else {
+			status 405;
+			return {message => "NotOkComputer"};
+		}
 	} else {
-		status 405;
-		return {message => "NotOkComputer"};
+		status 500;
+		return {message => "Tipo de dispositivo inexistente"};
 	}
 };
 
@@ -183,30 +132,37 @@ patch '/means' => sub {
 	my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
 
-	LOGGER->info(dump($post));
-
-
-	my $MEAN = Trate::Lib::Mean->new();
-	$MEAN->{NAME} = $post->{NAME};
-	$MEAN->{STRING} = $post->{string};
-	$MEAN->{TYPE} = $post->{TYPE};
-	$MEAN->{ID} = $post->{id};
-	$MEAN->{STATUS} = $post->{status};
-	$MEAN->{RULE} = $post->{rule};
-	$MEAN->{HARDWARE_TYPE} = $post->{hardware_type};
-	$MEAN->{PLATE} = $post->{plate};
-	$MEAN->{FLEET_ID} = $post->{fleet_id};
-	$MEAN->{DEPT_ID} = $post->{dept_id};
-	$MEAN->{AUTTYP} = $post->{auttyp};
-	LOGGER->info(dump($MEAN));
-
-	if($MEAN->updateMean() eq 1){
-		return {message => "OKComputer"};
-	} else {
-		status 405;
-		return {message => "NotOkComputer"};
-	}
+	if(
+		($post->{TYPE} eq 3 && $post->{hardware_type} eq 6 && $post->{auttyp} eq 1) ||
+		($post->{TYPE} eq 3 && $post->{hardware_type} eq 6 && $post->{auttyp} eq 23) ||
+		($post->{TYPE} eq 3 && $post->{hardware_type} eq 6 && $post->{auttyp} eq 26) ||
+		($post->{TYPE} eq 4 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 6) ||
+		($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 6) ||
+		($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 21)
+	){
+		my $MEAN = Trate::Lib::Mean->new();
+		$MEAN->{NAME} = $post->{NAME};
+		$MEAN->{STRING} = $post->{string};
+		$MEAN->{TYPE} = $post->{TYPE};
+		$MEAN->{ID} = $post->{id};
+		if($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 21){
+			$MEAN->{STATUS} = $post->{status};	
+		}
+		$MEAN->{HARDWARE_TYPE} = $post->{hardware_type};
+		$MEAN->{PLATE} = $post->{plate};
+		$MEAN->{AUTTYP} = $post->{auttyp};
+		LOGGER->info(dump($MEAN));
 	
+		if($MEAN->updateMean() eq 1){
+			return {message => "OKComputer"};
+		} else {
+			status 405;
+			return {message => "NotOkComputer"};
+		}
+	} else {
+		status 500;
+		return {message => "Tipo de dispositivo inexistente"};
+	}	
 };
 
 true;

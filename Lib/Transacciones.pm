@@ -128,7 +128,6 @@ sub procesaTransacciones($){
 		$self->{PLACA} = $row->{'plate'};
 		$self->{PPV} = $row->{'ppv'};
 		$self->{VENTA} = $row->{'total_price'};
-		$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'} . ' ' . $row->{'time'});
 		try {
 			insertaTransaccion($self);
 			my $meanTransaction = Trate::Lib::Mean->new();
@@ -138,6 +137,7 @@ sub procesaTransacciones($){
 				insertaMovimientoJarreo($self);
 				insertaJarreo($self);
 			} else {
+				$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'} . ' ' . $row->{'time'});
 				insertaMovimiento($self);
 				actualizaPase($self);
 				limpiaReglaCarga($self);

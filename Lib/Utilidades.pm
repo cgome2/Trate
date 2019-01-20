@@ -25,6 +25,7 @@ sub getCurrentTimestampMariaDB {
 	$mysqlDate .= sprintf("%02d", $min);
 	$mysqlDate .= ":";
 	$mysqlDate .= sprintf("%02d", $sec);
+	LOGGER->info($mysqlDate);
 	return $mysqlDate;
 }
 
