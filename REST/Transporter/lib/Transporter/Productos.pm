@@ -39,7 +39,7 @@ get '/productos/:id' => sub {
 	return $productos->getProductoById();
 };
 
-patch '/productos/:id' => sub {
+patch '/productos' => sub {
 	my $usuario;
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
@@ -49,11 +49,10 @@ patch '/productos/:id' => sub {
 		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
 	}
 	
-	my $p = params->{id};
 	my $post = from_json( request->body );
 
 	my $productos = Trate::Lib::Productos->new();
-	$productos->id($p);
+	$productos->id($post->{id});
 	$productos->nextUpdate($post->{next_update});
 	$productos->nextPrice($post->{next_price});
 	$productos->usuario($usuario->{numero_empleado});
