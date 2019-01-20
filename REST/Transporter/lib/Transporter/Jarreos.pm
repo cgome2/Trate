@@ -28,8 +28,10 @@ get '/jarreos' => sub{
 	my $JARREOS = Trate::Lib::Jarreo->new();
 	$return = $JARREOS->getJarreos();
 	if ($return eq 0){
-		status 404;
-		return {message => "No existen jarreos de combustible pendientes de devolución"};
+		status 200;
+		LOGGER->info("No existen jarreos de combustible pendientes de devolución");
+		my @array = ();
+		return \@array;
 	} else {
 		return $return;
 	}
