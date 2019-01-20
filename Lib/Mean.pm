@@ -13,7 +13,7 @@ use Trate::Lib::RemoteExecutor;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::WebServicesClient;
 use Data::Dump qw(dump);
-use Trate::Lib::Constants qw(DEFAULT_FLEET_ID DEFAULT_DEPT_ID LOGGER);
+use Trate::Lib::Constants qw(DEFAULT_FLEET_ID DEFAULT_DEPT_ID LOGGER DEFAULT_RULE);
 
 sub new
 {
@@ -23,7 +23,7 @@ sub new
 	$self->{TYPE} = undef;							#2. Tag tipo vehiculo 3. Dispositivo montado al vehiculo 4. Tag tipo despachador
 	$self->{ID} = undef;
 	$self->{STATUS} = undef;						# 1. inactivo 2. activo
-	$self->{RULE} = undef;							# Regla default
+	$self->{RULE} = DEFAULT_RULE;							# Regla default
 	$self->{HARDWARE_TYPE} = undef;					# 6. Montado al Vehiculo 1. Tag
 	$self->{PUMP} = 0;							
 	$self->{EMPLOYEE_TYPE} = 1;
@@ -233,62 +233,23 @@ sub nr2StageElements {
 	return $self->{NR_2STAGE_ELEMENTS};
 }
 
-sub createVehicleOrcu {
-	my $self = shift;
-	my $remex = Trate::Lib::RemoteExecutor->new();
-	my $query = "INSERT INTO means (NAME, string, TYPE, id, status, rule, hardware_type, pump, employee_type, plate, model_id, YEAR, capacity, consumption, odometer, fleet_id, dept_id, update_timestamp, auth_pin_from, do_odo_reasonability_check, driver_id_type_required, auttyp, is_burned, viu_serial, opos_plate_check_type, chassis_number, issued_date, disable_viu_two_stage, prompt_always_for_viu, do_eh_reasonability_check, notification_days) VALUES ('" . 
-										$self->{NAME} . "','" .
-										$self->{STRING} . "','" .
-										$self->{TYPE} . "','" .
-										$self->{ID} . "','" .
-										$self->{STATUS} . "','" .
-										$self->{RULE} . "','" .
-										$self->{HARDWARE_TYPE} . "','" .
-										$self->{PUMP} . "','" .
-										$self->{EMPLOYEE_TYPE} . "','" .
-										$self->{PLATE} . "','" .
-										$self->{MODEL_ID} . "','" .
-										$self->{YEAR} . "','" .
-										$self->{CAPACITY} . "','" .
-										$self->{CONSUMPTION} . "','" .
-										$self->{ODOMETER} . "','" .
-										$self->{FLEET_ID} . "','" .
-										$self->{DEPT_ID} . "'," .
-										$self->{UPDATE_TIMESTAMP} . ",'" .
-										$self->{AUTH_PIN_FROM} . "','" .
-										$self->{DO_ODO_REASONABILITY_CHECK} . "','" .
-										$self->{DRIVER_ID_TYPE_REQUIRED} . "','" .
-										$self->{AUTTYP} . "','" .
-										$self->{IS_BURNED} . "','" .
-										$self->{VIU_SERIAL} . "','" .
-										$self->{OPOS_PLATE_CHECK_TYPE} . "','" .
-										$self->{CHASSIS_NUMBER} . "','" .
-										$self->{ISSUED_DATE} . "','" .
-										$self->{DISABLE_VIU_TWO_STAGE} . "','" .
-										$self->{PROMPT_ALWAYS_FOR_VIU} . "','" .
-										$self->{DO_EH_REASONABILITY_CHECK} . "','" .
-										$self->{NOTIFICATION_DAYS} . "','" .
-										$self->{DISCOVERED} . "')";
-	$remex->remoteQuery($query);
-	return 1;	
-}
-
 sub createMean {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $result = 0;
 	my $preps = "
-		INSERT INTO means (NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp) VALUES ('" . 
+		INSERT INTO means (NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,employee_type,auttyp) VALUES ('" . 
 			$self->{NAME} . "','" .
 			$self->{STRING} . "','" .
 			$self->{TYPE} . "'," .
 			"NULL,'" .
-			$self->{STATUS} . "','" .
+			1 . "','" .
 			$self->{RULE} . "','" .
 			$self->{HARDWARE_TYPE} . "','" .
 			$self->{PLATE} . "','" .
 			$self->{FLEET_ID} . "','" .
 			$self->{DEPT_ID} . "','" .
+			$self->{EMPLOYEE_TYPE} . "','" .
 			$self->{AUTTYP} . "')";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {
@@ -331,7 +292,7 @@ sub updateMean {
 		"name = '" . $self->{NAME} . "'," .   
 		"odometer = '" . $self->{ODOMETER} . "'," .   
 		"plate = '" . $self->{PLATE} . "'," .   
-		"status = '" . $self->{STATUS} . "'," .   
+		"status = " . (length($self->{STATUS}) gt 0 ? $self->{STATUS} : "status") . "," .   
 		"string = '" . $self->{STRING} . "'," .   
 		"type = '" . $self->{TYPE} . "' WHERE id='" . $self->{ID} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
