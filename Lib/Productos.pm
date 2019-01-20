@@ -193,7 +193,7 @@ sub getProductos{
 			}
 			my %producto = (
 				"id" => $produkt->{id},
-				"name" => $produkt->{name},
+				"NAME" => $produkt->{name},
 				"code" => $produkt->{code},
 				"status" => $produkt->{status},
 				"price" => $produkt->{price},
@@ -266,9 +266,8 @@ sub cambiarPrecioOrcu
 	my $result = $wsc->execute(\%params);
 
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	LOGGER->info(dump($result));
+	LOGGER->debug(dump($result));
 	if($result->{rc} eq 0){
-		LOGGER->info("El cambio de precio programado se ejecutó con éxito ahora solo falta actualizar los registros de los productos paque no esté chingando");	
 		my $result = 0;
 		my $preps = "
 			UPDATE productos SET " .
