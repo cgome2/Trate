@@ -11,12 +11,13 @@ package Trate::Lib::Utilidades;
 
 use strict;
 use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE);
+use Data::Dump qw(dump);
 
 sub getCurrentTimestampMariaDB {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
 	my $mysqlDate = $year + 1900;
 	$mysqlDate .= "-";
-	$mysqlDate .= sprintf("%02d", $mon);
+	$mysqlDate .= sprintf("%02d", $mon + 1);
 	$mysqlDate .= "-";
 	$mysqlDate .= sprintf("%02d", $mday);
 	$mysqlDate .= " ";
@@ -25,7 +26,6 @@ sub getCurrentTimestampMariaDB {
 	$mysqlDate .= sprintf("%02d", $min);
 	$mysqlDate .= ":";
 	$mysqlDate .= sprintf("%02d", $sec);
-	LOGGER->info($mysqlDate);
 	return $mysqlDate;
 }
 

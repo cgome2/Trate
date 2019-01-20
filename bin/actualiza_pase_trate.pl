@@ -3,7 +3,7 @@
 use Trate::Lib::Pase;
 use Try::Catch;
 use Trate::Lib::Mean;
-use Trate::Lib::Constants qw(LOGGER INFORMIX_SERVER);
+use Trate::Lib::Constants qw(LOGGER WITHINFORMIX INFORMIX_SERVER);
 use Data::Dump qw(dump);
 
 $ENV{INFORMIXSERVER} = INFORMIX_SERVER;
@@ -44,6 +44,16 @@ $mean->name($camion);
 my $resultado = ($accion eq 1 ? $mean->desactivarMean() : $mean->activarMean());	
 
 if($resultado->{rc} eq 0){
-	$return = $PASE->actualizaInformix() or warn(LOGGER->fatal("ERROR AL ENVIAR PASE A INFORMIX"));
+	try { 
+		if(WITHINFORMIX eq 1){
+			$return = $PASE->actualizaInformix() or warn(LOGGER->fatal("ERROR AL ENVIAR PASE A INFORMIX"));
+		} else {
+			$return = 1;
+		}
+	} catch {
+		$return = 0;
+	} finally {
+		print $return;
+	};
 }
 print $return;

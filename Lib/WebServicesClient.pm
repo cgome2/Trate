@@ -108,6 +108,8 @@ sub executeSOUpdateMeans{
 	$params[1] = SOAP::Data->name('site_code' => SITE_CODE);
 	$params[0] = SOAP::Data->name('num_of_means' => 1);
 	
+	LOGGER->debug(dump(\@params));
+	
 	return $soap->call($method => @params)->result;	
 }
 

@@ -1,15 +1,6 @@
 package Trate::Lib::Mean;
-#########################################################
-#Mean - Clase Mean										#
-#                                                       #
-#Autor: Ramses                                          #
-#Fecha: Noviembre, 2018                                 #
-#Revision: 1.0                                          #
-#                                                       #
-#########################################################
 
 use strict;
-use Trate::Lib::RemoteExecutor;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::WebServicesClient;
 use Data::Dump qw(dump);
@@ -29,108 +20,14 @@ sub new
 	$self->{EMPLOYEE_TYPE} = 1;
 	$self->{PLATE} = undef;
 	$self->{MODEL_ID} = 0;
-	$self->{YEAR} = 0;
-	$self->{CAPACITY} = 0.0;
-	$self->{CONSUMPTION} = 0.0;
-	$self->{ODOMETER} = 0.0;
-	$self->{CUST_ID} = '';
-	$self->{ADDRESS} = '';
 	$self->{FLEET_ID} = DEFAULT_FLEET_ID;
 	$self->{DEPT_ID} = DEFAULT_DEPT_ID;
-	$self->{ACCTYP} = 0;
 	$self->{AVAILABLE_AMOUNT} = 0.0;
-	$self->{UPDATE_TIMESTAMP} = undef;
-	$self->{FCC_BOS_CLEARED} = 0;
-	$self->{USE_PIN_CODE} = 0;
-	$self->{PIN_CODE} = 0;
-	$self->{AUTH_PIN_FROM} = 2;
-	$self->{NR_PIN_RETRIES} = 0;
-	$self->{BLOCK_IF_PIN_RETRIES_FAIL} = 0;
-	$self->{OPOS_PROMPT_FOR_PLATE} = 0;
-	$self->{OPOS_PROMPT_FOR_ODOMETER} = 0;
-	$self->{DO_ODO_REASONABILITY_CHECK} = 0;
-	$self->{MAX_ODO_DELTA_ALLOWED} = 0;
-	$self->{NR_ODO_RETRIES} = 0;
-	$self->{DRIVER_ID_TYPE_REQUIRED} = undef;
-	$self->{PRICE_LIST_ID} = 0;
-	$self->{DAY_VOLUME} = 0.0;
-	$self->{WEEK_VOLUME} = 0.0;
-	$self->{MONTH_VOLUME} = 0.0;
-	$self->{DAY_MONEY} = 0.0;
-	$self->{WEEK_MONEY} = 0.0;
-	$self->{MONTH_MONEY} = 0.0;
-	$self->{DAY_VISITS} = 0;
-	$self->{WEEK_VISITS} = 0;
-	$self->{MONTH_VISITS} = 0;
-	$self->{SENT_TO_DHO} = 0;
-	$self->{SENT_TO_FHO} = 0;
-	$self->{AUTTYP} = undef;
-	$self->{ENGINE_HOURS} = 0.0;
-	$self->{ORIGINAL_ENGINE_HOURS} = 0.0;
-	$self->{TARGET_ENGINE_HOURS} = 0.0;
-	$self->{PRICE_LIST} = 'NULL';
-	$self->{NEED_HO_UPDATE} = 0;
-	$self->{OPOS_PROMPT_FOR_ENGINE_HOURS} = 0;
-	$self->{ADDRESS2} = '';
-	$self->{CITY} = '';
-	$self->{STATE} = '';
-	$self->{ZIP} = '';
-	$self->{PHONE} = '';
-	$self->{USER_DATA1} = '';
-	$self->{USER_DATA2} = '';
-	$self->{USER_DATA3} = '';
-	$self->{USER_DATA4} = '';
-	$self->{USER_DATA5} = '';
-	$self->{START_ODOMETER} = 0;
-	$self->{CONSUMPTION2} = 0;
-	$self->{IS_BURNED} = undef;
-	$self->{VIU_SERIAL} = undef;
-	$self->{ALLOW_ID_REPLACEMENT} = 0;
-	$self->{NUM_OF_STRINGS} = 1;
-	$self->{STRING2} = undef;
-	$self->{STRING3} = undef;
-	$self->{STRING4} = undef;
-	$self->{STRING5} = undef;
-	$self->{OPOS_PLATE_CHECK_TYPE} = undef;
-	$self->{NR_PLATE_RETRIES} = 0;
-	$self->{BLOCK_IF_PLATE_RETRIES_FAIL} = 0;
-	$self->{CHASSIS_NUMBER} = '';
-	$self->{SENT_TO_OLIC} = 0;
 	$self->{ISSUED_DATE} = undef;
 	$self->{LAST_USED} = undef;
 	$self->{DISABLE_VIU_TWO_STAGE} = 0;			# 1. Desactivar doble autorizacion 2. Desactivar doble autorizacion
 	$self->{PROMPT_ALWAYS_FOR_VIU} = 1;			# 1. Requiere doble autorizacion 2. No requiere doble autorizacion
-	$self->{DISCOVERED} = 0;
-	$self->{EXPIRE} = 0;
-	$self->{EXPIRE_DATE} = undef;
-	$self->{YEAR_VOLUME} = 0.0;
-	$self->{YEAR_MONEY} = 0.0;
-	$self->{SENT_TO_CLIENT} = 0;
-	$self->{DO_EH_REASONABILITY_CHECK} = undef;
-	$self->{MAX_EH_DELTA_ALLOWED} = 0;
-	$self->{NR_EH_RETRIES} = 0;
-	$self->{REJECT_IF_EH_CHECK_FAILS} = 0;
-	$self->{DEPOSIT_DATE} = '';
-	$self->{CASH_ON_HAND} = 0.0;
-	$self->{MAX_CASH_ALLOWED} = 0.0;
-	$self->{BLOCK_FUELING} = 0;
-	$self->{ADD_DP_APPROVED} = 0;
-	$self->{ADD_DP_APPROVAL_DATE} = '';
-	$self->{ADD_DP_COMPLETION_DATE} = '';
-	$self->{REJECT_IF_ODM_CHECK_FAILS} = 0;
-	$self->{ROUTE_PROMPT} = 0;
-	$self->{PRESSURE_LEVEL} = 0;
-	$self->{ATTENDANT_REQUIRED} = 0;
-	$self->{NOTIFY_EXPIRE} = 0;
-	$self->{NOTIFICATION_DAYS} = 0;
-	$self->{MAX_CASH_ALLOWED_AT_NIGHT} = 0.0;
-	$self->{HIGH_CASH_ALLOWED} = 0.0;
-	$self->{HIGH_CASH_ALLOWED_AT_NIGHT} = 0.0;
-	$self->{DAYTIME_START} = 0;
-	$self->{NIGHTTIME_START} = 0;
 	$self->{SHIFT_INSTANCE_ID} = 0;
-	$self->{PROMPT_FOR_JOBCODE} = 0;
-	
 	$self->{NR_2STAGE_ELEMENTS}	= 1;
 
 	bless($self);
@@ -185,18 +82,6 @@ sub plate {
         return $self->{PLATE};
 }
 
-sub fleetId {
-        my ($self) = shift;
-        if (@_) { $self->{FLEET_ID} = shift }        
-        return $self->{FLEET_ID};
-}
-
-sub deptId {
-        my ($self) = shift;
-        if (@_) { $self->{DEPT_ID} = shift }        
-        return $self->{DEPT_ID};
-}
-
 sub auttyp {
         my ($self) = shift;
         if (@_) { $self->{AUTTYP} = shift }        
@@ -219,6 +104,18 @@ sub modelId {
 	my ($self) = shift;
 	if (@_) {$self->{MODEL_ID} = shift }
 	return $self->{MODEL_ID};
+}
+
+sub fleetId {
+	my ($self) = shift;
+	if (@_) {$self->{FLEET_ID} = shift }
+	return $self->{FLEET_ID};
+}
+
+sub deptId {
+	my ($self) = shift;
+	if (@_) {$self->{DEPT_ID} = shift }
+	return $self->{DEPT_ID};
 }
 
 sub odometer {
@@ -273,7 +170,7 @@ sub createMeanOrcu {
 		($result->{rc} eq 0 ? return 1 : return 0);
 	} catch {
 		return 0;
-	};
+	}
 }
 
 sub updateMean {
@@ -306,24 +203,6 @@ sub updateMean {
 			return 0;				    
     }
 	
-}
-
-sub assignRuleToVehicleOrcuRemoteExecutor{
-	my $self = shift;
-	my $remex = Trate::Lib::RemoteExecutor->new();
-	my $query = "UPDATE means SET rule='" . $self->{RULE} . "' WHERE NAME='" . $self->{NAME} . "'";
-	LOGGER->debug($query);
-	$remex->remoteQuery($query) or die LOGGER->fatal("Error al ejecutar la consulta $query");
-	return 1;	
-}
-
-sub assignNoFuelRuleToVehicleOrcuRemoteExecutor {
-	my $self = shift;
-	my $remex = Trate::Lib::RemoteExecutor->new();
-	my $query = "UPDATE means SET rule='1' WHERE NAME='" . $self->{NAME} . "'";
-	LOGGER->debug($query);
-	$remex->remoteQuery($query) or die LOGGER->fatal("Error al ejecutar la consulta $query");
-	return 1;	
 }
 
 sub activarMean {
@@ -411,6 +290,7 @@ sub getMeanFromId {
 
 sub fillMeanFromId {
 	my $self = shift;
+	LOGGER->info("ramses llena mean");
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
@@ -478,46 +358,6 @@ sub assignRuleToVehicleOrcu{
 	LOGGER->info(dump($result));
 	return $result;	
 }
-
-#
-#<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sit="http://orpak.com/SiteOmatServices/">
-#   <soap:Header/>
-#   <soap:Body>
-#      <sit:SOAuthorizeRequest>
-#         <!--Optional:-->
-#         <sit:SessionID>?</sit:SessionID>
-#         <sit:site_code>?</sit:site_code>
-#         <!--Optional:-->
-#         <sit:card_num>?</sit:card_num>
-#         <sit:fleet_code>?</sit:fleet_code>
-#         <sit:fuel_type>?</sit:fuel_type>
-#         <!--Optional:-->
-#         <sit:mean_plate>?</sit:mean_plate>
-#         <!--Optional:-->
-#         <sit:organization_id>?</sit:organization_id>
-#         <!--Optional:-->
-#         <sit:pump_number>?</sit:pump_number>
-#      </sit:SOAuthorizeRequest>
-#   </soap:Body>
-#</soap:Envelope>
-
-#<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sit="http://orpak.com/SiteOmatServices/">
-#   <soap:Header/>
-#   <soap:Body>
-#      <sit:SOGetMeanDetails>
-#         <!--Optional:-->
-#         <sit:SessionID>?</sit:SessionID>
-#         <sit:site_code>?</sit:site_code>
-#         <!--Optional:-->
-#         <sit:card_num>?</sit:card_num>
-#         <!--Optional:-->
-#         <sit:in_plate>?</sit:in_plate>
-#         <!--Optional:-->
-#         <sit:in_name>?</sit:in_name>
-#         <sit:mean_id>?</sit:mean_id>
-#      </sit:SOGetMeanDetails>
-#   </soap:Body>
-#</soap:Envelope>
 
 1;
 #EOF

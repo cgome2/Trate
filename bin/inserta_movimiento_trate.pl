@@ -55,8 +55,9 @@ LOGGER->info("El movimiento para informix seria \n" . dump($MOVIMIENTO));
 try { 
 	if(WITHINFORMIX eq 1){
 		$return = $MOVIMIENTO->enviarMovimientoInformix() or die(LOGGER->fatal("ERROR AL ENVIAR MOVIMIENTO A INFORMIX"));
+	} else {
+		$return = 1;
 	}
-	$return = 1;
 } catch {
 	$return = 0;
 } finally {

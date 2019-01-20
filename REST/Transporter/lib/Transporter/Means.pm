@@ -141,17 +141,18 @@ patch '/means' => sub {
 		($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 21)
 	){
 		my $MEAN = Trate::Lib::Mean->new();
+		$MEAN->{ID} = $post->{id};
+		$MEAN->fillMeanFromId();
+		LOGGER->info(dump($MEAN));
 		$MEAN->{NAME} = $post->{NAME};
 		$MEAN->{STRING} = $post->{string};
 		$MEAN->{TYPE} = $post->{TYPE};
-		$MEAN->{ID} = $post->{id};
 		if($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 21){
 			$MEAN->{STATUS} = $post->{status};	
 		}
 		$MEAN->{HARDWARE_TYPE} = $post->{hardware_type};
 		$MEAN->{PLATE} = $post->{plate};
 		$MEAN->{AUTTYP} = $post->{auttyp};
-		LOGGER->info(dump($MEAN));
 	
 		if($MEAN->updateMean() eq 1){
 			return {message => "OKComputer"};

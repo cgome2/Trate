@@ -34,9 +34,11 @@ $mean->plate($plate);
 $mean->status($status);
 $mean->string($string);
 $mean->type($type);
+LOGGER->debug(dump($mean));
 try {
 	$return = $mean->createMeanOrcu();
 } catch {
 	$return = 0;
 };
+LOGGER->debug("RETURN en la evaluación del trigger>" . $return);
 print $return;

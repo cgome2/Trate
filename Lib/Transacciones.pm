@@ -78,7 +78,6 @@ sub getLastRetrievedTransactions{
 sub getLastTransactionsFromORCU{
 	my $self = shift;
 	$self = getLastRetrievedTransactions($self);
-	LOGGER->info("ramses carmona");
 	my %params = (
 		SessionID => "",
 		site_code => "",
@@ -87,7 +86,6 @@ sub getLastTransactionsFromORCU{
 		toID => $self->{LAST_TRANSACTION_ID} + 5,
 		extended_info => "1"
 	);
-	LOGGER->info("testing the test");
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOHOGetTransactionsByRange");
 	$wsc->sessionId();
@@ -118,7 +116,7 @@ sub procesaTransacciones($){
 		$self->{IDTRANSACCIONES} = $row->{'id'};
 		$self->{IDPRODUCTOS} = $row->{'product_code'};
 		$self->{IDCORTES} = getCorte($row->{'shift_id'} eq "" ? 0 : $row->{'shift_id'});
-		$self->{IDVEHICULOS} = $row->{'mean_name'} eq "" ? "" : $row->{'mean_name'};
+		$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
 		$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
 		$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
 		$self->{BOMBA} = $row->{'pump'};
@@ -131,12 +129,15 @@ sub procesaTransacciones($){
 		try {
 			insertaTransaccion($self);
 			my $meanTransaction = Trate::Lib::Mean->new();
-			$meanTransaction->id($row->{mean_id});
-			$meanTransaction->fillMeanFromId();			
-			if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type eq 2){
+			$meanTransaction->{ID} = $row->{'mean_id'};
+			$meanTransaction->fillMeanFromId();
+			LOGGER->info(dump($meanTransaction));	
+			if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type() eq 2){
+				LOGGER->info("ramses es jarreo pues es: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
 				insertaMovimientoJarreo($self);
 				insertaJarreo($self);
 			} else {
+				LOGGER->info("ramses es despacho pues es: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
 				$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'} . ' ' . $row->{'time'});
 				insertaMovimiento($self);
 				actualizaPase($self);
