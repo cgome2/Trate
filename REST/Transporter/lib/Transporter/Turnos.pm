@@ -26,28 +26,35 @@ get '/shifts' => sub {
 	$return = $TURNOS->getTurnos();
 	LOGGER->info(dump($return));
 	if ($return eq 0){
-		status 404;
+		status 400;
 		return {message => "No existen turnos en el sistema"};
 	} else {
 		return $return;
-		}
+	}
 };
 
-get '/shifts/supervisor' => sub {
-	my $param = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
-	$param = "2019-01-20 12:01:23";
-	my $timestamp = Trate::Lib::Turnos->getSupervisorFromTimestamp($param);
-	return {supervisor=> $timestamp};
-};
-
-get '/turnos/:id' => sub {
+get '/shifts/:id_turno' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	return {message=>"Detalle del turno"};
+
+    my $id_turno = params->{id_turno};	
+	my $return = 0;	
+
+	my $TURNOS = Trate::Lib::Turnos->new();
+	$TURNOS->idTurno($id_turno);
+	LOGGER->debug(dump($TURNOS));
+	$return = $TURNOS->getTurnoFromId();
+	LOGGER->info(dump($return));
+	if ($return eq 0){
+		status 400;
+		return {message => "No existen turnos en el sistema"};
+	} else {
+		return $return;
+	}
 };
 
 patch '/turnos/cerrar/:id_turno' => sub {
