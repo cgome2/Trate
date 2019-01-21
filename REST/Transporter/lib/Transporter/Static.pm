@@ -493,7 +493,7 @@ get "/recepciones_combustible/tls/form" => sub {
     title => "Agregar TLS",
     getFrom => "/recepciones_combustible",
     sendTo => "/recepciones_combustible",
-    override => { status => "1" },
+    override => { status => "2" },
     sqlDates => 1,
     fields => [
        {
@@ -627,27 +627,59 @@ get "/lecturas_tls/table" => sub {
   return {
     icon => "alarm-light",
     title => "Contingencias",
-    id => "pase_id",
+    id => "id_tank_delivery_reading",
     columns => [
       {
-        key => "pase_id",
-        label => "Pase"
+        key => "id_tank_delivery_reading",
+        label => "Id",
       },
       {
-        key => "status",
-        label => "Estatus"
+        key => "tank_name",
+        label => "Tanque",
       },
       {
-        key => "camion",
-        label => "Camion"
+        key => "start_volume",
+        label => "Volumen inicial"
       },
       {
-        key => "viaje",
-        label => "Viaje"
+        key => "end_volume",
+        label => "Volumen final"
       },
       {
-        key => "fecha_solicitud",
-        label => "Fecha de Solicitud"
+        key => "start_temp",
+        label => "Temperatura inicial"
+      },
+      {
+        key => "end_temp",
+        label => "Temperatura final"
+      },
+      {
+        key => "start_water",
+        label => "Agua inicial"
+      },
+      {
+        key => "end_water",
+        label => "Agua final"
+      },
+      {
+        key => "start_height",
+        label => "Altura inicial"
+      },
+      {
+        key => "end_height",
+        label => "Altura final"
+      },
+      {
+        key => "start_delivery_timestamp",
+        label => "Fecha de inicio"
+      },
+      {
+        key => "end_delivery_timestamp",
+        label => "Fecha de fin"
+      },
+      {
+        key => "origen_registro",
+        label => "Origen"
       }
     ],
     options => [
@@ -655,11 +687,23 @@ get "/lecturas_tls/table" => sub {
         icon => 'pencil',
         label => 'Editar',
         condition => {
-          origen_registro => "Manual"
+          origen_registro => "MANUAL"
         },
         action => {
           type => 'form',
           form => '/lecturas_tls'
+        }
+      },
+      {
+        icon => 'delete',
+        label => 'Eliminar',
+        condition => {
+          origen_registro => "MANUAL"
+        },
+        action => {
+          type => 'http',
+          verb => 'delete',
+          endpoint => '/lecturas_tls/:id:'
         }
       },
     ],
@@ -684,7 +728,7 @@ get "/lecturas_tls/form" => sub {
     sendTo => "/lecturas_tls",
     sqlDates => 1,
     override => {
-      origen_registro => "Manual",
+      origen_registro => "MANUAL",
       start_tc_volume => "",
       end_tc_volume => ""
     },
@@ -751,12 +795,16 @@ get "/lecturas_tls/form" => sub {
         key => "start_delivery_timestamp",
         label => "Fecha de inicio",
         type => "datetime",
+        lowerThan => "end_delivery_timestamp",
+        lowerThanError => "Debe ser menor a fecha fin",
         required => 1
       },
       {
         key => "end_delivery_timestamp",
-        label => "Fecha de fin",
+        label => "Fecha fin",
         type => "datetime",
+        greaterThan => "start_delivery_timestamp",
+        greaterThanError => "Debe ser mayor a fecha de inicio",
         required => 1
       }
     ]
