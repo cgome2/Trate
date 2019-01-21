@@ -36,29 +36,18 @@ get '/lecturas_tls' => sub {
 	return $lecturasTls;
 };
 
-get '/lecturas_tls/:reception_unique_id' => sub {
+get '/lecturas_tls/:id_tank_delivery_reading' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-    my $reception_unique_id = params->{reception_unique_id};
-	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
-
-	$RECEPCION_COMBUSTIBLE->lecturaTls->receptionUniqueId($reception_unique_id);
-	$RECEPCION_COMBUSTIBLE->lecturaTls($RECEPCION_COMBUSTIBLE->lecturaTls->getLecturasTlsFromId());
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion($RECEPCION_COMBUSTIBLE->movimientoRecepcion->getFromId($RECEPCION_COMBUSTIBLE->lecturaTls->{ci_movimientos}));
-	LOGGER->info(dump(unbless($RECEPCION_COMBUSTIBLE)));
-    delete $RECEPCION_COMBUSTIBLE->{FACTURA};
-    delete $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO};
-    delete $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->{dispensador};
-    delete $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->{chofer};
-    delete $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->{camion};
-    delete $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->{despachador};
-    delete $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->{viaje};
-    delete $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->{transaction_id};
-    return {data => $RECEPCION_COMBUSTIBLE};
+    my $id_tank_delivery_reading = params->{id_tank_delivery_reading};
+	my $ltls = Trate::Lib::LecturasTLS->new();
+	$ltls->idTankDeliveryReading($id_tank_delivery_reading);
+	return $ltls->getLecturasTlsFromId();
+	return {message=> "exito"};
 };
 
 put '/lecturas_tls' => sub {

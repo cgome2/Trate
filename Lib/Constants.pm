@@ -56,7 +56,7 @@ use constant WSXMLSCHEMA => "2001";
 
 use constant TRUE => 1;
 use constant FALSE => 0;
-use constant WITHINFORMIX => 0;
+use constant WITHINFORMIX => 1;
 
 
 use Exporter qw(import);
