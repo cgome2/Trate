@@ -45,8 +45,11 @@ sub getTanques {
 			$tanque->status($tanke->{status});
 			push (@{$self->{TANQUES}},$tanque);
 		}
+		return \@{$self->{TANQUES}};
+	} else {
+		my @array = ();
+		return \@array;
 	}
-	return @{$self->{TANQUES}};
 }
 
 sub getTanquesEstatus {
