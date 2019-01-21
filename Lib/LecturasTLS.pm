@@ -25,6 +25,7 @@ sub new
 {
 	my $self = {};
 	$self->{ID_TANK_DELIVERY_READING} = undef;
+	$self->{ID_TANK_DELIVERY_READING} = undef;
 	$self->{RECEPTION_UNIQUE_ID} = undef;
 	$self->{TANK_ID} = undef;
 	$self->{START_VOLUME} = undef;
