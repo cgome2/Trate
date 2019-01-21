@@ -9,7 +9,6 @@ use Trate::Lib::Constants qw(DEFAULT_FLEET_ID DEFAULT_DEPT_ID LOGGER DEFAULT_RUL
 sub new
 {
 	my $self = {};
-	LOGGER->debug("ramses instancia mean");
 	$self->{NAME} = undef;
 	$self->{STRING} = undef;
 	$self->{TYPE} = undef;							#2. Tag tipo vehiculo 3. Dispositivo montado al vehiculo 4. Tag tipo despachador
@@ -30,7 +29,6 @@ sub new
 	$self->{PROMPT_ALWAYS_FOR_VIU} = 1;			# 1. Requiere doble autorizacion 2. No requiere doble autorizacion
 	$self->{SHIFT_INSTANCE_ID} = 0;
 	$self->{NR_2STAGE_ELEMENTS}	= 1;
-	LOGGER->debug("ramses termina la instancia mean");
 	bless($self);
 	return $self;	
 }
@@ -246,10 +244,12 @@ sub getMeans{
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	my @means;
+	my $label;
 	while (my $ref = $sth->fetchrow_hashref()) {
+		$label = getTypeMeanForView($ref);
+		%{$ref} = ( %{$ref}, label => $label);
     	push @means,$ref;
 	}
-	LOGGER->{dump(@means)};
 	$sth->finish;
 	$connector->destroy();
 	return \@means;	
@@ -288,6 +288,27 @@ sub getMeanFromId {
 		return 0;
 	}
 }
+
+sub getDespachadores {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT NAME,id FROM means " . 
+				"WHERE auttyp='" . $self->{AUTTYP} . 
+				"AND hardware_type='" . $self->{HARDWARE_TYPE} .
+				"AND TYPE='" . $self->{TYPE} . "' LIMIT 1"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @means;
+	while (my $ref = $sth->fetchrow_hashref()) {
+    	push @means,$ref;
+	}
+	LOGGER->debug({dump(@means)});
+	$sth->finish;
+	$connector->destroy();
+	return \@means;	
+}
+
 
 sub fillMeanFromId {
 	my $self = shift;
@@ -357,6 +378,35 @@ sub assignRuleToVehicleOrcu{
 	my $result = $wsc->execute(\%params);
 	LOGGER->debug(dump($result));
 	return $result;	
+}
+
+sub getTypeMeanForView ($){
+	my $mean = shift;
+	my $label = "";
+	#my %mean = %{$ref};
+	LOGGER->debug(dump($mean));
+	if($mean->{auttyp} eq 1 && $mean->{hardware_type} eq 6 && $mean->{TYPE} eq 3){
+		$label = "Fuelopass";
+	}
+	elsif($mean->{auttyp} eq 23 && $mean->{hardware_type} eq 6 && $mean->{TYPE} eq 3){
+		$label = "VIU35 NT";
+	}
+	elsif($mean->{auttyp} eq 26 && $mean->{hardware_type} eq 6 && $mean->{TYPE} eq 3){
+		$label = "DATAPASS";
+	}
+	elsif($mean->{auttyp} eq 6 && $mean->{hardware_type} eq 1 && $mean->{TYPE} eq 4){
+		$label = "Despachador";
+	}
+	elsif($mean->{auttyp} eq 6 && $mean->{hardware_type} eq 1 && $mean->{TYPE} eq 2){
+		$label = "Tag de Contingencia";
+	}
+	elsif($mean->{auttyp} eq 21 && $mean->{hardware_type} eq 1 && $mean->{TYPE} eq 2){
+		$label = "Jarreo";
+	}
+	else {
+		$label = "Sistema";
+	}
+	return $label;
 }
 
 1;

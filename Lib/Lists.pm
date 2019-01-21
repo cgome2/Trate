@@ -22,13 +22,6 @@ sub new
 	return $self;	
 }
 
-sub getDespachadores{
-	my @despachadores = ();
-	push @despachadores, {'mean_id' => 1, 'NAME' => 'Despachador 1'};
-	push @despachadores, {'mean_id' => 2, 'NAME' => 'Despachador 2'};
-	return \@despachadores;	
-}
-
 sub getBombas {
 	my $self = shift;
 	my %params = (
