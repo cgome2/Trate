@@ -16,7 +16,7 @@ our $VERSION = '0.1';
 
 set serializer => 'JSON';
 
-put '/recepciones_combustible' => sub {
+get '/recepciones_combustible' => sub{
 	my $usuario;
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
@@ -26,7 +26,41 @@ put '/recepciones_combustible' => sub {
 		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
 	}
 
+	my $return = 0;	
+	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
+	$return = $RECEPCION_COMBUSTIBLE->getRecepcionesCombustible();
+	if ($return eq 0){
+		status 200;
+		my @array = ();
+		LOGGER->info("No existen recepciones de combustible en el sistema");
+		return \@array;
+	} else {
+		return $return;
+	}		
+};
+
+put '/recepciones_combustible' => sub {
+	my $usuario;
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
+	}	
+
 	my $post = from_json( request->body );
+	
+    my $FACTURA = Trate::Lib::Factura->new();
+    $FACTURA->fecha($post->{fecha_documento});
+    $FACTURA->factura($post->{folio_documento});
+    $FACTURA->fserie($post->{serie_documento});
+    $FACTURA->proveedor($post->{numero_proveedor});
+    if($FACTURA->existeFactura() eq 0){
+	    status 400;
+	    return {message => "NotOkComputer"};
+    }
+	
 	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
 
 	#insertar ci_movimientos con los datos de la factura
@@ -68,6 +102,17 @@ patch '/recepciones_combustible' => sub {
 	}
 
 	my $post = from_json( request->body );
+
+    my $FACTURA = Trate::Lib::Factura->new();
+    $FACTURA->fecha($post->{fecha_documento});
+    $FACTURA->factura($post->{folio_documento});
+    $FACTURA->fserie($post->{serie_documento});
+    $FACTURA->proveedor($post->{numero_proveedor});
+    if($FACTURA->existeFactura() eq 0){
+	    status 400;
+	    return {message => "NotOkComputer"};
+    }
+
 	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
 
 	$RECEPCION_COMBUSTIBLE->idRecepcion($post->{id_recepcion});
@@ -183,28 +228,6 @@ patch '/recepciones_combustible' => sub {
 		status 401;
 		return {message => "Error en la estructura del JSON no se encuentra el nodal status"};
 	}
-};
-
-get '/recepciones_combustible' => sub{
-	my $usuario;
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
-	}
-
-	my $return = 0;	
-	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
-	$return = $RECEPCION_COMBUSTIBLE->getRecepcionesCombustible();
-	if ($return eq 0){
-		status 404;
-		return {message => "No existen recepciones de combustible en el sistema"};
-	} else {
-		return $return;
-	}
-		
 };
 
 get '/recepciones_combustible/:id' => sub {
