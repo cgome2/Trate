@@ -146,14 +146,15 @@ get "/components" => sub {
   my $endpoint;
 
   switch ($uri) {
-    case "/estatus/dispensarios"        { $component = "superFrame"; $endpoint = "/estatusBombas"; }
+    case "/estatus/dispensarios"        { $component = "pumps"; $endpoint = "/estatusBombas"; }
     case "/estatus/tanques"             { $component = "tanks"; $endpoint = "/estatusTanques"; }
 
     case "/despacho/contingencias"      { $component = "superTable"; $endpoint = "/pases"; }
-    # case "/despacho/jarreos"            { $component = "superTable"; $endpoint = ""; }
-    case "/despacho/precios"      { $component = "superTable"; $endpoint = "/productos"; }
+    case "/despacho/jarreos"            { $component = "superTable"; $endpoint = "/jarreos"; }
+    case "/despacho/precios"            { $component = "superTable"; $endpoint = "/productos"; }
 
     case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/recepciones_combustible"; }
+    case "/recepcion/contingencias"     { $component = "superTable"; $endpoint = "/lecturas_tls"; }
 
     # case "/turnos/turnos"               { $component = "superTable"; $endpoint = ""; }
 
@@ -169,6 +170,52 @@ get "/components" => sub {
     component => $component,
     endPoint => $endpoint,
     id => $id
+  };
+};
+
+get "/jarreos/table" => sub {
+  return {
+    icon => "currency-usd",
+    title => "Jarreos",
+    id => "id",
+    options => [
+      {
+        icon => 'currency-usd',
+        label => 'Devolver',
+        action => {
+          type => 'form',
+          form => '/jarreos'
+        }
+      }
+    ],
+    columns => [
+      {
+        key => "transaction_id",
+        label => "ID"
+      },
+      {
+        key => "transaction_timestamp",
+        label => "Fecha"
+      },
+      {
+        key => "transaction_pump_head_external_code",
+        label => "Bomba"
+      },
+      {
+        key => "transaction_dispensed_quantity",
+        label => "Volument"
+      },
+      {
+        key => "transaction_ppv",
+        label => "Precio",
+        format => "currency"
+      },
+      {
+        key => "transaction_total_price",
+        label => "Importe",
+        format => "currency"
+      }
+    ]
   };
 };
 
@@ -276,6 +323,9 @@ get "/recepciones_combustible/table" => sub {
       {
         icon => 'receipt',
         label => 'Editar',
+        condition => {
+          status => '1'
+        },
         action => {
           type => 'form',
           form => '/recepciones_combustible'
@@ -284,6 +334,9 @@ get "/recepciones_combustible/table" => sub {
       {
         icon => 'playlist-plus',
         label => 'Agregar TLS',
+        condition => {
+          status => '1'
+        },
         action => {
           type => 'form',
           form => '/recepciones_combustible/tls'
@@ -292,38 +345,41 @@ get "/recepciones_combustible/table" => sub {
     ],
     columns => [
       {
-        key => "start_delivery_timestamp",
-        label => "Fecha inicial de recepcion"
+        key => "id_recepcion",
+        label => "Recepcion"
       },
       {
-        key => "end_delivery_timestamp",
-        label => "Fecha final de recepcion"
+        key => "folio_documento",
+        label => "Folio"
       },
       {
-        key => "start_volume",
-        label => "Volumen inicial",
-        format => "number:1.2-2:",
-        align => "right"
+        key => "fecha_recepcion",
+        label => "Fecha de recepcion",
       },
       {
-        key => "end_volume",
-        label => "Volumen final",
-        format => "number:1.2-2:",
-        align => "right"
+        key => "fecha_documento",
+        label => "Fecha"
       },
       {
-        key => "volume",
-        label => "Volumen recibido",
-        format => "number:1.2-2:",
-        operations => "end_volume -start_volume",
-        footer => "sum",
-        align => "right"
+        key => "litros_documento",
+        label => "Litros",
       },
       {
-        key => "ci_movimientos",
-        label => "Numero de movimiento",
-        align => "right"
-      }
+        key => "importe_documento",
+        label => "Importe",
+      },
+      {
+        key => "empleado_captura",
+        label => "Empleado",
+      },
+      {
+        key => "status",
+        label => "Estatus",
+        map => [
+          { from => 1, to => 'Sin TLS' },
+          { from => 2, to => 'Procesado' }
+        ]
+      },
     ]
   };
 };
@@ -334,21 +390,18 @@ get "/recepciones_combustible/form" => sub {
     title => "Agregar Documento",
     getFrom => "/recepciones_combustible",
     sendTo => "/recepciones_combustible",
+    sqlDates => 1,
     fields => [
       {
-        key => "fecha_documento",
-        label => "Fecha del Documento",
+        key => "fecha_recepcion",
+        label => "Fecha de Recepcion",
         type => "date",
         required => 1
       },
       {
-        key => "tipo",
-        label => "Tipo",
-        type => "select",
-        options => [
-          { key => "CP", value => "CP"},
-          { key => "RP", value => "RP"}
-        ],
+        key => "fecha_documento",
+        label => "Fecha del Documento",
+        type => "date",
         required => 1
       },
       {
@@ -361,15 +414,25 @@ get "/recepciones_combustible/form" => sub {
         required => 1
       },
       {
+        key => "sello_pemex",
+        label => "Sello PEMEX",
+        type => "text",
+        required => 1
+      },
+      {
         key => "folio_documento",
         label => "Folio Documento",
         type => "text",
         required => 1
       },
       {
-        key => "sello_pemex",
-        label => "Sello PEMEX",
-        type => "text",
+        key => "tipo_documento",
+        label => "Tipo",
+        type => "select",
+        options => [
+          { key => "CP", value => "CP"},
+          { key => "RP", value => "RP"}
+        ],
         required => 1
       },
       {
@@ -379,32 +442,47 @@ get "/recepciones_combustible/form" => sub {
         required => 1
       },
       {
-        key => "vol_factura",
-        label => "Volumen Factura",
+        key => "numero_proveedor",
+        label => "Proveedor",
+        type => "select",
+        optionsSource => "/proveedores",
+        optionsKey => "id",
+        optionsValue => "proveedor",
+        required => 1
+      },
+      {
+        key => "litros_documento",
+        label => "Litros",
         type => "number",
         required => 1
       },
       {
-        key => "importe_factura",
-        label => "Importe Factura",
+        key => "importe_documento",
+        label => "Importe",
         type => "number",
         required => 1
       },
       {
-        key => "ppv",
-        label => "Precio por litro",
+        key => "ppv_documento",
+        label => "Precio por Litro",
         type => "number",
-        readonly => 1,
         operation => "division",
-        operands => ["importe_factura", "vol_factura"],
+        operands => ["importe_documento", "litros_documento"],
+        readonly => 1,
         required => 1
       },
       {
-        key => "numero_vehiculo",
-        label => "Numero Vehiculo",
+        key => "iva_documento",
+        label => "IVA",
         type => "number",
         required => 1
-      }
+      },
+      {
+        key => "ieps_documento",
+        label => "IEPS",
+        type => "number",
+        required => 1
+      },
     ],
   };
 };
@@ -415,27 +493,25 @@ get "/recepciones_combustible/tls/form" => sub {
     title => "Agregar TLS",
     getFrom => "/recepciones_combustible",
     sendTo => "/recepciones_combustible",
-    override => { status => "2" },
+    override => { status => "1" },
+    sqlDates => 1,
     fields => [
-      {
+       {
         key => "fecha_recepcion",
         label => "Fecha de Recepcion",
-        type => "date",
+        type => "text",
         readonly => 1
       },
       {
         key => "fecha_documento",
         label => "Fecha del Documento",
-        type => "date",
+        type => "text",
         readonly => 1
       },
       {
         key => "terminal_embarque",
         label => "Terminal de Embarque",
         type => "text",
-        minlength => 3,
-        maxlength => 3,
-        regex => "[0-9]{3}",
         readonly => 1
       },
       {
@@ -453,11 +529,7 @@ get "/recepciones_combustible/tls/form" => sub {
       {
         key => "tipo_documento",
         label => "Tipo",
-        type => "select",
-        options => [
-          { key => "CP", value => "CP"},
-          { key => "RP", value => "RP"}
-        ],
+        type => "text",
         readonly => 1
       },
       {
@@ -472,41 +544,39 @@ get "/recepciones_combustible/tls/form" => sub {
         type => "select",
         optionsSource => "/proveedores",
         optionsKey => "id",
-        optionsValue => "proveedor"
+        optionsValue => "proveedor",
+        readonly => 1
       },
       {
         key => "litros_documento",
         label => "Litros",
-        type => "number",
-        readonly => 1
-      },
-      {
-        key => "ppv_documento",
-        label => "Precio por Litro",
-        type => "number",
-        readonly => 1,
-        operation => "division",
-        operands => ["importe_documento", "litros_documento"],
+        type => "text",
         readonly => 1
       },
       {
         key => "importe_documento",
         label => "Importe",
-        type => "number",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "ppv_documento",
+        label => "Precio por Litro",
+        type => "text",
         readonly => 1
       },
       {
         key => "iva_documento",
         label => "IVA",
-        type => "number",
+        type => "text",
         readonly => 1
       },
       {
         key => "ieps_documento",
         label => "IEPS",
-        type => "number",
+        type => "text",
         readonly => 1
-      },
+      }
     ],
     details => [
       {
@@ -547,6 +617,147 @@ get "/recepciones_combustible/tls/form" => sub {
           }
         ],
         required  => 1,
+      }
+    ]
+  };
+};
+
+
+get "/lecturas_tls/table" => sub {
+  return {
+    icon => "alarm-light",
+    title => "Contingencias",
+    id => "pase_id",
+    columns => [
+      {
+        key => "pase_id",
+        label => "Pase"
+      },
+      {
+        key => "status",
+        label => "Estatus"
+      },
+      {
+        key => "camion",
+        label => "Camion"
+      },
+      {
+        key => "viaje",
+        label => "Viaje"
+      },
+      {
+        key => "fecha_solicitud",
+        label => "Fecha de Solicitud"
+      }
+    ],
+    options => [
+      {
+        icon => 'pencil',
+        label => 'Editar',
+        condition => {
+          origen_registro => "Manual"
+        },
+        action => {
+          type => 'form',
+          form => '/lecturas_tls'
+        }
+      },
+    ],
+    buttons => [
+      {
+        icon => 'plus',
+        label => 'Nueva lectura',
+        action => {
+          type => 'form',
+          form => '/lecturas_tls'
+        }
+      },
+    ]
+  };
+};
+
+get "/lecturas_tls/form" => sub {
+  return {
+    icon => "alarm-light",
+    title => "Contingencia",
+    getFrom => "/lecturas_tls",
+    sendTo => "/lecturas_tls",
+    sqlDates => 1,
+    override => {
+      origen_registro => "Manual",
+      start_tc_volume => "",
+      end_tc_volume => ""
+    },
+    fields => [
+      {
+        key => "tank",
+        label => "Tanque",
+        type => "select",
+        optionsSource => "/tanques",
+        optionsKey => "ID",
+        optionsValue => "NAME",
+        storeObject => 1,
+        required => 1
+      },
+      {
+        key => "start_volume",
+        label => "Volumen inicial",
+        type => "number",
+        required => 1
+      },
+      {
+        key => "end_volume",
+        label => "Volumen final",
+        type => "number",
+        required => 1
+      },
+      {
+        key => "start_temp",
+        label => "Temperatura inicial",
+        type => "number",
+        required => 1
+      },
+      {
+        key => "end_temp",
+        label => "Temperatura final",
+        type => "number",
+        required => 1
+      },
+      {
+        key => "start_water",
+        label => "Agua inicial",
+        type => "number",
+        required => 1
+      },
+      {
+        key => "end_water",
+        label => "Agua final",
+        type => "number",
+        required => 1
+      },
+      {
+        key => "start_height",
+        label => "Altura inicial",
+        type => "number",
+        required => 1
+      },
+      {
+        key => "end_height",
+        label => "Altura final",
+        type => "number",
+        required => 1
+      },
+      {
+        key => "start_delivery_timestamp",
+        label => "Fecha de inicio",
+        type => "datetime",
+        required => 1
+      },
+      {
+        key => "end_delivery_timestamp",
+        label => "Fecha de fin",
+        type => "datetime",
+        required => 1
       }
     ]
   };
