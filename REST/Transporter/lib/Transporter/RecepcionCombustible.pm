@@ -58,7 +58,7 @@ put '/recepciones_combustible' => sub {
     $FACTURA->proveedor($post->{numero_proveedor});
     if($FACTURA->existeFactura() eq 0){
 	    status 400;
-	    return {message => "Factura no existente en informix"};
+	    return {message => "Factura no existente en informix."};
     }
 	
 	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
