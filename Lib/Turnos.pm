@@ -102,6 +102,47 @@ sub abrirTurno {
 	
 }
 
+sub getFromTimestamp($) {
+	my $self = shift;
+	my $timestamp = pop;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	
+	my $prepsCurrentTurno = "SELECT * FROM turnos WHERE " . 
+							"(fecha_cierre IS NULL and status = 2 AND '" . $timestamp . "'>=fecha_abierto) " . 
+							"OR (fecha_cierre IS NOT NULL and status=1 AND '" . $timestamp . "'>=fecha_abierto and '" . $timestamp . "'<=fecha_cierre)";
+	LOGGER->debug("Ejecutando sql[ ", $prepsCurrentTurno, " ]");
+	my $sth = $connector->dbh->prepare($prepsCurrentTurno);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsCurrentTurno");
+	my $rows = $sth->rows;
+	if($rows eq 1){
+		my $row = $sth->fetchrow_hashref();
+		$self->{ID_TURNO} = $row->{'id_turno'};
+		$self->{FECHA_ABIERTO} = $row->{'fecha_abierto'};
+		$self->{USUARIO_ABRE} = $row->{'usuario_abre'};
+		$self->{FECHA_CERRADO} = $row->{'fecha_cerrado'}; 
+		$self->{USUARIO_CIERRA} = $row->{'usuario_cierra'}; 
+		$self->{STATUS} = $row->{'status'};
+	} elsif ($rows > 1){
+		LOGGER->debug("La tabla de turnos contiene más de un turno con ese periodo");
+		$self->{ID_TURNO} = 0;
+		$self->{FECHA_ABIERTO} = "";
+		$self->{USUARIO_ABRE} = 0;
+		$self->{FECHA_CERRADO} = ""; 
+		$self->{USUARIO_CIERRA} = ""; 
+		$self->{STATUS} = 0;
+	} else {
+		LOGGER->debug("No existe turno que cubra ese periodo");
+		$self->{ID_TURNO} = 0;
+		$self->{FECHA_ABIERTO} = "";
+		$self->{USUARIO_ABRE} = 0;
+		$self->{FECHA_CERRADO} = ""; 
+		$self->{USUARIO_CIERRA} = ""; 
+		$self->{STATUS} = 0;
+	}
+	LOGGER->debug(dump($self));
+	return $self;
+}
+
 sub getTurnos {
 	my $self = shift;
 	

@@ -15,9 +15,9 @@ use Trate::Lib::RemoteExecutor;
 use Trate::Lib::ConnectorMariaDB;
 use Trate::Lib::Movimiento;
 use Trate::Lib::Pase;
-use Trate::Lib::Corte;
 use Trate::Lib::Mean;
 use Trate::Lib::Jarreo;
+use Trate::Lib::Turnos;
 use Try::Catch;
 use Data::Dump qw(dump);
 
@@ -32,7 +32,7 @@ sub new
 	my $self = {};
 	$self->{IDTRANSACCIONES} = undef; 				#id@transactions@BOS/DB/DATA.DB
 	$self->{IDPRODUCTOS} = undef;					#product_code@transactions@BOS/DB/DATA.DB
-	$self->{IDCORTES} = Trate::Lib::Corte->new();	#shift_id@transactions@BOS/DB/DATA.DB
+	$self->{IDCORTES} = undef;						#id_turno
 	$self->{IDVEHICULOS} = undef; 					#mean_id@transactions@BOS/DB/DATA.DB
 	$self->{IDDESPACHADORES} = undef; 				#driver_object_id@transactions@BOS/DB/DATA.DB
 	$self->{IDTANQUES} = undef; 					#tank_id@transactions@BOS/DB/DATA.DB
@@ -59,22 +59,19 @@ sub new
 	$self->{LAST_TRANSACTION_ID} = undef; 			#ULTIMA TRANSACCION DESCARGADA
 	$self->{LAST_TRANSACTION_TIMESTAMP} = undef;
 	$self->{TOTAL_RETRIEVED_TRANSACTIONS} = undef;	#Total de transacciones descargadas desde el dia 1
+	$self->{TURNO} = Trate::Lib::Turnos->new();
 	bless($self);
 	return $self;	
 }
 
-sub getLastRetrievedTransactions{
-    	my $self = shift;
-    	my $twig= XML::Twig->new->parsefile(ORCURETRIEVEFILE);
-    	my $root = $twig->root;
-    	my @transporter_transaction = $root->descendants('transporter:transaction');
-	$self->{LAST_TRANSACTION_ID} = $transporter_transaction[0]->{'att'}->{'id'};
-	$self->{LAST_TRANSACTION_TIMESTAMP} = $transporter_transaction[0]->{'att'}->{'TIMESTAMP'};
-	$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $transporter_transaction[0]->{'att'}->{'total_retrieved_transactions'};
-	
-	return $self;
-}
-
+# @author CG
+# Get last 5 transactions array from orcu and process them
+# 1.- Get last retrieved transaction that was processed
+# 2.- Pull from ORCU the array with 5 posterior transactions to the retrieved one in previous step
+# 3.- Process Transactions
+# 4.- Update ORCURETRIEVEFILE with last transaction processed
+# @params: No params required
+# @return: 1 success 0 failure
 sub getLastTransactionsFromORCU{
 	my $self = shift;
 	$self = getLastRetrievedTransactions($self);
@@ -104,18 +101,42 @@ sub getLastTransactionsFromORCU{
 	}
 }
 
+# @author CG
+# Get last transaction retrieved from orcu, it parses the ORCURETRIEVEFILE and get the transaction_id
+# @params: No params required
+# @return: Current object Trate::Lib::Transacciones with LAST TRANSACTION attributes filled
+sub getLastRetrievedTransactions{
+    	my $self = shift;
+    	my $twig= XML::Twig->new->parsefile(ORCURETRIEVEFILE);
+    	my $root = $twig->root;
+    	my @transporter_transaction = $root->descendants('transporter:transaction');
+	$self->{LAST_TRANSACTION_ID} = $transporter_transaction[0]->{'att'}->{'id'};
+	$self->{LAST_TRANSACTION_TIMESTAMP} = $transporter_transaction[0]->{'att'}->{'transaction_timestamp'};
+	$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $transporter_transaction[0]->{'att'}->{'total_retrieved_transactions'};
+	return $self;
+}
+
+# @author CG
+# Process transactions array
+# 1.- Insert transaction in transacciones@transporter
+# 2.- Insert Movimiento in ci_movimientos@transporter
+# 3.- If mean device of transaction is type Jarreo Insert Jarreo@transporter
+# 4.- Insert Movimiento in ci_movimientos@informix
+# @params: Array of transacciones
+# @return: 1)success 0)failure
 sub procesaTransacciones($){
 	my $self = shift;
 	my $transaccionesarray = shift;
 	my $regla;
 	my $return = 0;
-	LOGGER->debug("transacciones a procesar [" . @$transaccionesarray . "]");
+	LOGGER->info("transacciones a procesar [" . @$transaccionesarray . "]");
 	my @transacciones = @$transaccionesarray;
 	foreach my $row (@transacciones){
 		LOGGER->debug(dump($row));
 		$self->{IDTRANSACCIONES} = $row->{'id'};
 		$self->{IDPRODUCTOS} = $row->{'product_code'};
-		$self->{IDCORTES} = getCorte($row->{'shift_id'} eq "" ? 0 : $row->{'shift_id'});
+		$self->{TURNO} = getTurno($row->{'date'} . " " . $row->{'time'});
+		$self->{IDCORTES} = $self->{TURNO}->idTurno();
 		$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
 		$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
 		$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
@@ -130,14 +151,14 @@ sub procesaTransacciones($){
 			insertaTransaccion($self);
 			my $meanTransaction = Trate::Lib::Mean->new();
 			$meanTransaction->{ID} = $row->{'mean_id'};
+			LOGGER->debug(dump($meanTransaction));	
 			$meanTransaction->fillMeanFromId();
-			LOGGER->info(dump($meanTransaction));	
 			if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type() eq 2){
-				LOGGER->info("ramses es jarreo pues es: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+				LOGGER->info("Transacción es jarreo: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
 				insertaMovimientoJarreo($self);
 				insertaJarreo($self);
 			} else {
-				LOGGER->info("ramses es despacho pues es: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
 				$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'} . ' ' . $row->{'time'});
 				insertaMovimiento($self);
 				actualizaPase($self);
@@ -145,13 +166,13 @@ sub procesaTransacciones($){
 			}
 			
 			$self->{TOTAL_RETRIEVED_TRANSACTIONS} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} + 1;
-			LOGGER->info(dump($meanTransaction));
+			LOGGER->debug(dump($meanTransaction));
 			$return = 1;
 		} catch {
 			$return = 0;			
 		} 
 		finally {
-			LOGGER->info("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
+			LOGGER->debug("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
 		};
 	}
 	try {
@@ -164,14 +185,19 @@ sub procesaTransacciones($){
 	};
 }
 
+# @author CG
+# Insert current object locally at transporter
+# @params: No params required
+# @return: current object
 sub insertaTransaccion{
 	my $self = shift;
+	my $return = 0;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
 		INSERT INTO transacciones VALUES('"  .
 			$self->{IDTRANSACCIONES} . "','" .
 			$self->{IDPRODUCTOS} . "','" .
-			$self->{IDCORTES}->folio() . "','" .
+			$self->{IDCORTES} . "','" .
 			$self->{IDVEHICULOS} . "','" .
 			$self->{IDDESPACHADORES} . "','" .
 			$self->{IDTANQUES} . "','" .
@@ -193,17 +219,20 @@ sub insertaTransaccion{
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	$sth->finish;
-	$connector->destroy();
-	return $self;
+	$return = $self;
 }
 
+# @author CG
+# Create movimiento object from current transacciones object
+# Insert movimiento object locally and remotely at informix
+# @params: No params required
+# @return: Current object Trate::Lib::Transacciones
 sub insertaMovimiento{
 	my $self = shift;
 	my $movimiento = Trate::Lib::Movimiento->new();
 	$movimiento->{FECHA_HORA} = $self->{FECHA};
 	$movimiento->{DISPENSADOR} = $self->{BOMBA};
-	$movimiento->{SUPERVISOR} = $self->{IDCORTES}->recibeTurno();
+	$movimiento->{SUPERVISOR} = $self->{TURNO}->supervisor();
 	$movimiento->{DESPACHADOR} = $self->{IDDESPACHADORES};
 	$movimiento->{VIAJE} = $self->{PASE}->viaje();
 	$movimiento->{CAMION} = $self->{PASE}->camion();
@@ -227,13 +256,17 @@ sub insertaMovimiento{
 	return $self;
 }
 
+# @author CG
+# Create movimiento object with jarreo data from current transacciones object
+# Insert movimiento object locally and remotely at informix
+# @params: No params required
+# @return: Current object Trate::Lib::Transacciones
 sub insertaMovimientoJarreo{
 	my $self = shift;
-	my $supervisor = pop;
 	my $movimiento = Trate::Lib::Movimiento->new();
 	$movimiento->{FECHA_HORA} = $self->{FECHA};
 	$movimiento->{DISPENSADOR} = $self->{BOMBA};
-	$movimiento->{SUPERVISOR} = $supervisor;
+	$movimiento->{SUPERVISOR} = $self->{TURNO}->usuarioAbre();
 	$movimiento->{DESPACHADOR} = $self->{IDDESPACHADORES};
 	$movimiento->{VIAJE} = 0;
 	$movimiento->{CAMION} = 0;
@@ -253,10 +286,16 @@ sub insertaMovimientoJarreo{
 	$movimiento->{PROCESADA} = 'N';
 	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
 	$movimiento->{ID_RECEPCION} = 'NULL';
+	LOGGER->info(dump($movimiento));
 	$movimiento->insertaMDB();
 	return $self;
 }
 
+# @author CG
+# Create jarreo object from current transacciones object
+# Insert jarreo object locally
+# @params: No params required
+# @return: Current object Trate::Lib::Transacciones
 sub insertaJarreo{
 	my $self = shift;
 	my $jarreo = Trate::Lib::Jarreo->new();
@@ -277,8 +316,7 @@ sub actualizaPase{
 	my $self = shift;
 	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD} . ", nuevo status: D]");
 	$self->{PASE}->status('D');
-	#$self->{PASE}->supervisor($self->{IDCORTES}->recibeTurno());
-	$self->{PASE}->supervisor(191919);
+	$self->{PASE}->supervisor($self->{TURNO}->supervisor());
 	$self->{PASE}->observaciones('');
 	$self->{PASE}->litrosReal($self->{CANTIDAD});
 	$self->{PASE}->updatePase();
@@ -292,7 +330,7 @@ sub setLastTransactionRetreived {
 			'transporter:transaction' => sub{ 
 				my( $t, $tt)= @_;
 				$tt->set_att('id'=>$self->{IDTRANSACCIONES});
-				$tt->set_att('TIMESTAMP'=>$self->{FECHA});
+				$tt->set_att('transaction_timestamp'=>$self->{FECHA});
 				$tt->set_att('timestamp_retrieve'=>Trate::Lib::Utilidades::getCurrentTimestampMariaDB());
 				$tt->set_att('total_retrieved_transactions'=>$self->{TOTAL_RETRIEVED_TRANSACTIONS});
 				$tt->print;		
@@ -321,11 +359,11 @@ sub getPase {
 	return $pase;
 }
 
-sub getCorte {
-	my $corteId = shift;
-	my $corte = Trate::Lib::Corte->new();
-	$corte->getFromId($corteId);
-	return $corte;
+sub getTurno {
+	my $fechatransaccion = shift;
+	my $turno = Trate::Lib::Turnos->new();
+	$turno->getFromTimestamp($fechatransaccion);
+	return $turno;
 }
 
 sub getLastNTransactions{
@@ -333,6 +371,7 @@ sub getLastNTransactions{
 	my ($sort,$order,$page,$limit,$search) = @_;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $where_stmt = "";
+	$order = "DESC";
 	
 	if (length($sort) ge 1){
 		$where_stmt .= " ORDER BY " . $sort;
@@ -342,7 +381,7 @@ sub getLastNTransactions{
 	}
 
 	if (length($page) ge 1 && length($limit) ge 1){
-		$where_stmt .= " LIMIT " . $page . "," . $limit;
+		$where_stmt .= " LIMIT " . ($page-1)*$limit . "," . $limit;
 	}	
 
 	my $preps = "SELECT idtransacciones,placa,fecha,bomba,cantidad,sale,pase from transacciones " . $where_stmt ; 

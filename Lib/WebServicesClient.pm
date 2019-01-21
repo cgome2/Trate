@@ -62,7 +62,7 @@ sub execute{
 	my $method = SOAP::Data->name('ns1:' . $self->{CALL_NAME})->attr({'xmlns:ns1' => WSURI});
 	my @params;
 	for my $parametro (keys %parametros) {
-		LOGGER->info($parametro . " " . dump($parametros{$parametro}));
+		LOGGER->debug($parametro . " " . dump($parametros{$parametro}));
 		push @params, SOAP::Data->name($parametro => $parametros{$parametro});
 	}
 	

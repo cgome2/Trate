@@ -143,7 +143,7 @@ patch '/means' => sub {
 		my $MEAN = Trate::Lib::Mean->new();
 		$MEAN->{ID} = $post->{id};
 		$MEAN->fillMeanFromId();
-		LOGGER->info(dump($MEAN));
+		LOGGER->debug(dump($MEAN));
 		$MEAN->{NAME} = $post->{NAME};
 		$MEAN->{STRING} = $post->{string};
 		$MEAN->{TYPE} = $post->{TYPE};

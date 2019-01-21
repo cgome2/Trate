@@ -9,6 +9,7 @@ use Trate::Lib::Constants qw(DEFAULT_FLEET_ID DEFAULT_DEPT_ID LOGGER DEFAULT_RUL
 sub new
 {
 	my $self = {};
+	LOGGER->debug("ramses instancia mean");
 	$self->{NAME} = undef;
 	$self->{STRING} = undef;
 	$self->{TYPE} = undef;							#2. Tag tipo vehiculo 3. Dispositivo montado al vehiculo 4. Tag tipo despachador
@@ -29,7 +30,7 @@ sub new
 	$self->{PROMPT_ALWAYS_FOR_VIU} = 1;			# 1. Requiere doble autorizacion 2. No requiere doble autorizacion
 	$self->{SHIFT_INSTANCE_ID} = 0;
 	$self->{NR_2STAGE_ELEMENTS}	= 1;
-
+	LOGGER->debug("ramses termina la instancia mean");
 	bless($self);
 	return $self;	
 }
@@ -265,7 +266,7 @@ sub getMeansFromAuttyp{
 	while (my $ref = $sth->fetchrow_hashref()) {
     	push @means,$ref;
 	}
-	LOGGER->{dump(@means)};
+	LOGGER->debug({dump(@means)});
 	$sth->finish;
 	$connector->destroy();
 	return \@means;	
@@ -290,7 +291,6 @@ sub getMeanFromId {
 
 sub fillMeanFromId {
 	my $self = shift;
-	LOGGER->info("ramses llena mean");
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
@@ -304,7 +304,7 @@ sub fillMeanFromId {
 	$self->{TYPE}=$row->{TYPE};
 	$self->{STATUS}=$row->{status};
 	$self->{RULE}=$row->{rule};
-	$self->{HARDWARE_TYP}=$row->{hardware_type};
+	$self->{HARDWARE_TYPE}=$row->{hardware_type};
 	$self->{PLATE}=$row->{plate};
 	$self->{FLEET_ID}=$row->{fleet_id};
 	$self->{DEPT_ID}=$row->{dept_id};
@@ -355,7 +355,7 @@ sub assignRuleToVehicleOrcu{
 	$wsc->callName("SOUpdateMeans");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);
-	LOGGER->info(dump($result));
+	LOGGER->debug(dump($result));
 	return $result;	
 }
 

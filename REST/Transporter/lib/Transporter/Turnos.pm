@@ -6,6 +6,7 @@ use Trate::Lib::Turnos;
 use Data::Dump qw(dump);
 use List::Util qw(all);
 use Trate::Lib::Usuarios;
+use Trate::Lib::Utilidades;
 
 
 our $VERSION = '0.1';
@@ -29,7 +30,14 @@ get '/shifts' => sub {
 		return {message => "No existen turnos en el sistema"};
 	} else {
 		return $return;
-	}
+		}
+};
+
+get '/shifts/supervisor' => sub {
+	my $param = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+	$param = "2019-01-20 12:01:23";
+	my $timestamp = Trate::Lib::Turnos->getSupervisorFromTimestamp($param);
+	return {supervisor=> $timestamp};
 };
 
 get '/turnos/:id' => sub {
