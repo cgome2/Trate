@@ -327,16 +327,20 @@ sub updateLecturaTls {
     }
 }
 
-sub deleteLecturasTlsMariaDb {
+sub deleteLecturaTls {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = " DELETE FROM tank_delivery_readings_t WHERE id_tank_delivery_reading='" . $self->{ID_TANK_DELIVERY_READING} . "' LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	$sth->finish;
-	$connector->destroy();
-	return $self;
+    try {
+		my $sth = $connector->dbh->prepare($preps);
+	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		$sth->finish;
+		$connector->destroy();
+		return 1;
+    } catch {
+		return 0;				    
+    }
 }
 
 sub quemarLecturas($$){

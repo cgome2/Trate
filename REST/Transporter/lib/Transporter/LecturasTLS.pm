@@ -139,7 +139,7 @@ patch '/lecturas_tls' => sub {
 
 };
 
-del '/lecturas_tls' => sub {
+del '/lecturas_tls/:id_tank_delivery_reading' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
@@ -147,12 +147,19 @@ del '/lecturas_tls' => sub {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
 
-	my $post = from_json( request->body );
+    my $id_tank_delivery_reading = params->{id_tank_delivery_reading};	
+	
 	my $LECTURAS_TLS = Trate::Lib::LecturasTLS->new();
-    $LECTURAS_TLS->receptionUniqueId($post->{reception_unique_id});
-	$LECTURAS_TLS->deleteLecturasTlsMariaDb();	
+    $LECTURAS_TLS->idTankDeliveryReading($id_tank_delivery_reading);
+	my $resultado = $LECTURAS_TLS->deleteLecturaTls();	
 
-	return 1;
+	if($resultado eq 0 ){
+		status 500;
+		return {message => "No pudo ser insertado el registro"};
+	} else {
+		status 200;
+		return {message => "OKComputer"};
+	}
 };
 
 get '/facturas/:fecha/:factura/:serie' => sub {
