@@ -24,10 +24,9 @@ use XML::Twig;
 sub new
 {
 	my $self = {};
-	$self->{ID_TANK_DELIVERY_READING} = undef;
+	$self->{TANK_ID} = undef;
 	$self->{ID_TANK_DELIVERY_READING} = undef;
 	$self->{RECEPTION_UNIQUE_ID} = undef;
-	$self->{TANK_ID} = undef;
 	$self->{START_VOLUME} = undef;
 	$self->{END_VOLUME} = undef; 
 	$self->{END_TEMP} = undef; 
@@ -194,15 +193,16 @@ sub insertaLecturaTLS{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
-		INSERT INTO tank_delivery_readings_t VALUES(NULL,'"  .
-			$self->{RECEPTION_UNIQUE_ID} . "','" .
+		INSERT INTO tank_delivery_readings_t VALUES(" . 
+			"NULL,"  .
+			"NULL,'" .
 			$self->{TANK_ID} . "','" .
 			$self->{START_VOLUME} . "','" .
 			$self->{END_VOLUME} . "','" .
 			$self->{END_TEMP} . "','" .
 			$self->{START_DELIVERY_TIMESTAMP} . "','" .
-			$self->{END_DELIVERY_TIMESTAMP} . "','" .
-			$self->{RUI} . "','" .
+			$self->{END_DELIVERY_TIMESTAMP} . "'," .
+			"NULL,'" .
 			$self->{STATUS} . "','" .
 			$self->{START_TC_VOLUME} . "','" .
 			$self->{END_TC_VOLUME} . "','" .
@@ -214,7 +214,11 @@ sub insertaLecturaTLS{
 			$self->{TANK_NAME} . "','" .
 			$self->{TANK_NUMBER} . "','" .
 			$self->{QUANTITY_TLS} . "','" .
-			$self->{QUANTITY_TRAN} . "',NULL)";
+			$self->{QUANTITY_TRAN} . "'," .
+			"NULL,'" . 
+			$self->{ORIGEN_REGISTRO} . "'," .
+			"NULL, " .
+			"NULL)";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
     try {
 		my $sth = $connector->dbh->prepare($preps);

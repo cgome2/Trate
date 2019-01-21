@@ -70,29 +70,28 @@ put '/lecturas_tls' => sub {
 	}
 
 	my $post = from_json( request->body );
-
 	my $ltls = Trate::Lib::LecturasTLS->new();
-	$ltls->tankId($post->{tank_id});
-	$ltls->startVolume($post->{start_volume});
-	$ltls->endVolume($post->{end_volume});
-	$ltls->endTemp($post->{end_temp});
-	$ltls->startDeliveryTimestamp($post->{start_delivery_timestamp});
-	$ltls->endDeliveryTimestamp($post->{end_delivery_timestamp});
-	$ltls->rui($post->{rui});
-	$ltls->status(0);
-	$ltls->startTcVolume($post->{start_tc_volume});
-	$ltls->endTcVolume($post->{end_tc_volume});
-	$ltls->startHeight($post->{start_height});
-	$ltls->endHeight($post->{end_height});
-	$ltls->startWater($post->{start_water});
-	$ltls->endWater($post->{end_water});
-	$ltls->tankName($post->{tank_name});
-	$ltls->tankNumber($post->{tank_number});
-	$ltls->quantityTls($post->{quantity_tls});
-	$ltls->quantityTran($post->{quantity_tran});
-	$ltls->ciMovimientos($post->{ci_movimientos});
-	$ltls->origenRegistro("MANUAL");
-	my $resultado = $ltls->insertar();
+
+	$ltls->{TANK_ID} = $post->{tank}->{ID};
+	$ltls->{TANK_NAME} = $post->{tank}->{NAME};
+	$ltls->{TANK_NUMBER} = $post->{tank}->{NUMBER};
+	$ltls->{START_VOLUME} = $post->{start_volume};
+	$ltls->{END_VOLUME} = $post->{end_volume};
+	$ltls->{START_TEMP} = $post->{start_temp};
+	$ltls->{END_TEMP} = $post->{end_temp};
+	$ltls->{START_DELIVERY_TIMESTAMP} = $post->{start_delivery_timestamp};
+	$ltls->{END_DELIVERY_TIMESTAMP} = $post->{end_delivery_timestamp};
+	$ltls->{STATUS} = 2;
+	$ltls->{START_TC_VOLUME} = $post->{start_tc_volume};
+	$ltls->{END_TC_VOLUME} = $post->{end_tc_volume};
+	$ltls->{START_HEIGHT} = $post->{start_height};
+	$ltls->{END_HEIGHT} = $post->{end_height};
+	$ltls->{START_WATER} = $post->{start_water};
+	$ltls->{END_WATER} = $post->{end_water};
+	$ltls->{QUANTITY_TLS} = 0;
+	$ltls->{QUANTITY_TRAN} = 0;
+	$ltls->{ORIGEN_REGISTRO} = "MANUAL";
+	my $resultado = $ltls->insertaLecturaTLS();
 	if($resultado eq 0 ){
 		status 500;
 		return {message => "No pudo ser insertado el registro"};
