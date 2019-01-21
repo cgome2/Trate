@@ -295,19 +295,36 @@ sub getLecturasTlsFromId {
 	return $row;	
 }
 
-sub updateLecturasTlsMariaDb {
+sub updateLecturaTls {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = " UPDATE tank_delivery_readings_t SET " .
-		"reception_unique_id = '" . $self->{RECEPTION_UNIQUE_ID} . "'," .
-		"status = '" . $self->{STATUS} . "'," . 
-		"ci_movimientos = '" . $self->{CI_MOVIMIENTOS} . "' WHERE id_tank_delivery_reading='" . $self->{ID_TANK_DELIVERY_READING} . "'";
+		"tank_id='" . $self->{TANK_ID} . "'," .
+		"start_volume='" . $self->{START_VOLUME} . "'," .
+		"end_volume='" . $self->{END_VOLUME} . "'," .
+		"end_temp='" . $self->{END_TEMP} . "'," .
+		"start_delivery_timestamp='" . $self->{START_DELIVERY_TIMESTAMP} . "'," .
+		"end_delivery_timestamp='" . $self->{END_DELIVERY_TIMESTAMP} . "'," .
+		"status='" . $self->{STATUR} . "'," .
+		"start_height='" . $self->{START_HEIGHT} . "'," .
+		"end_height='" . $self->{END_HEIGHT} . "'," .
+		"start_temp='" . $self->{START_TEMP} . "'," .
+		"start_water='" . $self->{START_WATER} . "'," .
+		"end_water='" . $self->{END_WATER} . "'," .
+		"tank_name='" . $self->{TANK_NAME} . "'," .
+		"tank_number='" . $self->{TANK_NUMBER} . "'," .
+		"origen_registro='" . $self->{ORIGEN_REGISTRO} . "'" .
+		" WHERE id_tank_delivery_reading='" . $self->{ID_TANK_DELIVERY_READING} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	$sth->finish;
-	$connector->destroy();
-	return $self;
+    try {
+		my $sth = $connector->dbh->prepare($preps);
+	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		$sth->finish;
+		$connector->destroy();
+		return 1;
+    } catch {
+		return 0;				    
+    }
 }
 
 sub deleteLecturasTlsMariaDb {

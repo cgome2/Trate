@@ -46,8 +46,17 @@ get '/lecturas_tls/:id_tank_delivery_reading' => sub {
     my $id_tank_delivery_reading = params->{id_tank_delivery_reading};
 	my $ltls = Trate::Lib::LecturasTLS->new();
 	$ltls->idTankDeliveryReading($id_tank_delivery_reading);
-	return $ltls->getLecturasTlsFromId();
-	return {message=> "exito"};
+	my $response = $ltls->getLecturasTlsFromId();
+	my %tank = (
+		"ID" => $response->{tank_id},
+		"NAME" => $response->{tank_name},
+		"NUMBER" => $response->{tank_number}
+	);
+	$response->{tank} = \%tank;
+	delete $response->{tank_id};
+	delete $response->{tank_name};
+	delete $response->{tank_number};
+	return $response;
 };
 
 put '/lecturas_tls' => sub {
@@ -100,50 +109,34 @@ patch '/lecturas_tls' => sub {
 	}
 
 	my $post = from_json( request->body );
-	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
+	my $ltls = Trate::Lib::LecturasTLS->new();
+	$ltls->{ID_TANK_DELIVERY_READING} = $post->{id_tank_delivery_reading};
+	$ltls->{TANK_ID} = $post->{tank}->{ID};
+	$ltls->{TANK_NAME} = $post->{tank}->{NAME};
+	$ltls->{TANK_NUMBER} = $post->{tank}->{NUMBER};
+	$ltls->{START_VOLUME} = $post->{start_volume};
+	$ltls->{END_VOLUME} = $post->{end_volume};
+	$ltls->{START_TEMP} = $post->{start_temp};
+	$ltls->{END_TEMP} = $post->{end_temp};
+	$ltls->{START_DELIVERY_TIMESTAMP} = $post->{start_delivery_timestamp};
+	$ltls->{END_DELIVERY_TIMESTAMP} = $post->{end_delivery_timestamp};
+	$ltls->{STATUS} = 0;
+	$ltls->{START_HEIGHT} = $post->{start_height};
+	$ltls->{END_HEIGHT} = $post->{end_height};
+	$ltls->{START_WATER} = $post->{start_water};
+	$ltls->{END_WATER} = $post->{end_water};
+	$ltls->{ORIGEN_REGISTRO} = "MANUAL";
+	LOGGER->debug(dump($ltls));
 	
-	#insertar nivel de inventario antes de lectura en ci_movimientos
-	$RECEPCION_COMBUSTIBLE->lecturaTls->receptionUniqueId($post->{reception_unique_id});
-	$RECEPCION_COMBUSTIBLE->movimientoInventario->fechaHora($post->{start_delivery_timestamp});
-	$RECEPCION_COMBUSTIBLE->movimientoInventario->supervisor($post->{supervisor});
-	$RECEPCION_COMBUSTIBLE->movimientoInventario->movimiento(0);
-	$RECEPCION_COMBUSTIBLE->movimientoInventario->litrosReal($post->{start_volume});
-	$RECEPCION_COMBUSTIBLE->movimientoInventario->costoReal($post->{ppv}*$post->{start_volume});
-	$RECEPCION_COMBUSTIBLE->movimientoInventario->status(0);
-	$RECEPCION_COMBUSTIBLE->movimientoInventario->procesada('N');
-	
-
-	#insertar ci_movimientos con los datos de la factura
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->fechaHora($post->{end_delivery_timestamp});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->supervisor($post->{supervisor});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->sello($post->{sello});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->serie($post->{serie});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->tipoReferencia(2);
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->referencia($post->{referencia});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->movimiento(1);
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->litrosEsp($post->{litros_esp});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->litrosReal($post->{litros_real});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->costoEsp($post->{costo_esp});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->costoReal($post->{costo_real});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->costoReal($post->{costo_real});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->iva($post->{iva});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->ieps($post->{ieps});
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->status($post->{reception_unique_id} eq "" ? 1 : 0); #si no trae rui significa que los datos se cargaron manualmente y no desde tls, por lo tanto el status se envia como 1
-	$RECEPCION_COMBUSTIBLE->movimientoRecepcion->procesada('N');
-	
-	my $respuesta = $RECEPCION_COMBUSTIBLE->movimientoInventario($RECEPCION_COMBUSTIBLE->movimientoInventario->inserta());
-	if ($respuesta eq 1){
-		$respuesta = $RECEPCION_COMBUSTIBLE->movimientoRecepcion($RECEPCION_COMBUSTIBLE->movimientoRecepcion->inserta());
-		if($respuesta eq 1){
-			return {message => "OKComputer"};
-		} else {
-			status 401;
-			return {message => "NOTOKComputer"};
-		}
+	my $resultado = $ltls->updateLecturaTls();
+	if($resultado eq 0 ){
+		status 500;
+		return {message => "No pudo ser insertado el registro"};
 	} else {
-		status 401;
-		return {error => "NOTOKComputer"};
+		status 200;
+		return {message => "OKComputer"};
 	}
+
 };
 
 del '/lecturas_tls' => sub {
