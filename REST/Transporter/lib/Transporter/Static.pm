@@ -150,7 +150,7 @@ get "/components" => sub {
     case "/estatus/tanques"             { $component = "tanks"; $endpoint = "/estatusTanques"; }
 
     case "/despacho/contingencias"      { $component = "superTable"; $endpoint = "/pases"; }
-    case "/despacho/jarreos"            { $component = "superTable"; $endpoint = "/jarreos"; }
+    case "/despacho/jarreos"            { $component = "jarreos"; $endpoint = "/jarreos"; }
     case "/despacho/precios"            { $component = "superTable"; $endpoint = "/productos"; }
 
     case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/recepciones_combustible"; }
@@ -170,52 +170,6 @@ get "/components" => sub {
     component => $component,
     endPoint => $endpoint,
     id => $id
-  };
-};
-
-get "/jarreos/table" => sub {
-  return {
-    icon => "currency-usd",
-    title => "Jarreos",
-    id => "id",
-    options => [
-      {
-        icon => 'currency-usd',
-        label => 'Devolver',
-        action => {
-          type => 'form',
-          form => '/jarreos'
-        }
-      }
-    ],
-    columns => [
-      {
-        key => "transaction_id",
-        label => "ID"
-      },
-      {
-        key => "transaction_timestamp",
-        label => "Fecha"
-      },
-      {
-        key => "transaction_pump_head_external_code",
-        label => "Bomba"
-      },
-      {
-        key => "transaction_dispensed_quantity",
-        label => "Volument"
-      },
-      {
-        key => "transaction_ppv",
-        label => "Precio",
-        format => "currency"
-      },
-      {
-        key => "transaction_total_price",
-        label => "Importe",
-        format => "currency"
-      }
-    ]
   };
 };
 
@@ -1050,42 +1004,6 @@ get "/pases/manual/form" => sub {
   };
 };
 
-my @means_type_options = [
-  { from => "2", to => "Dispositivo montado en vehiculo"},
-  { from => "3", to => "Tag tipo vehiculo"},
-  { from => "4", to => "Tag despachador"}
-];
-
-my @means_auttyp_options = [
-  { from => "1",  to => "Tag" },
-  { from => "2",  to => "VIU 3" },
-  { from => "3",  to => "VIU 4" },
-  { from => "4",  to => "VIU 45" },
-  { from => "5",  to => "Electronic Key" },
-  { from => "6",  to => "Montado al Vehiculo" },
-  { from => "7",  to => "Authorizer" },
-  { from => "8",  to => "Master Authorizer" },
-  { from => "9",  to => "VIU 35" },
-  { from => "10", to => "TRU" },
-  { from => "14", to => "Fuel Card" },
-  { from => "20", to => "Gasboy Key" },
-  { from => "21", to => "Manual Entry" },
-  { from => "22", to => "VIU 35 E" },
-  { from => "23", to => "VIU 35 NT" },
-  { from => "25", to => "FP HS" },
-  { from => "26", to => "DP only" },
-  { from => "27", to => "DP H" },
-  { from => "30", to => "FP + DP" },
-  { from => "40", to => "FP HS + DP" },
-  { from => "41", to => "URD" },
-  { from => "42", to => "URD + DP" }
-];
-
-my @means_status_options = [
-  { from => "1", to => "Inactivo"},
-  { from => "2", to => "Activo"},
-];
-
 get "/means/table" => sub {
   return {
     icon => "car",
@@ -1153,19 +1071,16 @@ get "/means/table" => sub {
         label => "Placa"
       },
       {
-        key => "TYPE",
+        key => "label",
         label => "Tipo",
-        map => @means_type_options
-      },
-      {
-        key => "auttyp",
-        label => "Tipo de auto",
-        map => @means_auttyp_options
       },
       {
         key => "status",
         label => "Estatus",
-        map => @means_status_options
+        map => [
+          { from => "1", to => "Inactivo"},
+          { from => "2", to => "Activo"},
+        ]
       },
       {
         key => "string",
