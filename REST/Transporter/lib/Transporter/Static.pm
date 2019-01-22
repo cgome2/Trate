@@ -884,7 +884,6 @@ get "/lecturas_tls/form" => sub {
   };
 };
 
-
 get "/lecturas_tls/ver/form" => sub {
   return {
     icon => "alarm-light",
