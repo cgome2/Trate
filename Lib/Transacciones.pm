@@ -291,6 +291,37 @@ sub insertaMovimientoJarreo{
 	return $self;
 }
 
+sub insertaMovimientoDevolucionJarreo(){
+	my $self = shift;
+	my $usuarioDevolucion = pop;
+	my $movimiento = Trate::Lib::Movimiento->new();
+	$movimiento->{FECHA_HORA} = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+	$movimiento->{DISPENSADOR} = $self->{BOMBA};
+	$movimiento->{SUPERVISOR} = $usuarioDevolucion;
+	$movimiento->{DESPACHADOR} = 0;
+	$movimiento->{VIAJE} = 0;
+	$movimiento->{CAMION} = 0;
+	$movimiento->{CHOFER} = 0;
+	$movimiento->{SELLO} = 'NULL';
+	$movimiento->{TIPO_REFERENCIA} = '4';
+	$movimiento->{SERIE} = 'NULL';
+	$movimiento->{REFERENCIA} = $self->{IDTRANSACCIONES};
+	$movimiento->{MOVIMIENTO} = '4';
+	$movimiento->{LITROS_ESP} = 0;
+	$movimiento->{LITROS_REAL} = $self->{CANTIDAD};
+	$movimiento->{COSTO_ESP} = '0';
+	$movimiento->{COSTO_REAL} = $self->{VENTA};
+	$movimiento->{IVA} = '0';
+	$movimiento->{IEPS} = '0';
+	$movimiento->{STATUS} = '0';
+	$movimiento->{PROCESADA} = 'N';
+	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
+	$movimiento->{ID_RECEPCION} = 'NULL';
+	LOGGER->info(dump($movimiento));
+	$movimiento->insertaMDB();
+	return $self;
+}
+
 # @author CG
 # Create jarreo object from current transacciones object
 # Insert jarreo object locally

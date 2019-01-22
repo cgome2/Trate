@@ -11,6 +11,7 @@ package Trate::Lib::Jarreo;
 
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
+use Data::Dump qw(dump);
 use Trate::Lib::Constants qw(LOGGER);
 use Try::Catch;
 
@@ -215,6 +216,7 @@ sub fillJarreoFromTransactionId {
 		$self->{RETURN_DATE} = $row->{return_date};
 		$self->{RETURN_TIME} = $row->{return_time};
 		$self->{STATUS_CODE} = $row->{status_code};
+		LOGGER->debug(dump($self));
 		return $self;
 	} else {
 		return 0;

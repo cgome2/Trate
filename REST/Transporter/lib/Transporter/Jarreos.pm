@@ -84,9 +84,10 @@ patch '/jarreos' => sub {
 			$t->{IDTRANSACCIONES} = $jarreo->{transaction_id};
 			$t->fillTransaccionFromId();
 			# 	insertar movimiento de jarreo
-			$t->insertaMovimientoJarreo($usuario->{numero_empleado});
+			$t->insertaMovimientoDevolucionJarreo($usuario->{numero_empleado});
 			# 	actualizar jarreo agregando datos de devolución y cambiando status a 1
 			$j->insertaDevolucionJarreo();
+			LOGGER->debug("El jarreo de la transaccion " . $j->{TRANSACTION_ID} . " fue procesado ok");
 			$return = 1;
 		} catch {
 			$return = 0;

@@ -40,6 +40,24 @@ get '/means/types/mono' => sub {
 	return $meansOptions;	
 };
 
+get '/means/contingencia' => sub {
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+	}
+	my $means;
+	my $MEAN = Trate::Lib::Mean->new();
+	$means = $MEAN->getMeansContingencia();
+	if($means eq 0){
+		status 404;
+		return {message => "Means inexistentes"};
+	} else {
+		return $means;
+	}
+};
+
 get '/means/:id' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
@@ -57,24 +75,6 @@ get '/means/:id' => sub {
 		return {message => "Mean no existente"};
 	} else {
 		return $mean;
-	}
-};
-
-get '/means/contingencia' => sub {
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	}
-	my $means;
-	my $MEAN = Trate::Lib::Mean->new();
-	$means = $MEAN->getMeansContingencia();
-	if($means eq 0){
-		status 404;
-		return {message => "Means inexistentes"};
-	} else {
-		return $means;
 	}
 };
 

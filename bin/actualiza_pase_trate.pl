@@ -14,11 +14,12 @@ use warnings;
 my $num_args = $#ARGV + 1;
 my $return = 0;
 
-if ($num_args != 17) {
-	LOGGER->fatal("Uso:perl actualiza_pase_trate.pl accion id fecha_solicitud pase viaje camion chofer litros contingencia status litros_real litros_esp viaje_sust supervisor observaciones ultima_modificacion old_mean");
+if ($num_args != 18) {
+	LOGGER->fatal("Uso:perl actualiza_pase_trate.pl accion id fecha_solicitud pase viaje camion chofer litros contingencia status litros_real litros_esp viaje_sust supervisor observaciones old_status ultima_modificacion old_mean");
     exit $return;
 }
-my ($accion,$id,$fecha_solicitud,$pase,$viaje,$camion,$chofer,$litros,$contingencia,$status,$litros_real,$litros_esp,$viaje_sust,$supervisor,$observaciones,$ultima_modificacion,$old_mean) = @ARGV;
+
+my ($accion,$id,$fecha_solicitud,$pase,$viaje,$camion,$chofer,$litros,$contingencia,$status,$litros_real,$litros_esp,$viaje_sust,$supervisor,$observaciones,$old_status,$ultima_modificacion,$old_mean) = @ARGV;
 my $PASE = Trate::Lib::Pase->new();
 $PASE->fechaSolicitud($fecha_solicitud);
 $PASE->pase($pase);
@@ -40,20 +41,21 @@ my $mean = Trate::Lib::Mean->new();
 $mean->name($old_mean);
 $mean->desactivarMean();
 
-$mean->name($camion);
-my $resultado = ($accion eq 1 ? $mean->desactivarMean() : $mean->activarMean());	
-
-if($resultado->{rc} eq 0){
-	try { 
-		if(WITHINFORMIX eq 1){
-			$return = $PASE->actualizaInformix() or warn(LOGGER->fatal("ERROR AL ENVIAR PASE A INFORMIX"));
-		} else {
-			$return = 1;
-		}
-	} catch {
-		$return = 0;
-	} finally {
-		print $return;
-	};
+if($status eq "R" || $status eq "T"){
+	$mean->name($camion);	
+	$mean->activarMean();
 }
+
+try { 
+	if(WITHINFORMIX eq 1){
+		$return = $PASE->actualizaInformix($old_status) or warn(LOGGER->fatal("ERROR AL ENVIAR PASE A INFORMIX"));
+	} else {
+		$return = 1;
+	}
+} catch {
+	$return = 0;
+} finally {
+	$return = $return;
+};
+
 print $return;

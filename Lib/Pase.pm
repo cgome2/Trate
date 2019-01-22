@@ -187,7 +187,13 @@ sub getFromCamion(){
 sub updatePase{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s',litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+	my $preps;
+	
+	if($self->{STATUS} eq "R" || $self->{STATUS} eq "T"){
+		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s' WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{PASE};	
+	} else {
+		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s',litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+	}
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {
 		my $sth = $connector->dbh->prepare($preps);
@@ -207,10 +213,22 @@ sub updatePase{
 
 sub actualizaInformix {
 	my $self = shift;
+	my $oldstatus = pop;
 	my $return = 0;
 	my $connector = Trate::Lib::ConnectorInformix->new();
-	my $preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
-	LOGGER->debug("Ejecutando sql INFORMIX [ ", $preps, " ]");
+	my $preps;
+	if($self->{STATUS} eq "R" || $self->{STATUS} eq "T"){
+		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s' " . 
+		"WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{PASE};	
+	} elsif($oldstatus eq "R" || $oldstatus eq "T"){
+		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s', litros_real=%4f " . 
+		"WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{LITROS_REAL}, $self->{PASE};	
+	} else {
+		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', " . 
+		" litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END " . 
+		" WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+	}
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {			
 		my $sth = $connector->dbh->prepare($preps) or die(LOGGER->fatal("NO SE PUDO CONECTAR A INFORMIX:master"));
 	    my $rowsaffected = $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:orpak: $preps");
