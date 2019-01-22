@@ -698,7 +698,7 @@ get "/recepciones_combustible/tls/form" => sub {
 
 get "/lecturas_tls/table" => sub {
   return {
-    icon => "alarm-light",
+    icon => "ruler",
     title => "Lecturas",
     id => "id_tank_delivery_reading",
     columns => [
@@ -795,7 +795,7 @@ get "/lecturas_tls/table" => sub {
 
 get "/lecturas_tls/form" => sub {
   return {
-    icon => "alarm-light",
+    icon => "ruler",
     title => "Lectura",
     getFrom => "/lecturas_tls",
     sendTo => "/lecturas_tls",
@@ -886,7 +886,7 @@ get "/lecturas_tls/form" => sub {
 
 get "/lecturas_tls/ver/form" => sub {
   return {
-    icon => "alarm-light",
+    icon => "ruler",
     title => "Lectura",
     getFrom => "/lecturas_tls",
     sendTo => "/asdf",
