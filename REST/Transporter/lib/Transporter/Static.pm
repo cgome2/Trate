@@ -59,8 +59,8 @@ get "/menu" => sub {
 						path => "/recepcion/documentos"
 					},
 					{
-						header => "Contingencias",
-						path => "/recepcion/contingencias"
+						header => "Lecturas",
+						path => "/recepcion/lecturas"
 					},
 				]
 			},
@@ -154,7 +154,7 @@ get "/components" => sub {
     case "/despacho/precios"            { $component = "superTable"; $endpoint = "/productos"; }
 
     case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/recepciones_combustible"; }
-    case "/recepcion/contingencias"     { $component = "superTable"; $endpoint = "/lecturas_tls"; }
+    case "/recepcion/lecturas"          { $component = "superTable"; $endpoint = "/lecturas_tls"; }
 
     case "/turnos/turnos"               { $component = "superTable"; $endpoint = "/shifts"; }
 
@@ -699,7 +699,7 @@ get "/recepciones_combustible/tls/form" => sub {
 get "/lecturas_tls/table" => sub {
   return {
     icon => "alarm-light",
-    title => "Contingencias",
+    title => "Lecturas",
     id => "id_tank_delivery_reading",
     columns => [
       {
@@ -749,6 +749,14 @@ get "/lecturas_tls/table" => sub {
     ],
     options => [
       {
+        icon => 'eye',
+        label => 'Ver',
+        action => {
+          type => 'form',
+          form => '/lecturas_tls/ver'
+        }
+      },
+      {
         icon => 'pencil',
         label => 'Editar',
         condition => {
@@ -788,7 +796,7 @@ get "/lecturas_tls/table" => sub {
 get "/lecturas_tls/form" => sub {
   return {
     icon => "alarm-light",
-    title => "Contingencia",
+    title => "Lectura",
     getFrom => "/lecturas_tls",
     sendTo => "/lecturas_tls",
     sqlDates => 1,
@@ -871,6 +879,88 @@ get "/lecturas_tls/form" => sub {
         greaterThan => "start_delivery_timestamp",
         greaterThanError => "Debe ser mayor a fecha de inicio",
         required => 1
+      }
+    ]
+  };
+};
+
+
+get "/lecturas_tls/ver/form" => sub {
+  return {
+    icon => "alarm-light",
+    title => "Lectura",
+    getFrom => "/lecturas_tls",
+    sendTo => "/asdf",
+    fields => [
+      {
+        key => "tank",
+        label => "Tanque",
+        type => "select",
+        optionsSource => "/tanques",
+        optionsKey => "ID",
+        optionsValue => "NAME",
+        storeObject => 1,
+        readonly => 1
+      },
+      {
+        key => "start_volume",
+        label => "Volumen inicial",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "end_volume",
+        label => "Volumen final",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "start_temp",
+        label => "Temperatura inicial",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "end_temp",
+        label => "Temperatura final",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "start_water",
+        label => "Agua inicial",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "end_water",
+        label => "Agua final",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "start_height",
+        label => "Altura inicial",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "end_height",
+        label => "Altura final",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "start_delivery_timestamp",
+        label => "Fecha de inicio",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "end_delivery_timestamp",
+        label => "Fecha fin",
+        type => "text",
+        readonly => 1
       }
     ]
   };
