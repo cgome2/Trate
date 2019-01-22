@@ -718,22 +718,22 @@ get "/lecturas_tls/table" => sub {
         key => "end_volume",
         label => "Volumen final"
       },
-      {
-        key => "start_temp",
-        label => "Temperatura inicial"
-      },
-      {
-        key => "end_temp",
-        label => "Temperatura final"
-      },
-      {
-        key => "start_water",
-        label => "Agua inicial"
-      },
-      {
-        key => "end_water",
-        label => "Agua final"
-      },
+      # {
+      #   key => "start_temp",
+      #   label => "Temperatura inicial"
+      # },
+      # {
+      #   key => "end_temp",
+      #   label => "Temperatura final"
+      # },
+      # {
+      #   key => "start_water",
+      #   label => "Agua inicial"
+      # },
+      # {
+      #   key => "end_water",
+      #   label => "Agua final"
+      # },
       {
         key => "start_delivery_timestamp",
         label => "Fecha de inicio"
