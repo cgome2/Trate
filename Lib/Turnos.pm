@@ -150,7 +150,10 @@ sub getTurnos {
 	my $connectorBombas = Trate::Lib::ConnectorMariaDB->new();
 	my $connectorTanques = Trate::Lib::ConnectorMariaDB->new();
 	my $connectorMeans = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT * FROM turnos ORDER BY id_turno DESC LIMIT 50"; 
+	my $preps = " SELECT t.*,ua.nombre as usuario_abre,uc.nombre as usuario_cierra " . 
+				" FROM turnos t LEFT JOIN usuarios ua ON t.id_usuario_abre = ua.idusuarios " .
+				" LEFT JOIN usuarios uc ON t.id_usuario_cierra=uc.idusuarios" .
+				" ORDER BY id_turno DESC LIMIT 50"; 
 	my $prepsBombas;
 	my $sthBombas;
 	my $prepsTanques;
@@ -194,6 +197,7 @@ sub getTurnos {
 			$tanqueTurno = Trate::Lib::TanqueTurno->new();
 			$tanqueTurno->idTurno($t->{id_turno});
 			$tanqueTurno->tankId($t->{tank_id});
+			$tanqueTurno->tankName($t->{tank_name});
 			$tanqueTurno->volumenInicial($t->{volumen_inicial});
 			$tanqueTurno->volumenFinal($t->{volumen_final});
 			$tanqueTurno->timestampInicial($t->{timestamp_inicial});
@@ -202,7 +206,7 @@ sub getTurnos {
 			push @tanquesTurno,$tanqueTurno;
 		}
 
-		$prepsMeans = "SELECT * FROM turno_means WHERE id_turno = '" . $ref->{id_turno} . "'";
+		$prepsMeans = "SELECT tm.*,m.NAME AS despachador FROM turno_means tm LEFT JOIN means m ON tm.mean_id=m.id WHERE tm.id_turno = '" . $ref->{id_turno} . "'";
 		$sthMeans = $connector->dbh->prepare($prepsMeans);
 		$sthMeans->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsMeans");
 		my @meansTurno = ();
@@ -215,14 +219,17 @@ sub getTurnos {
 			$meanTurno->usuarioAdd($m->{usuario_add});
 			$meanTurno->usuarioRm($m->{usuario_rm});
 			unbless($meanTurno);
+			$meanTurno->{'despachador'} = $m->{'despachador'};
 			push @meansTurno,$meanTurno;
 		}
 		
 		%turno = (
 			"id_turno" => $ref->{id_turno},
 			"fecha_abierto" => $ref->{fecha_abierto},
+			"id_usuario_abre" => $ref->{id_usuario_abre},
 			"usuario_abre" => $ref->{usuario_abre},
 			"fecha_cierre" => $ref->{fecha_cierre},
+			"id_usuario_cierra" => $ref->{id_usuario_cierra},
 			"usuario_cierra" => $ref->{usuario_cierra},
 			"status" => $ref->{status}
 		);
@@ -296,7 +303,7 @@ sub getTurnoFromId {
 			push @tanquesTurno,$tanqueTurno;
 		}
 
-		$prepsMeans = "SELECT * FROM turno_means WHERE id_turno = '" . $ref->{id_turno} . "'";
+		$prepsMeans = "SELECT tm.*,m.NAME AS despachador FROM turno_means tm LEFT JOIN means m ON tm.mean_id=m.id WHERE tm.id_turno = '" . $ref->{id_turno} . "'";
 		$sthMeans = $connector->dbh->prepare($prepsMeans);
 		$sthMeans->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsMeans");
 		my @meansTurno = ();
@@ -309,6 +316,7 @@ sub getTurnoFromId {
 			$meanTurno->usuarioAdd($m->{usuario_add});
 			$meanTurno->usuarioRm($m->{usuario_rm});
 			unbless($meanTurno);
+			$meanTurno->{'despachador'} = $m->{'despachador'};
 			push @meansTurno,$meanTurno;
 		}
 		
@@ -329,6 +337,41 @@ sub getTurnoFromId {
 	$sth->finish;
 	$connector->destroy();
 	return \@turnos;	
+}
+
+sub getLastTotalizerReadings{
+	my $self = shift;
+	my @totalizadores = [
+		{"id_bomba" => 1, "id_manguera" => 1, "totalizador_volumen" => 93245},
+		{"id_bomba" => 2, "id_manguera" => 1, "totalizador_volumen" => 87675},
+		{"id_bomba" => 3, "id_manguera" => 1, "totalizador_volumen" => 92112},
+		{"id_bomba" => 4, "id_manguera" => 1, "totalizador_volumen" => 93456}
+	];
+	return \@totalizadores;
+}
+
+sub getLastTankReadings{
+	my $self = shift;
+	my @tanques = [
+		{"tank_id" => 1, "tank_name" => "Magna1", "totalizador_volumen" => 87210.21}
+	];
+	return \@tanques;
+}
+
+sub insertLastTotalizerReadings{
+	my $self = shift;
+}
+
+sub getTurnoAbierto {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT id_turno FROM turnos WHERE status=2 ORDER BY id_turno DESC LIMIT 1"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @rows = $sth->fetchrow_hashref();
+	LOGGER->info("cuantas hay: " . @rows);
+	return 0;
 }
 
 1;

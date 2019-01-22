@@ -8,6 +8,7 @@ sub new
 	my $self = {};
 	$self->{ID_TURNO} = undef;
 	$self->{TANK_ID} = undef;
+	$self->{TANK_NAME} = undef;
 	$self->{VOLUMEN_INICIAL} = undef; 
 	$self->{VOLUMEN_FINAL} = undef; 
 	$self->{TIMESTAMP_INICIAL} = undef;
@@ -28,6 +29,13 @@ sub tankId {
         if (@_) { $self->{TANK_ID} = shift }        
         return $self->{TANK_ID};
 }
+
+sub tankName {
+	my $self = shift;
+	if(@_) { $self->{TANK_NAME} = shift }
+	return $self->{TANK_NAME};
+}
+
 
 sub volumenInicial {
         my ($self) = shift;

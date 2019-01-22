@@ -50,14 +50,16 @@ put '/recepciones_combustible' => sub {
 	}	
 
 	my $post = from_json( request->body );
-	
+	LOGGER->info(dump($post));
     my $FACTURA = Trate::Lib::Factura->new();
     $FACTURA->fecha($post->{fecha_documento});
     $FACTURA->factura($post->{folio_documento});
     $FACTURA->fserie($post->{serie_documento});
     $FACTURA->proveedor($post->{numero_proveedor});
+	LOGGER->info(dump($FACTURA));
     if($FACTURA->existeFactura() eq 0){
 	    status 400;
+	    LOGGER->info("La factura no existe en informix");
 	    return {message => "Factura no existente en informix."};
     }
 	

@@ -298,7 +298,7 @@ sub insertaMovimientoDevolucionJarreo(){
 	$movimiento->{FECHA_HORA} = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
 	$movimiento->{DISPENSADOR} = $self->{BOMBA};
 	$movimiento->{SUPERVISOR} = $usuarioDevolucion;
-	$movimiento->{DESPACHADOR} = 0;
+	$movimiento->{DESPACHADOR} = $usuarioDevolucion;
 	$movimiento->{VIAJE} = 0;
 	$movimiento->{CAMION} = 0;
 	$movimiento->{CHOFER} = 0;
