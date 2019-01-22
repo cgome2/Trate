@@ -735,14 +735,6 @@ get "/lecturas_tls/table" => sub {
         label => "Agua final"
       },
       {
-        key => "start_height",
-        label => "Altura inicial"
-      },
-      {
-        key => "end_height",
-        label => "Altura final"
-      },
-      {
         key => "start_delivery_timestamp",
         label => "Fecha de inicio"
       },
