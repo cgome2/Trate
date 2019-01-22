@@ -232,7 +232,7 @@ sub insertaMovimiento{
 	my $movimiento = Trate::Lib::Movimiento->new();
 	$movimiento->{FECHA_HORA} = $self->{FECHA};
 	$movimiento->{DISPENSADOR} = $self->{BOMBA};
-	$movimiento->{SUPERVISOR} = $self->{TURNO}->supervisor();
+	$movimiento->{SUPERVISOR} = $self->{TURNO}->usuarioAbre();
 	$movimiento->{DESPACHADOR} = $self->{IDDESPACHADORES};
 	$movimiento->{VIAJE} = $self->{PASE}->viaje();
 	$movimiento->{CAMION} = $self->{PASE}->camion();
@@ -316,7 +316,7 @@ sub actualizaPase{
 	my $self = shift;
 	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD} . ", nuevo status: D]");
 	$self->{PASE}->status('D');
-	$self->{PASE}->supervisor($self->{TURNO}->supervisor());
+	$self->{PASE}->supervisor($self->{TURNO}->usuarioAbre());
 	$self->{PASE}->observaciones('');
 	$self->{PASE}->litrosReal($self->{CANTIDAD});
 	$self->{PASE}->updatePase();
@@ -372,6 +372,7 @@ sub getLastNTransactions{
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $where_stmt = "";
 	$order = "DESC";
+	$sort = "idtransacciones";
 	
 	if (length($sort) ge 1){
 		$where_stmt .= " ORDER BY " . $sort;

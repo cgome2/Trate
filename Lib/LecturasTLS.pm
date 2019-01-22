@@ -118,6 +118,7 @@ sub notificarDescargaLecturasTlsAOrcu{
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);	
 	if ($result->{rc} eq 0){
+		LOGGER->info("Se notifico exitosamente al orcu sobre la descarga de la recepcion de combustible");
 		return 1;
 	} else {
 		LOGGER->error('NO se pudo notificar al orcu sobre la descarga de la recepción de combustible');
@@ -130,7 +131,7 @@ sub notificarDescargaLecturasTlsAOrcu{
 
 sub getLastLecturasTlsFromOrcu{
 	my $self = shift;
-	$self = getLastRetrievedLecturasTLS($self);	
+	#$self = getLastRetrievedLecturasTLS($self);	
 	my %params = (
 		SessionID => "",
 		site_code => "",
@@ -180,12 +181,13 @@ sub procesaLecturasTLS($){
 		$self->{TANK_NUMBER} = $row->{'tank_number'};
 		$self->{QUANTITY_TLS} = $row->{'quantity_tls'};
 		$self->{QUANTITY_TRAN} = $row->{'quantity_tran'};	
-		
+		$self->{ORIGEN_REGISTRO} = "TLS";		
 		if(notificarDescargaLecturasTlsAOrcu($self) eq 1){
 			$self = insertaLecturaTLS($self);
 		}
+		LOGGER->debug(dump($self));
 	}
-	$self = setLastLecturaTLSRetreived($self);
+	#$self = setLastLecturaTLSRetreived($self);
 	return 1;
 }
 
@@ -221,13 +223,15 @@ sub insertaLecturaTLS{
 			"NULL)";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
     try {
-		my $sth = $connector->dbh->prepare($preps);
-	    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-		$sth->finish;
-		$connector->destroy();
-		return 1;
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+	LOGGER->debug("ramses inserta correctamente la lectura");
+	return 1;
     } catch {
-		return 0;				    
+	LOGGER->debug("ramses no inserto correctamente la lectura");
+	return 0;				    
     }
 	
 }
@@ -254,20 +258,20 @@ sub setLastLecturaTLSRetreived {
 
 sub getLecturasTls{
 	my $self = shift;
-	my ($sort,$order,$page,$limit,$search) = @_;
+	#my ($sort,$order,$page,$limit,$search) = @_;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $where_stmt = "";
 	
-	if (length($sort) ge 1){
-		$where_stmt .= " ORDER BY " . $sort;
-		if (length($order) gt 1){
-			$where_stmt .= " " . $order . " ";
-		}
-	}
+	#if (length($sort) ge 1){
+	#	$where_stmt .= " ORDER BY " . $sort;
+	#	if (length($order) gt 1){
+	#		$where_stmt .= " " . $order . " ";
+	#	}
+	#}
 
-	if (length($page) ge 1 && length($limit) ge 1){
-		$where_stmt .= " LIMIT " . $page . "," . $limit;
-	}	
+	#if (length($page) ge 1 && length($limit) ge 1){
+	#	$where_stmt .= " LIMIT " . $page . "," . $limit;
+	#}	
 	
 	my $preps = "SELECT * FROM tank_delivery_readings_t WHERE status=0 AND id_recepcion IS NULL AND ci_movimientos IS NULL " . $where_stmt ; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");

@@ -60,22 +60,16 @@ get '/means/:id' => sub {
 	}
 };
 
-get '/means/auttyp/:auttyp' => sub {
+get '/means/contingencia' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	my $auttyp = params->{auttyp};
-    if(all { $_ ne $auttyp } (20)) {
-	    status 405;
-		return {message => "Tipo de Mean inválido"};
-	}
 	my $means;
 	my $MEAN = Trate::Lib::Mean->new();
-	$MEAN->auttyp($auttyp);
-	$means = $MEAN->getMeansFromAuttyp();
+	$means = $MEAN->getMeansContingencia();
 	if($means eq 0){
 		status 404;
 		return {message => "Means inexistentes"};
