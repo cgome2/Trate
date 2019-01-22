@@ -85,19 +85,6 @@ sub origenRegistro {
 	return $self->{ORIGEN_REGISTRO};
 }
 
-# Método para obtener la ultima lectura descargada desde el orcu
-# Autor: carlos gomez
-sub getLastRetrievedLecturasTLS{
-    my $self = shift;
-    my $twig= new XML::Twig;
-    $twig->parsefile($self->{ORCURETRIEVEFILE});
-    my $root = $twig->root;
-    my @transporter_tls_reading = $root->descendants('transporter:tls_reading');
-    $self->{LAST_TLS_READING_ID} = $transporter_tls_reading[0]->{'att'}->{'reception_unique_id'};
-	$self->{LAST_TLS_READING_TIMESTAMP} = $transporter_tls_reading[0]->{'att'}->{'received_timestamp'};	
-	return $self;
-}
-
 # Método para notificar a Orcu que una entrega de combustible ya fue descargada en transporter
 # Autor: carlos gomez
 
@@ -182,12 +169,9 @@ sub procesaLecturasTLS($){
 		$self->{QUANTITY_TLS} = $row->{'quantity_tls'};
 		$self->{QUANTITY_TRAN} = $row->{'quantity_tran'};	
 		$self->{ORIGEN_REGISTRO} = "TLS";		
-		if(notificarDescargaLecturasTlsAOrcu($self) eq 1){
-			$self = insertaLecturaTLS($self);
-		}
-		LOGGER->debug(dump($self));
+		notificarDescargaLecturasTlsAOrcu($self);
+		insertaLecturaTLS($self);
 	}
-	#$self = setLastLecturaTLSRetreived($self);
 	return 1;
 }
 
