@@ -156,7 +156,7 @@ get "/components" => sub {
     case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/recepciones_combustible"; }
     case "/recepcion/contingencias"     { $component = "superTable"; $endpoint = "/lecturas_tls"; }
 
-    # case "/turnos/turnos"               { $component = "superTable"; $endpoint = ""; }
+    case "/turnos/turnos"               { $component = "superTable"; $endpoint = "/shifts"; }
 
     # case "/reportes/transacciones"      { $component = "superTable"; $endpoint = ""; }
     # case "/reportes/turnos"             { $component = "superTable"; $endpoint = ""; }
@@ -170,6 +170,125 @@ get "/components" => sub {
     component => $component,
     endPoint => $endpoint,
     id => $id
+  };
+};
+
+get "/shifts/table" => sub {
+  return {
+    icon => "timetable",
+    title => "Turnos",
+    id => "id_turno",
+    options => [
+      {
+        icon => 'pencil',
+        label => 'Editar',
+        condition => {
+          status => 2
+        },
+        action => {
+          type => 'form',
+          form => '/shifts'
+        }
+      },
+      {
+        icon => 'close',
+        label => 'Cerrar',
+        condition => {
+          status => 2
+        },
+        action => {
+          type => 'http',
+          endpoint => '/shifts',
+          verb => 'patch',
+          override => { status => 1 }
+        }
+      }
+    ],
+    buttons => [
+      {
+        icon => 'plus',
+        label => 'Abrir turno',
+        action => {
+          type => 'form',
+          form => '/shifts'
+        }
+      }
+    ],
+    columns => [
+      {
+        key => "id_turno",
+        label => "Id"
+      },
+      {
+        key => "usuario_abre",
+        label => "Supervisor"
+      },
+      {
+        key => "fecha_abierto",
+        label => "Fecha"
+      },
+      {
+        key => "usuario_cierra",
+        label => "Supervisor cierre"
+      },
+      {
+        key => "fecha_cierre",
+        label => "Fecha de cierre"
+      },
+      {
+        key => "status",
+        label => "Estatus",
+        map => [
+          { from => "2", to => 'Abierto' },
+          { from => "1", to => 'Cerrado' }
+        ]
+      }
+    ]
+  };
+};
+
+
+get "/shifts/form" => sub {
+  return {
+    icon => "timetable",
+    title => "Turno",
+    getFrom => "/shifts",
+    sendTo => "/shifts",
+    sqlDates => 1,
+    fields => [],
+    details => [
+      {
+        key => "MEANS_TURNO",
+        label => "Despachadores",
+        endpoint => "/shifts/despachadores",
+        columns => [
+          {
+            key => "MEAN_ID",
+            label => "Despachador"
+          },
+        ]
+      }
+    ]
+  };
+};
+
+get "/shifts/despachadores/form" => sub {
+  return {
+    icon => "timetable",
+    title => "Turno",
+    getFrom => "/shifts",
+    sendTo => "/shifts",
+    sqlDates => 1,
+    fields => [
+      {
+        key => "MEAN_ID",
+        label => "Despachador",
+        type => "select",
+        optionsSource => "/despachadores",
+        optionsKey => "id",
+        optionsValue => "NAME"
+      }
+    ],
   };
 };
 
@@ -910,7 +1029,7 @@ get "/pases/reasignar/form" => sub {
         key => "camion",
         label => "Camion",
         type => "select",
-        optionsSource => "/means/auttyp/20",
+        optionsSource => "/means/contingencia",
         optionsKey => "NAME",
         optionsValue => "NAME"
       }
