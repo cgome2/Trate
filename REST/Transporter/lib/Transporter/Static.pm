@@ -1074,6 +1074,15 @@ get "/pases/reabrir/form" => sub {
         readonly => 1
       },
       {
+        key => "mean_contingencia",
+        label => "Tag de Contingencia",
+        type => "select",
+        optionsSource => "/means/contingencia",
+        optionsKey => "NAME",
+        optionsValue => "NAME"
+        readonly => 1
+      },
+      {
         key => "observaciones",
         label => "Observaciones",
         type => "text",
