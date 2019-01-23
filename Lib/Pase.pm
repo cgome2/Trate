@@ -131,56 +131,72 @@ sub meanContingencia {
 sub psInsertarPaseMariaDB {
 	my $self = shift;
 
-	my $preps = 	"INSERT INTO ci_pases VALUES(NULL,'" .
-												$self->{FECHA_SOLICITUD} . "','" .
-												$self->{PASE} . "','" .
-												$self->{VIAJE} . "','" .
-												$self->{CAMION} . "','" .
-												$self->{CHOFER} . "','" .
-												$self->{LITROS} . "','" .
-												$self->{CONTINGENCIA} . "','" .
-												$self->{STATUS} . "','" .
-												$self->{LITROS_REAL} . "','" .
-												$self->{LITROS_ESP} . "','" .
-												$self->{VIAJE_SUST} . "','" .
-												$self->{SUPERVISOR} . "','" .
-												$self->{OBSERVACIONES} . "'," .
-												$self->{ULTIMA_MODIFICACION} .
-											")";
+	my $preps = 	"INSERT INTO ci_pases (" . 
+									"fecha_solicitud," .
+									"pase," .
+									"viaje," .
+									"camion," .
+									"chofer," .
+									"litros," .
+									"contingencia," .
+									"status," .
+									"litros_real," .
+									"litros_esp," .
+									"viaje_sust," .
+									"supervisor," .
+									"observaciones," .
+									"ultima_modificacion" .
+								") VALUES('" .
+									$self->{FECHA_SOLICITUD} . "','" .
+									$self->{PASE} . "','" .
+									$self->{VIAJE} . "','" .
+									$self->{CAMION} . "','" .
+									$self->{CHOFER} . "','" .
+									$self->{LITROS} . "','" .
+									$self->{CONTINGENCIA} . "','" .
+									$self->{STATUS} . "','" .
+									$self->{LITROS_REAL} . "','" .
+									$self->{LITROS_ESP} . "','" .
+									$self->{VIAJE_SUST} . "','" .
+									$self->{SUPERVISOR} . "','" .
+									$self->{OBSERVACIONES} . "'," .
+									$self->{ULTIMA_MODIFICACION} .
+								")";
 	return $preps;
 }
 
-sub getFromCamion(){
+sub getFromMean(){
 	my $self = shift;
-	$self->{CAMION} = shift;
+	my $mean = shift;
 	$self->{FECHA_SOLICITUD} = shift;
 
 	my $id = 0;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT * FROM ci_pases WHERE camion = '" . $self->{CAMION} . "' AND fecha_solicitud < '" . $self->{FECHA_SOLICITUD} . "' AND status IN ('A','R','T') ORDER BY fecha_solicitud DESC LIMIT 1";
+	my $preps = "SELECT * FROM ci_pases WHERE (camion = '" . $mean . "' OR mean_contingencia = '" . $mean . "') AND fecha_solicitud < '" . $self->{FECHA_SOLICITUD} . "' AND status IN ('A','R','T') ORDER BY fecha_solicitud DESC LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 
-	(
-	$id,
-	$self->{FECHA_SOLICITUD},
-	$self->{PASE},
-	$self->{VIAJE},
-	$self->{CAMION},
-	$self->{CHOFER},
-	$self->{LITROS},
-	$self->{CONTINGENCIA},
-	$self->{STATUS},
-	$self->{LITROS_REAL},
-	$self->{LITROS_ESP},
-	$self->{VIAJE_SUST},
-	$self->{SUPERVISOR},
-	$self->{OBSERVACIONES},
-	$self->{ULTIMA_MODIFICACION}
-	) = $sth->fetchrow_array;
+	my $row = $sth->fetchrow_hashref();
 	$sth->finish;
 	$connector->destroy();
+
+	$self->{ID}=$row->{id};
+	$self->{FECHA_SOLICITUD} = $row->{fecha_solicitud};
+	$self->{PASE} = $row->{pase};
+	$self->{VIAJE} = $row->{viaje};
+	$self->{CAMION} = $row->{camion};
+	$self->{CHOFER} = $row->{chofer};
+	$self->{LITROS} = $row->{litros};
+	$self->{CONTINGENCIA} = $row->{contingencia};
+	$self->{STATUS} = $row->{status};
+	$self->{LITROS_REAL} = $row->{litros_real};
+	$self->{LITROS_ESP} = $row->{litros_esp};
+	$self->{VIAJE_SUST} = $row->{viaje_sust};
+	$self->{SUPERVISOR} = $row->{supervisor};
+	$self->{OBSERVACIONES} = $row->{observaciones};
+	$self->{ULTIMA_MODIFICACION} = $row->{ultima_modificacion};
+	$self->{MEAN_CONTINGENCIA} = $row->{mean_contingencia};
 	return $self;	
 }
 
@@ -190,9 +206,9 @@ sub updatePase{
 	my $preps;
 	
 	if($self->{STATUS} eq "R" || $self->{STATUS} eq "T"){
-		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s' WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{PASE};	
+		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', mean_contingencia='%s' WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{MEAN_CONTINGENCIA}, $self->{PASE};	
 	} else {
-		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s',litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', mean_contingencia='%s', litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{MEAN_CONTINGENCIA}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
 	}
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {
@@ -213,16 +229,13 @@ sub updatePase{
 
 sub actualizaInformix {
 	my $self = shift;
-	my $oldstatus = pop;
 	my $return = 0;
 	my $connector = Trate::Lib::ConnectorInformix->new();
 	my $preps;
-	if($self->{STATUS} eq "R" || $self->{STATUS} eq "T"){
-		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s' " . 
-		"WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{PASE};	
-	} elsif($oldstatus eq "R" || $oldstatus eq "T"){
-		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', camion='%s', litros_real=%4f " . 
-		"WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{CAMION}, $self->{LITROS_REAL}, $self->{PASE};	
+	
+	if($self->{STATUS} eq "T" || $self->{STATUS} eq "R" ){
+		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', litros_real=%4f " . 
+		"WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{PASE};	
 	} else {
 		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', " . 
 		" litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END " . 
@@ -258,13 +271,14 @@ sub getPase {
 					litros,
 					contingencia,
 					status,
-					litros_real
+					litros_real,
+					mean_contingencia
 				FROM
 					ci_pases
 				WHERE
-					(pase='" . $self->{PASE} . "' AND status IN ('A','D','R','T'))
+					(pase='" . $self->{PASE} . "' AND status IN ('A','D','R','T','M','C'))
 				OR
-					(camion='" . $self->{CAMION} . "' AND status IN ('A','D','R','T'))
+					(camion='" . $self->{CAMION} . "' AND status IN ('A','D','R','T','M','C'))
 				ORDER BY
 					fecha_solicitud
 				DESC";

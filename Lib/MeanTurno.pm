@@ -10,7 +10,9 @@ sub new
 	$self->{MEAN_ID} = undef;
 	$self->{TIMESTAMP_ADD} = undef; 
 	$self->{TIMESTAMP_RM} = undef; 
+	$self->{ID_USUARIO_ADD} = undef;
 	$self->{USUARIO_ADD} = undef;
+	$self->{ID_USUARIO_RM} = undef;
 	$self->{USUARIO_RM} = undef;
 
 	bless($self);
@@ -47,10 +49,22 @@ sub usuarioAdd {
         return $self->{USUARIO_ADD};
 }
 
+sub idUsuarioAdd {
+        my ($self) = shift;
+        if (@_) { $self->{ID_USUARIO_ADD} = shift }        
+        return $self->{ID_USUARIO_ADD};
+}
+
 sub usuarioRm {
         my ($self) = shift;
         if (@_) { $self->{USUARIO_RM} = shift }        
         return $self->{USUARIO_RM};
+}
+
+sub idUsuarioRm {
+        my ($self) = shift;
+        if (@_) { $self->{ID_USUARIO_RM} = shift }        
+        return $self->{ID_USUARIO_RM};
 }
 
 1;

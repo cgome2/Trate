@@ -345,8 +345,15 @@ sub insertaJarreo{
 
 sub actualizaPase{
 	my $self = shift;
-	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD} . ", nuevo status: D]");
-	$self->{PASE}->status('D');
+	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD});
+	if($self->{PASE}->status() eq "T"){
+		$self->{PASE}->status('C');	
+	} elsif($self->{PASE}->status() eq "R" && length($self->{PASE}->meanContingencia()) gt 0){
+		$self->{PASE}->status('C');	
+	} else {
+		$self->{PASE}->status('D');	
+	}
+	LOGGER->info("Nuevo status: [" . $self->{PASE}->status() . "]");
 	$self->{PASE}->supervisor($self->{TURNO}->usuarioAbre());
 	$self->{PASE}->observaciones('');
 	$self->{PASE}->litrosReal($self->{CANTIDAD});
@@ -383,10 +390,10 @@ sub limpiaReglaCarga{
 }
 
 sub getPase {
-	my $camion = shift;
+	my $mean = shift;
 	my $fecha = shift;
 	my $pase = Trate::Lib::Pase->new();
-	$pase->getFromCamion($camion,$fecha);
+	$pase->getFromMean($mean,$fecha);
 	return $pase;
 }
 
