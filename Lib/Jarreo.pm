@@ -163,7 +163,7 @@ sub getJarreos{
 				FROM 
 					jarreos_t 
 				WHERE 
-					status_code=2"; 
+					status_code=2 ORDER BY transaction_id DESC"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {
 		my $sth = $connector->dbh->prepare($preps);

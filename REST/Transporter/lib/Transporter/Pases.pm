@@ -78,8 +78,9 @@ patch '/pases' => sub {
 	$PASE->camion($post->{camion});
 	$PASE->status($post->{status});
 	$PASE->observaciones($post->{observaciones});
-	$PASE->supervisor($usuario->{numero_empleado});
-	$PASE->meanContingencia($post->{mean_contingencia});
+	$PASE->supervisor($usuario->{numero_empleado});	
+	$PASE->meanContingencia($post->{status} eq "T" ? $post->{camion} : "");
+
 	try {
 		$return = $PASE->updatePase();
 		LOGGER->info("el return es: [" . $return . "]");

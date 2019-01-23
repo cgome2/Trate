@@ -33,6 +33,19 @@ get '/shifts' => sub {
 	}
 };
 
+get '/shifts/abierto' => sub {
+	my $return = 0;
+	my $TURNOS = Trate::Lib::Turnos->new();
+	$return = $TURNOS->getTurnoAbierto();
+	LOGGER->info(dump($return));
+	if ($return eq 0){
+		status 400;
+		return {message => "No existen turnos en el sistema"};
+	} else {
+		return $return;
+	}	
+};
+
 get '/shifts/:id_turno' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
