@@ -327,7 +327,8 @@ sub getPaseByPase {
 					litros,
 					contingencia,
 					status,
-					litros_real
+					litros_real,
+					mean_contingencia
 				FROM
 					ci_pases
 				WHERE
