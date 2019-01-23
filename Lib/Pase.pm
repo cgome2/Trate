@@ -233,14 +233,14 @@ sub actualizaInformix {
 	my $connector = Trate::Lib::ConnectorInformix->new();
 	my $preps;
 	
-	if($self->{STATUS} eq "T" || $self->{STATUS} eq "R" ){
+	#if($self->{STATUS} eq "T" || $self->{STATUS} eq "R" ){
 		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor='%s', observaciones='%s', litros_real=%4f " . 
 		"WHERE pase=%d ", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{PASE};	
-	} else {
-		$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', " . 
-		" litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END " . 
-		" WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
-	}
+	#} else {
+	#	$preps = sprintf "UPDATE ci_pases SET status='%s', supervisor=%d, observaciones='%s', " . 
+	#	" litros_real=CASE WHEN litros_real IS NULL THEN %.4f ELSE litros_real + %.4f END " . 
+	#	" WHERE pase=%d", $self->{STATUS}, $self->{SUPERVISOR}, $self->{OBSERVACIONES}, $self->{LITROS_REAL}, $self->{LITROS_REAL}, $self->{PASE};
+	#}
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {			
 		my $sth = $connector->dbh->prepare($preps) or die(LOGGER->fatal("NO SE PUDO CONECTAR A INFORMIX:master"));
