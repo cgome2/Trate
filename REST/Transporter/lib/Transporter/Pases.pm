@@ -79,7 +79,7 @@ patch '/pases' => sub {
 	$PASE->status($post->{status});
 	$PASE->observaciones($post->{observaciones});
 	$PASE->supervisor($usuario->{numero_empleado});	
-	$PASE->meanContingencia($post->{status} eq "T" ? $post->{camion} : "");
+	$PASE->meanContingencia($post->{status} eq "T" ? $post->{mean_contingencia} : "");
 
 	try {
 		$return = $PASE->updatePase();
