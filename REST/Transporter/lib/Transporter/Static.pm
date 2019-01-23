@@ -1079,7 +1079,7 @@ get "/pases/reabrir/form" => sub {
         type => "select",
         optionsSource => "/means/contingencia",
         optionsKey => "NAME",
-        optionsValue => "NAME"
+        optionsValue => "NAME",
         readonly => 1
       },
       {
