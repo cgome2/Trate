@@ -994,6 +994,10 @@ get "/pases/table" => sub {
         label => "Viaje"
       },
       {
+        key => "mean_contingencia",
+        label => "Tag de Contingencia"
+      },
+      {
         key => "fecha_solicitud",
         label => "Fecha de Solicitud"
       }
@@ -1003,7 +1007,7 @@ get "/pases/table" => sub {
         icon => 'undo',
         label => 'Reabrir',
         condition => {
-          status => "D"
+          status => "D|C|M"
         },
         action => {
           type => 'form',
@@ -1107,8 +1111,8 @@ get "/pases/reasignar/form" => sub {
         readonly => 1
       },
       {
-        key => "camion",
-        label => "Camion",
+        key => "mean_contingencia",
+        label => "Tag de Contingencia",
         type => "select",
         optionsSource => "/means/contingencia",
         optionsKey => "NAME",
