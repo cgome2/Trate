@@ -9,10 +9,10 @@
 ##########################################################################
 use Trate::Lib::Movimiento;
 use Try::Catch;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER INFORMIX_SERVER);
 use strict;
 
-$ENV{INFORMIXSERVER} = 'prueba';
+$ENV{INFORMIXSERVER} = INFORMIX_SERVER;
 
 LOGGER->info("Entro correctamente pero creo que no trae parametros");
 my $j = 0;

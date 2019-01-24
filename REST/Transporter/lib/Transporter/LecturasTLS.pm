@@ -1,7 +1,7 @@
 package Transporter::LecturasTLS;
 
 use Dancer ':syntax';
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER INFORMIX_SERVER);
 use Trate::Lib::LecturasTLS;
 use Trate::Lib::RecepcionCombustible;
 use Trate::Lib::Factura;
@@ -10,7 +10,7 @@ use Try::Catch;
 use Data::Dump qw(dump);
 use Data::Structure::Util qw( unbless );
 
-$ENV{INFORMIXSERVER} = 'prueba';
+$ENV{INFORMIXSERVER} = INFORMIX_SERVER;
 
 our $VERSION = '0.1';
 
