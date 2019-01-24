@@ -655,7 +655,12 @@ get "/recepciones_combustible/tls/form" => sub {
       {
         key => "lecturas_combustible",
         label => " Lecturas",
+        checkboxes => "Seleccionar",
         columns => [
+          {
+            key => "id_tank_delivery_reading",
+            label => "Id"
+          },
           {
             key => "start_delivery_timestamp",
             label => "Fecha inicial de recepcion"
@@ -667,26 +672,16 @@ get "/recepciones_combustible/tls/form" => sub {
           {
             key => "start_volume",
             label => "Volumen inicial",
-            format => "number:1.2-2:",
-            align => "right"
+            format => "number:1.2-2:"
           },
           {
             key => "end_volume",
             label => "Volumen final",
-            format => "number:1.2-2:",
-            align => "right"
+            format => "number:1.2-2:"
           },
           {
-            key => "volume",
-            label => "Volumen recibido",
-            format => "number:1.2-2:",
-            operations => "end_volume -start_volume",
-            align => "right"
-          },
-          {
-            key => "ci_movimientos",
-            label => "Numero de movimiento",
-            align => "right"
+            key => "origen_registro",
+            label => "Origen"
           }
         ],
         required  => 1,
