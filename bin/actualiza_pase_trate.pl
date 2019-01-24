@@ -62,7 +62,7 @@ if(length($mean_contingencia) gt 0 && ($status eq "C" || $status eq "M" )){
 # Si no trae un mean de contingencia y se reabre el pase
 # Se sactiva el camion
 if(length($mean_contingencia) le 0 && ($status eq "R")){
-	$mean->name($mean_contingencia);
+	$mean->name($camion);
 	$mean->activarMean();
 }
 

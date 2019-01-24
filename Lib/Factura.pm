@@ -10,7 +10,9 @@ package Trate::Lib::Factura;
 
 use strict;
 use Trate::Lib::ConnectorInformix;
-use Trate::Lib::Constants qw(LOGGER PROVEEDOR);
+use Trate::Lib::Constants qw(LOGGER PROVEEDOR INFORMIX_SERVER);
+
+$ENV{INFORMIXSERVER} = INFORMIX_SERVER;
 
 sub new
 {
@@ -50,6 +52,7 @@ sub fserie {
 sub existeFactura {
 	my $self = shift;
 	my $conteo = 0;
+	LOGGER->info("environmental: " . `printenv`);
 	my $connector = Trate::Lib::ConnectorInformix->new();
 	my $preps = "SELECT COUNT(*) FROM pfacturas WHERE fecha='" . &Trate::Lib::Utilidades::getInformixDate($self->{FECHA}) . "' AND factura='" . $self->{FACTURA} . "' AND proveedor='" . $self->{PROVEEDOR} . "' AND fserie='" . $self->{FSERIE} . "'";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");

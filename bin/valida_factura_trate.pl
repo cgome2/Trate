@@ -9,8 +9,12 @@
 ##########################################################################
 use Trate::Lib::Factura;
 use Try::Catch;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER INFORMIX_SERVER);
 use strict;
+
+$ENV{INFORMIXSERVER} = INFORMIX_SERVER; 
+
+LOGGER->info(`echo \$INFORMIXSERVER`);
 
 my $return = 0;
 # (1) salir a menos que envien los 3 argumentos
