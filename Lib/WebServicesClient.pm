@@ -1,6 +1,6 @@
 package Trate::Lib::WebServicesClient;
 
-use Trate::Lib::Constants qw(LOGGER WSURI WSPROXY WSUSER WSPASSWORD SITE_CODE WSXMLSCHEMA);
+use Trate::Lib::Constants qw(LOGGER WSURI WSPROXY WSUSER WSPASSWORD SITE_CODE WSXMLSCHEMA USERHOCOMMUNICATOR PASSHOCUMMUNICATOR);
 use SOAP::Lite +trace => 'debug';
 #use SOAP::Lite on_fault => sub {my($soap, $res) = @_; die LOGGER->info(ref $res) ? LOGGER->info($res->faultdetail) : LOGGER->info($soap->transport->status),"\n"};
 use SOAP::Lite;
@@ -38,6 +38,26 @@ sub sessionId {
 	my %parametros = (
 		"user" => WSUSER,
 		"password" => WSPASSWORD
+	);
+	
+	my $soap = $self->{SOAP};
+	my $method = SOAP::Data->name('ns1:SOLogin')->attr({'xmlns:ns1' => WSURI});
+	my @params;	
+	for my $parametro (keys %parametros) {
+		push @params, SOAP::Data->name($parametro => $parametros{$parametro});
+	}
+	my $xmlResponse = $soap->call($method => @params)->result;
+	$self->{SESSIONID} = $xmlResponse->{SessionID};
+	LOGGER->debug("SessionID: " . $self->{SESSIONID});
+	return $self->{SESSIONID};
+}
+
+sub sessionIdTransporter {
+	my $self = shift;
+	LOGGER->debug("Obeniendo SessionID");
+	my %parametros = (
+		"user" => USERHOCOMMUNICATOR,
+		"password" => PASSHOCUMMUNICATOR
 	);
 	
 	my $soap = $self->{SOAP};

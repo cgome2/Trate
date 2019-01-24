@@ -8,7 +8,7 @@ package Trate::Lib::Transacciones;
 #                                                       #
 #########################################################
 
-use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE);
+use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE HO_ROLE);
 use Trate::Lib::WebServicesClient;
 use Trate::Lib::Utilidades;
 use Trate::Lib::RemoteExecutor;
@@ -60,6 +60,8 @@ sub new
 	$self->{LAST_TRANSACTION_TIMESTAMP} = undef;
 	$self->{TOTAL_RETRIEVED_TRANSACTIONS} = undef;	#Total de transacciones descargadas desde el dia 1
 	$self->{TURNO} = Trate::Lib::Turnos->new();
+	$self->{START_FLOW} = "";
+	$self->{END_FLOW} = "";
 	bless($self);
 	return $self;	
 }
@@ -78,7 +80,7 @@ sub getLastTransactionsFromORCU{
 	my %params = (
 		SessionID => "",
 		site_code => "",
-		ho_role => "1",
+		ho_role => HO_ROLE,
 		fromID => $self->{LAST_TRANSACTION_ID} + 1,
 		toID => $self->{LAST_TRANSACTION_ID} + 5,
 		extended_info => "1"
@@ -93,6 +95,35 @@ sub getLastTransactionsFromORCU{
 		my @arregloTransaccionesProcesar;
 		push @arregloTransaccionesProcesar, $result->{a_soTransaction}->{soTransaction};
 		return procesaTransacciones($self, \@arregloTransaccionesProcesar);
+	} else {
+		LOGGER->info("NINGUNA TRANSACCION POR DESCARGAR");
+		$self->{IDTRANSACCIONES} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} eq 0 ? $self->{LAST_TRANSACTION_ID} + 10 : $self->{LAST_TRANSACTION_ID};
+		$self = setLastTransactionRetreived($self);
+		return 0;
+	}
+}
+
+
+sub getNewUpdatedTransactionsFromOrcu{
+	my $self = shift;
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		ho_role => HO_ROLE,
+		max_size => "10"
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOHOGetNewUpdatedTransactions");
+	$wsc->sessionIdTransporter();
+	
+	my $result = $wsc->execute(\%params);
+	LOGGER->debug(dump($result));
+	if ($result->{num_transactions} gt 1){
+		return procesaTransaccionesNuevas($self,$result->{a_soTransaction}->{soTransaction});
+	} elsif ($result->{num_transactions} eq 1){
+		my @arregloTransaccionesProcesar;
+		push @arregloTransaccionesProcesar, $result->{a_soTransaction}->{soTransaction};
+		return procesaTransaccionesNuevas($self, \@arregloTransaccionesProcesar);
 	} else {
 		LOGGER->info("NINGUNA TRANSACCION POR DESCARGAR");
 		$self->{IDTRANSACCIONES} = $self->{TOTAL_RETRIEVED_TRANSACTIONS} eq 0 ? $self->{LAST_TRANSACTION_ID} + 10 : $self->{LAST_TRANSACTION_ID};
@@ -185,6 +216,65 @@ sub procesaTransacciones($){
 	};
 }
 
+sub procesaTransaccionesNuevas($){
+	my $self = shift;
+	my $transaccionesarray = shift;
+	my $regla;
+	my $return = 0;
+	LOGGER->info("transacciones a procesar [" . @$transaccionesarray . "]");
+	my @transacciones = @$transaccionesarray;
+	foreach my $row (@transacciones){
+		LOGGER->debug(dump($row));
+		$self->{IDTRANSACCIONES} = $row->{'id'};
+		$self->{VENTA} = $row->{'total_price'};
+		$self->{CANTIDAD} = $row->{'quantity'};
+		$self->{PPV} = $row->{'ppv'};
+		$self->{FECHA} = $row->{'timestamp'};
+		$self->{BOMBA} = $row->{'pump'};
+		$self->{MANGUERA} = $row->{'nozzle'};
+		$self->{PRODUCTO} = $row->{'product_name'};
+		$self->{IDPRODUCTOS} = $row->{'product_code'};
+		$self->{TURNO} = getTurno($row->{'timestamp'});
+		$self->{IDCORTES} = $self->{TURNO}->idTurno();
+		$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
+		$self->{IDDESPACHADORES} = $row->{'driver_name'} eq "" ? 0 : $row->{'driver_name'};
+		$self->{ODOMETRO} = $row->{'odometer'} eq "" ? 0 : $row->{'odometer'};
+		$self->{PLACA} = $row->{'plate'};
+		$self->{TOTALIZADOR} = $row->{'totalizer_vol'};
+		$self->{TOTALIZADOR_ANTERIOR} = $row->{'tot_original'};
+		$self->{START_FLOW} = $row->{'start_flow'};
+		$self->{END_FLOW} = $row->{'end_flow'};
+		try {
+			insertaTransaccion($self);
+			my $meanTransaction = Trate::Lib::Mean->new();
+			$meanTransaction->{ID} = $row->{'mean_id'};
+			LOGGER->debug(dump($meanTransaction));	
+			$meanTransaction->fillMeanFromId();
+			if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type() eq 2){
+				LOGGER->info("Transacción es jarreo: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+				insertaMovimientoJarreo($self);
+				insertaJarreo($self);
+			} else {
+				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+				$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'} . ' ' . $row->{'time'});
+				insertaMovimiento($self);
+				actualizaPase($self);
+				limpiaReglaCarga($self);
+			}
+			notifyTransactionLoaded($self);
+			LOGGER->debug(dump($meanTransaction));
+			$return = 1;
+		} catch {
+			$return = 0;			
+		} 
+		finally {
+			LOGGER->debug("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
+		};
+	}
+	return $return;
+}
+
+
 # @author CG
 # Insert current object locally at transporter
 # @params: No params required
@@ -194,7 +284,31 @@ sub insertaTransaccion{
 	my $return = 0;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
-		INSERT INTO transacciones VALUES('"  .
+		INSERT INTO transacciones( " .
+			"idtransacciones," .
+			"idproductos," .
+			"idcortes," .
+			"idvehiculos," .
+			"iddespachadores," .
+			"idtanques," .
+			"fecha," .
+			"bomba," .
+			"manguera," .
+			"cantidad," .
+			"odometro," .
+			"odometroAnterior," .
+			"horasMotor," .
+			"horasMotorAnterior," .
+			"placa," .
+			"recibo," .
+			"totalizador," .
+			"totalizador_anterior," .
+			"ppv," .
+			"sale," .
+			"pase," .
+			"start_flow," .
+			"end_flow" .
+			") VALUES('"  .
 			$self->{IDTRANSACCIONES} . "','" .
 			$self->{IDPRODUCTOS} . "','" .
 			$self->{IDCORTES} . "','" .
@@ -215,7 +329,9 @@ sub insertaTransaccion{
 			$self->{TOTALIZADOR_ANTERIOR} . "','" .
 			$self->{PPV} . "','" .
 			$self->{VENTA} . "','" .
-			$self->{PASE}->pase() . "')";
+			$self->{PASE}->pase() . "','" .
+			$self->{START_FLOW} . "','" .
+			$self->{END_FLOW} . "')";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -494,10 +610,37 @@ sub fillTransaccionFromId{
 		$self->{TOTALIZADOR} = $row->{totalizador};
 		$self->{TOTALIZADOR_ANTERIOR} = $row->{totalizador_anterior};
 		$self->{PPV} = $row->{ppv};
-		$self->{VENTA} = $row->{ppv};
+		$self->{VENTA} = $row->{sale};
 		$self->{PASE} = $row->{pase};
+		$self->{START_FLOW} = $row->{start_flow};
+		$self->{END_FLOW} = $row->{end_flow};
 		return $self;
 	} else {
+		return 0;
+	}
+}
+
+sub notifyTransactionLoaded {
+	my $self = shift;
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		ho_role => HO_ROLE,
+		num_trans => 1,
+		a_soTransactionIDs => {
+			soTransactionID => { "id" => $self->{IDTRANSACCIONES}}
+		}
+	);
+	LOGGER->debug("los parametros para procesar servicio web" . dump(%params));
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOHONotifyTransactionLoaded");
+	$wsc->sessionIdTransporter();
+	my $result = $wsc->execute(\%params);	
+	if ($result->{rc} eq 0){
+		LOGGER->info("Se notifico exitosamente al orcu sobre la descarga de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
+		return 1;
+	} else {
+		LOGGER->error("NO se pudo notificar al orcu sobre la descarga de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
 		return 0;
 	}
 }
