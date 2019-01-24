@@ -268,12 +268,27 @@ sub getTurnosById {
 
 sub getTurnos {
 	my $self = shift;
+	my $date = shift;
+	my $sort = shift;
+	my $order = shift;
+
+	my $where_statement = "";
+
+	if(defined($date) && length($date) gt 1){
+		$where_statement .= "WHERE fecha_abierto LIKE '" . $date . "%' OR fecha_cierre LIKE '" . $date . "%'";
+	}
+
+	if(length($sort) gt 0 && defined $sort){
+		$where_statement .= " ORDER BY $sort " . ((defined($sort) && ($order eq "ASC" || $order eq "DESC")) ? $order : "DESC");
+	}
 	
+
+	LOGGER->debug("PARAMETROS: " . $date . " " . $sort . " " . $order . " - " . $where_statement);
+
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = " SELECT t.*,ua.nombre as usuario_abre,uc.nombre as usuario_cierra " . 
 				" FROM turnos t LEFT JOIN usuarios ua ON t.id_usuario_abre = ua.idusuarios " .
-				" LEFT JOIN usuarios uc ON t.id_usuario_cierra=uc.idusuarios" .
-				" ORDER BY id_turno DESC LIMIT 50"; 
+				" LEFT JOIN usuarios uc ON t.id_usuario_cierra=uc.idusuarios " . $where_statement;
 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
@@ -377,10 +392,10 @@ sub getTurnoFromId {
 			$meanTurno->timestampRm($m->{timestamp_rm});
 			$meanTurno->idUsuarioAdd($m->{id_usuario_add});
 			$meanTurno->idUsuarioRm($m->{id_usuario_rm});
+			$meanTurno->usuarioAdd($m->{usuario_add});
+			$meanTurno->usuarioRm($m->{usuario_rm});
 			unbless($meanTurno);
 			$meanTurno->{'despachador'} = $m->{'despachador'};
-			$meanTurno->{'usuario_add'} = $m->{'usuario_add'};
-			$meanTurno->{'usuario_rm'} = $m->{'usuario_rm'};
 			
 			push @meansTurno,$meanTurno;
 		}

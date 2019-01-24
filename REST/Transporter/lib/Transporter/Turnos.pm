@@ -22,8 +22,13 @@ get '/shifts' => sub {
 	}
 
 	my $return = 0;	
+	my $date = length(params->{date}) gt 0 ? params->{date} : "";
+	my $sort = length(params->{sort}) gt 0 ? params->{sort} : "";
+	my $order = length(params->{order}) gt 0 ? params->{order} : "";
+
+
 	my $TURNOS = Trate::Lib::Turnos->new();
-	$return = $TURNOS->getTurnos();
+	$return = $TURNOS->getTurnos($date,$sort,$order);
 	LOGGER->info(dump($return));
 	if ($return eq 0){
 		status 400;
