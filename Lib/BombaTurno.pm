@@ -8,7 +8,7 @@ sub new
 	my $self = {};
 	$self->{ID_TURNO} = undef;
 	$self->{ID_BOMBA} = undef;
-	$self->{ID_MANGUERA} = undef; 
+	$self->{BOMBA} = undef; 
 	$self->{TOTALIZADOR_AL_ABRIR} = undef; 
 	$self->{TOTALIZADOR_AL_CERRAR} = undef;
 	$self->{TIMESTAMP_ABRIR} = undef;
@@ -30,10 +30,10 @@ sub idBomba {
         return $self->{ID_BOMBA};
 }
 
-sub idManguera {
+sub bomba {
         my ($self) = shift;
-        if (@_) { $self->{ID_MANGUERA} = shift }        
-        return $self->{ID_MANGUERA};
+        if (@_) { $self->{BOMBA} = shift }        
+        return $self->{BOMBA};
 }
 
 sub totalizadorAlAbrir {

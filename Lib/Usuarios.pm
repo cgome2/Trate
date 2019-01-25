@@ -114,7 +114,7 @@ sub setCaducidadToken {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "UPDATE usuarios SET token = '" . $self->{token} . "',caducidad_token = '" . $self->{caducidad_token} . "' WHERE idusuarios = '" . $self->{idusuarios} . "' LIMIT 1";
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	#LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	$sth->finish;
@@ -127,7 +127,7 @@ sub verificaToken($) {
 	my $token = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT count(*) AS existe FROM usuarios WHERE token = '" . $token . "' AND caducidad_token>=NOW() LIMIT 1";
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	#LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	my $rowq = $sth->fetchrow_hashref;
@@ -142,7 +142,7 @@ sub getUsuarioByToken($) {
 	my $token = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT * FROM usuarios WHERE token = '" . $token . "' LIMIT 1";
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	#LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	my $row = $sth->fetchrow_hashref;
@@ -169,7 +169,7 @@ sub logout($){
 	my $token = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "UPDATE usuarios SET token = NULL,caducidad_token = NULL WHERE token = '" . $token . "' LIMIT 1";
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	#LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	$sth->finish;
@@ -181,7 +181,7 @@ sub getUsuarios {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT * FROM usuarios"; 
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	#LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	my @usuarios;

@@ -2,6 +2,7 @@ package Trate::Lib::MeanTurno;
 
 use strict;
 use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Mean;
 
 sub new
 {
@@ -14,6 +15,7 @@ sub new
 	$self->{USUARIO_ADD} = undef;
 	$self->{ID_USUARIO_RM} = undef;
 	$self->{USUARIO_RM} = undef;
+        $self->{STATUS_MEAN_TURNO} = undef;
 
 	bless($self);
 	return $self;	
@@ -66,6 +68,35 @@ sub idUsuarioRm {
         if (@_) { $self->{ID_USUARIO_RM} = shift }        
         return $self->{ID_USUARIO_RM};
 }
+
+sub statusMeanTurno {
+        my ($self) = shift;
+        if (@_) { $self->{STATUS_MEAN_TURNO} = shift }        
+        return $self->{STATUS_MEAN_TURNO};
+}
+
+sub insertar {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $result = 0;
+	my $preps = "
+		INSERT INTO turno_means (id_turno,mean_id,timestamp_add,id_usuario_add,status_mean_turno) VALUES ('" . 
+			$self->{ID_TURNO} . "','" .
+                        $self->{MEAN_ID} . "'," .
+                        "NOW()," .
+			(length($self->{ID_USUARIO_ADD}) gt 0 ? ("'" . $self->{ID_USUARIO_ADD} . "'") : "NULL") . ",'" .
+			$self->{STATUS_MEAN_TURNO} . "')";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+        my $mean = Trate::Lib::Mean->new();
+        $mean->{ID}=$self->{MEAN_ID};
+        $mean->getMeanFromId();
+        $mean->activarMean();
+}
+
 
 1;
 #EOF

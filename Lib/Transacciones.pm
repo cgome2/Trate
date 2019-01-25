@@ -241,7 +241,6 @@ sub procesaTransaccionesNuevas($){
 		$self->{ODOMETRO} = $row->{'odometer'} eq "" ? 0 : $row->{'odometer'};
 		$self->{PLACA} = $row->{'plate'};
 		$self->{TOTALIZADOR} = $row->{'totalizer_vol'};
-		$self->{TOTALIZADOR_ANTERIOR} = $row->{'tot_original'};
 		$self->{START_FLOW} = $row->{'start_flow'};
 		$self->{END_FLOW} = $row->{'end_flow'};
 		try {
@@ -262,7 +261,6 @@ sub procesaTransaccionesNuevas($){
 				limpiaReglaCarga($self);
 			}
 			notifyTransactionLoaded($self);
-			LOGGER->debug(dump($meanTransaction));
 			$return = 1;
 		} catch {
 			$return = 0;			
@@ -455,7 +453,7 @@ sub insertaJarreo{
 	$jarreo->{TRANSACTION_IEPS} = 1;
 	$jarreo->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE} = $self->{BOMBA};
 	$jarreo->{STATUS_CODE} = 2;
-	LOGGER->debug(dump($jarreo));
+	#LOGGER->debug(dump($jarreo));
 	$jarreo->inserta();	
 }
 
@@ -522,24 +520,11 @@ sub getTurno {
 
 sub getLastNTransactions{
 	my $self = shift;
-	my ($sort,$order,$page,$limit,$search) = @_;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $where_stmt = "";
-	$order = "DESC";
-	$sort = "idtransacciones";
-	
-	if (length($sort) ge 1){
-		$where_stmt .= " ORDER BY " . $sort;
-		if (length($order) gt 1){
-			$where_stmt .= " " . $order . " ";
-		}
-	}
 
-	if (length($page) ge 1 && length($limit) ge 1){
-		$where_stmt .= " LIMIT " . ($page-1)*$limit . "," . $limit;
-	}	
-
-	my $preps = "SELECT idtransacciones,placa,fecha,bomba,cantidad,sale,pase from transacciones " . $where_stmt ; 
+	my $preps = "SELECT idtransacciones,placa,fecha,bomba,cantidad,sale,pase FROM transacciones " .
+				"WHERE idcortes IN (SELECT MAX(idcortes) FROM transacciones) " . 
+				"ORDER BY idtransacciones DESC "; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -551,11 +536,7 @@ sub getLastNTransactions{
 	}
 	$sth->finish;
 	$connector->destroy();
-	my %return = (
-		"data" => \@transacciones,
-		"size" => $size
-	);
-	return \%return;	
+	return \@transacciones;	
 }
 
 sub getTransaccionFromId{
@@ -608,7 +589,6 @@ sub fillTransaccionFromId{
 		$self->{PLACA} = $row->{placa};
 		$self->{RECIBO} = $row->{recibo};
 		$self->{TOTALIZADOR} = $row->{totalizador};
-		$self->{TOTALIZADOR_ANTERIOR} = $row->{totalizador_anterior};
 		$self->{PPV} = $row->{ppv};
 		$self->{VENTA} = $row->{sale};
 		$self->{PASE} = $row->{pase};
@@ -623,10 +603,6 @@ sub fillTransaccionFromId{
 sub notifyTransactionLoaded {
 	my $self = shift;
 	my %params = (
-		SessionID => "",
-		site_code => "",
-		ho_role => HO_ROLE,
-		num_trans => 1,
 		a_soTransactionIDs => {
 			soTransactionID => { "id" => $self->{IDTRANSACCIONES}}
 		}
@@ -635,7 +611,7 @@ sub notifyTransactionLoaded {
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOHONotifyTransactionLoaded");
 	$wsc->sessionIdTransporter();
-	my $result = $wsc->execute(\%params);	
+	my $result = $wsc->executeSOHONotifyTransactionLoaded(\%params);	
 	if ($result->{rc} eq 0){
 		LOGGER->info("Se notifico exitosamente al orcu sobre la descarga de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
 		return 1;

@@ -1,6 +1,6 @@
 package Trate::Lib::WebServicesClient;
 
-use Trate::Lib::Constants qw(LOGGER WSURI WSPROXY WSUSER WSPASSWORD SITE_CODE WSXMLSCHEMA USERHOCOMMUNICATOR PASSHOCUMMUNICATOR);
+use Trate::Lib::Constants qw(LOGGER HO_ROLE WSURI WSPROXY WSUSER WSPASSWORD SITE_CODE WSXMLSCHEMA USERHOCOMMUNICATOR PASSHOCUMMUNICATOR);
 use SOAP::Lite +trace => 'debug';
 #use SOAP::Lite on_fault => sub {my($soap, $res) = @_; die LOGGER->info(ref $res) ? LOGGER->info($res->faultdetail) : LOGGER->info($soap->transport->status),"\n"};
 use SOAP::Lite;
@@ -68,7 +68,7 @@ sub sessionIdTransporter {
 	}
 	my $xmlResponse = $soap->call($method => @params)->result;
 	$self->{SESSIONID} = $xmlResponse->{SessionID};
-	LOGGER->debug("SessionID: " . $self->{SESSIONID});
+	#LOGGER->debug("SessionID: " . $self->{SESSIONID});
 	return $self->{SESSIONID};
 }
 
@@ -82,10 +82,31 @@ sub execute{
 	my $method = SOAP::Data->name('ns1:' . $self->{CALL_NAME})->attr({'xmlns:ns1' => WSURI});
 	my @params;
 	for my $parametro (keys %parametros) {
-		LOGGER->debug($parametro . " " . dump($parametros{$parametro}));
+		#LOGGER->debug($parametro . " " . dump($parametros{$parametro}));
 		push @params, SOAP::Data->name($parametro => $parametros{$parametro});
 	}
 	
+	return $soap->call($method => @params)->result;	
+}
+
+sub executeSOHONotifyTransactionLoaded{
+	my $self = shift;
+	my %parametros = %{$_[0]};
+	my %headerparametros = ();
+	$headerparametros{'SessionID'}=$self->{SESSIONID};
+	$headerparametros{'site_code'}=SITE_CODE;		
+	$headerparametros{'ho_role'}=HO_ROLE;
+	$headerparametros{'num_trans'}=1;
+	my %bodyparametros = ();
+	my $soap = $self->{SOAP};
+	my $method = SOAP::Data->name('ns1:' . $self->{CALL_NAME})->attr({'xmlns:ns1' => WSURI});
+	my @params;
+	for my $headerparametro (keys %headerparametros) {
+		push @params, SOAP::Data->name($headerparametro => $headerparametros{$headerparametro});
+	}
+	for my $parametro (keys %parametros) {
+		push @params, SOAP::Data->name($parametro => $parametros{$parametro});
+	}
 	return $soap->call($method => @params)->result;	
 }
 

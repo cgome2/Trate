@@ -7,6 +7,7 @@ use Trate::Lib::WebServicesClient;
 use Trate::Lib::Bomba;
 use LWP::Simple;
 use XML::LibXML;
+use Data::Structure::Util qw( unbless );
 
 sub new()
 {
@@ -41,8 +42,11 @@ sub getBombas {
 		$bomba->side($_->{side});
 		$bomba->nozzles($_->{nozzles});
 		$bomba->statusCode($_->{status_code});
+		$bomba->totalizador();
+		unbless($bomba);
 		push (@{$self->{BOMBAS}},$bomba);
 	}	
+	LOGGER->debug(dump(\@{$self->{BOMBAS}}));
 	return \@{$self->{BOMBAS}};	
 }
 

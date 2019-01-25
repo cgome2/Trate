@@ -3,6 +3,7 @@ package Transporter::TransaccionManual;
 use Dancer ':syntax';
 use Trate::Lib::Constants qw(LOGGER);
 use Trate::Lib::Lists;
+use Trate::Lib::Bombas;
 use Trate::Lib::Mean;
 use Data::Dump qw(dump);
 use List::Util qw(all);
@@ -19,8 +20,8 @@ get '/bombas' => sub {
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	my $lists = Trate::Lib::Lists->new();
-	return $lists->getBombas();	
+	my $bombas = Trate::Lib::Bombas->new();
+	return $bombas->getBombas();	
 };
 
 get '/despachadores' => sub {

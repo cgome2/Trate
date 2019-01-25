@@ -73,14 +73,8 @@ get '/last_transactions' => sub {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
 
-	my $sort = params->{sort};
-	my $order = params->{order};
-	my $page = params->{page};
-	my $limit = params->{limit};
-	my $search = params->{search};
-
 	my $transacciones = Trate::Lib::Transacciones->new();
-	return $transacciones->getLastNTransactions($sort,$order,$page,$limit,$search);
+	return $transacciones->getLastNTransactions();
 };
 
 true;

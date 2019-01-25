@@ -293,9 +293,9 @@ sub getDespachadores {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT NAME,id FROM means " . 
-				"WHERE auttyp='" . $self->{AUTTYP} . 
-				"AND hardware_type='" . $self->{HARDWARE_TYPE} .
-				"AND TYPE='" . $self->{TYPE} . "' LIMIT 1"; 
+				"WHERE auttyp=6 "  . 
+				"AND hardware_type=1 ".
+				"AND TYPE=4"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
