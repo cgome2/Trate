@@ -27,6 +27,10 @@ get "/menu" => sub {
 					{
 						header => "Tanques",
 						path => "/estatus/tanques"
+					},
+					{
+						header => "Test",
+						path => "/estatus/test"
 					}
 				]
 			},
@@ -146,8 +150,9 @@ get "/components" => sub {
   my $endpoint;
 
   switch ($uri) {
-    case "/estatus/dispensarios"        { $component = "pumps"; $endpoint = "/estatusBombas"; }
-    case "/estatus/tanques"             { $component = "tanks"; $endpoint = "/estatusTanques"; }
+    case "/estatus/dispensarios"        { $component = "pumps"; }
+    case "/estatus/tanques"             { $component = "tanks"; }
+    case "/estatus/test"                { $component = "transporter"; }
 
     case "/despacho/contingencias"      { $component = "superTable"; $endpoint = "/pases"; }
     case "/despacho/jarreos"            { $component = "jarreos"; $endpoint = "/jarreos"; }
@@ -178,7 +183,20 @@ get "/shifts/table" => sub {
     icon => "timetable",
     title => "Turnos",
     id => "id_turno",
+    byDate => 1,
+    remote => 1,
     options => [
+      {
+        icon => 'eye',
+        label => 'Ver',
+        condition => {
+          status => 1
+        },
+        action => {
+          type => 'form',
+          form => '/shifts/ver'
+        }
+      },
       {
         icon => 'pencil',
         label => 'Editar',
@@ -255,16 +273,199 @@ get "/shifts/form" => sub {
     getFrom => "/shifts",
     sendTo => "/shifts",
     sqlDates => 1,
-    fields => [],
+    fields => [
+      {
+        key => "id_turno",
+        label => "Id",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "usuario_abre",
+        label => "Supervisor",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "fecha_abierto",
+        label => "Fecha",
+        type => "text",
+        readonly => 1
+      },
+      # {
+      #   key => "usuario_cierra",
+      #   label => "Supervisor cierre",
+      #   type => "text",
+      #   readonly => 1
+      # },
+      # {
+      #   key => "fecha_cierre",
+      #   label => "Fecha de cierre",
+      #   type => "text",
+      #   readonly => 1
+      # },
+    ],
     details => [
       {
         key => "MEANS_TURNO",
         label => "Despachadores",
         endpoint => "/shifts/despachadores",
+        required => 1,
         columns => [
           {
-            key => "MEAN_ID",
+            key => "mean_id",
             label => "Despachador"
+          }
+        ]
+      },
+      {
+        key => "BOMBAS_TURNO",
+        label => "Bombas",
+        readonly => 1,
+        columns => [
+          {
+            key => "id_bomba",
+            label => "Id"
+          },
+          {
+            key => "totalizador_al_abrir",
+            label => "Totalizador al Abrir"
+          },
+          {
+            key => "totalizador_al_cerrar",
+            label => "Totalizador al cerrar"
+          },
+        ]
+      },
+      {
+        key => "TANQUES_TURNO",
+        label => "Tanques",
+        readonly => 1,
+        columns => [
+          {
+            key => "tank_id",
+            label => "Id"
+          },
+          {
+            key => "tank_name",
+            label => "Tanque"
+          },
+          {
+            key => "volumen_inicial",
+            label => "Volumen inicial"
+          },
+          {
+            key => "volumen_final",
+            label => "Volumen final"
+          },
+        ]
+      }
+    ]
+  };
+};
+
+get "/shifts/ver/form" => sub {
+  return {
+    icon => "timetable",
+    title => "Turno",
+    getFrom => "/shifts",
+    sendTo => "/shifts",
+    sqlDates => 1,
+    fields => [
+      {
+        key => "id_turno",
+        label => "Id",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "usuario_abre",
+        label => "Supervisor",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "fecha_abierto",
+        label => "Fecha",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "usuario_cierra",
+        label => "Supervisor cierre",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "fecha_cierre",
+        label => "Fecha de cierre",
+        type => "text",
+        readonly => 1
+      },
+    ],
+    details => [
+      {
+        key => "MEANS_TURNO",
+        label => "Despachadores",
+        readonly => 1,
+        columns => [
+          {
+            key => "mean_id",
+            label => "Id"
+          },
+          {
+            key => "despachador",
+            label => "Despachador"
+          },
+          {
+            key => "usuario_add",
+            label => "Agregado por"
+          },
+          {
+            key => "usuario_rm",
+            label => "Removido por"
+          },
+        ]
+      },
+      {
+        key => "BOMBAS_TURNO",
+        label => "Bombas",
+        readonly => 1,
+        columns => [
+          {
+            key => "id_bomba",
+            label => "Id"
+          },
+          {
+            key => "totalizador_al_abrir",
+            label => "Totalizador al Abrir"
+          },
+          {
+            key => "totalizador_al_cerrar",
+            label => "Totalizador al cerrar"
+          },
+        ]
+      },
+      {
+        key => "TANQUES_TURNO",
+        label => "Tanques",
+        readonly => 1,
+        columns => [
+          {
+            key => "tank_id",
+            label => "Id"
+          },
+          {
+            key => "tank_name",
+            label => "Tanque"
+          },
+          {
+            key => "volumen_inicial",
+            label => "Volumen inicial"
+          },
+          {
+            key => "volumen_final",
+            label => "Volumen final"
           },
         ]
       }
@@ -275,18 +476,16 @@ get "/shifts/form" => sub {
 get "/shifts/despachadores/form" => sub {
   return {
     icon => "timetable",
-    title => "Turno",
-    getFrom => "/shifts",
-    sendTo => "/shifts",
-    sqlDates => 1,
+    title => "Despachador",
     fields => [
       {
-        key => "MEAN_ID",
+        key => "mean_id",
         label => "Despachador",
         type => "select",
         optionsSource => "/despachadores",
         optionsKey => "id",
-        optionsValue => "NAME"
+        optionsValue => "NAME",
+        required => 1,  
       }
     ],
   };
