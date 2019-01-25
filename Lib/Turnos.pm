@@ -323,9 +323,9 @@ sub getNew {
 	my %return;
 	my $allmeans = Trate::Lib::Mean->getDespachadores();
 	my @despachadores = @{$allmeans};
-	my $omean = ();
 	my @means_turno;
 	foreach my $despachador (@despachadores){
+		my $omean = ();
 		$omean->{id_turno} = "";
 		$omean->{mean_id} = $despachador->{id};
 		$omean->{timestamp_add} = "";
@@ -339,10 +339,9 @@ sub getNew {
 
 	my $tanques = Trate::Lib::Tanques->new();
 	my @tanks = $tanques->getTanquesEstatus();
-	my %tankhash;
 	my $now = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
 	foreach my $tank (@tanks){
-		%tankhash = ();
+		my %tankhash = ();
 		$tankhash{timestamp_final} = undef;
 		$tankhash{volumen_inicial} = $tank->{fuel_volume};
 		$tankhash{volumen_final} = undef;
@@ -352,13 +351,12 @@ sub getNew {
 		$tankhash{tank_id} = $tank->{tank_id};
 		push @{$self->{TANQUES_TURNO}},\%tankhash;
 	}
-	
+
 	my $bombas = Trate::Lib::Bombas->new();
 	my $obombas = $bombas->getBombas();
 	my @pumps = @{$obombas};
-	my %pumphash;
 	foreach my $pump (@pumps){
-		%pumphash = ();
+		my %pumphash = ();
 		$pumphash{id_bomba} = $pump->{ID};
 		$pumphash{totalizador_al_abrir} = $pump->{TOTALIZADOR};
 		$pumphash{totalizador_al_cerrar} = undef;
