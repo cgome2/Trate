@@ -156,13 +156,12 @@ patch '/shifts' => sub {
 
 	my $post = from_json( request->body );
 	if($post->{status} eq 1){
+		my $wstmt;
 		my $turno = Trate::Lib::Turnos->new();
-		$turno->{ID_TURNO} = $post->{id_turno};
+		$turno->idTurno($post->{id_turno});
+		$wstmt = " WHERE t.id_turno = '" . $post->{id_turno} . "' ";
+
 		$turno->{STATUS} = 1;
-		$turno->{FECHA_ABIERTO} = $post->{fecha_abierto};
-		$turno->{MEANS_TURNO} = $post->{MEANS_TURNO};
-		$turno->{TANQUES_TURNO} = $post->{TANQUES_TURNO};
-		$turno->{BOMBAS_TURNO} = $post->{BOMBAS_TURNO};
 		$turno->{ID_USUARIO_CIERRA} = $usuario->{idusuarios};
 
 		if($turno->verificarJarreosAbiertos()){

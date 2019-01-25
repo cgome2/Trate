@@ -676,30 +676,30 @@ sub cerrarTurno{
 
 sub enviarTurnoTrate {
 	my $self = shift;
-	# my @bombas_turno = @{$self->{BOMBAS_TURNO}};
-	# foreach my $bomba (@bombas){
-	# my $corte = Trate::Lib::Corte->new();
-	# 	$corte->{FOLIO} = undef;
-	# 	$corte->{FECHA_HORA} = undef;
-	# 	$corte->{ESTACION} = undef;
-	# 	$corte->{DISPENSADOR} = undef;
-	# 	$corte->{ENTREGA_TURNO} = undef;
-	# 	$corte->{RECIBE_TURNO} = undef;
-	# 	$corte->{FECHA_HORA_RECEP} = undef;
-	# 	$corte->{INVENTARIO_RECIBIDO_LTS} = undef;
-	# 	$corte->{MOVTOS_TURNO_LTS} = undef;
-	# 	$corte->{INVENTARIO_ENTREGADO_LTS} = undef;
-	# 	$corte->{DIFERENCIA_LTS} = undef;
-	# 	$corte->{INVENTARIO_RECIBIDO_CTO} = undef;
-	# 	$corte->{MOVTOS_TURNO_CTO} = undef;
-	# 	$corte->{INVENTARIO_ENTREGADO_CTO} = undef;
-	# 	$corte->{DIFERENCIA_CTO} = undef;
-	# 	$corte->{AUTORIZO_DIF} = undef;
-	# 	$corte->{CONTADOR_INICIAL} = undef;
-	# 	$corte->{CONTADOR_FINAL} = undef;
-	# 	$corte->{VSERIE} = undef;
-	# 	$corte->{PROCESADA} = undef;
-	# }
+	my @bombas_turno = @{$self->{BOMBAS_TURNO}};
+	foreach my $bomba (@bombas_turno){
+		my $corte = Trate::Lib::Corte->new();
+		$corte->{FOLIO} = undef;
+		$corte->{FECHA_HORA} = undef;
+		$corte->{ESTACION} = undef;
+		$corte->{DISPENSADOR} = undef;
+		$corte->{ENTREGA_TURNO} = undef;
+		$corte->{RECIBE_TURNO} = undef;
+		$corte->{FECHA_HORA_RECEP} = undef;
+		$corte->{INVENTARIO_RECIBIDO_LTS} = undef;
+		$corte->{MOVTOS_TURNO_LTS} = undef;
+		$corte->{INVENTARIO_ENTREGADO_LTS} = undef;
+		$corte->{DIFERENCIA_LTS} = undef;
+		$corte->{INVENTARIO_RECIBIDO_CTO} = undef;
+		$corte->{MOVTOS_TURNO_CTO} = undef;
+		$corte->{INVENTARIO_ENTREGADO_CTO} = undef;
+		$corte->{DIFERENCIA_CTO} = undef;
+		$corte->{AUTORIZO_DIF} = undef;
+		$corte->{CONTADOR_INICIAL} = undef;
+		$corte->{CONTADOR_FINAL} = undef;
+		$corte->{VSERIE} = undef;
+		$corte->{PROCESADA} = undef;
+	}
 
 }
 
