@@ -60,6 +60,7 @@ get '/shifts/:id_turno' => sub {
 	}
 	my $return = 0;	
 	if(params->{id_turno} eq "nuevo"){
+		$TURNOS->{ID_TURNO} = "";
 		$TURNOS->{FECHA_ABIERTO} = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
 		$TURNOS->{ID_USUARIO_ABRE} = $usuario->{idusuarios};
 		$TURNOS->{USUARIO_ABRE} = $usuario->{numero_empleado};
