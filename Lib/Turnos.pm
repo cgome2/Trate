@@ -1,8 +1,9 @@
 package Trate::Lib::Turnos;
 
 use strict;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER DEFAULT_FLEET_ID DEFAULT_FLEET_NAME HO_ROLE DEFAULT_RULE);
 use Trate::Lib::Bombas;
+use Trate::Lib::Tanques;
 use Trate::Lib::BombaTurno;
 use Trate::Lib::TanqueTurno;
 use Trate::Lib::MeanTurno;
@@ -317,6 +318,72 @@ sub getTurnos {
 	return \@turnos;		
 }
 
+sub getNew {
+	my $self = shift;
+	my %return;
+	my $allmeans = Trate::Lib::Mean->getDespachadores();
+	my @despachadores = @{$allmeans};
+	my $omean = ();
+	my @means_turno;
+	foreach my $despachador (@despachadores){
+		$omean->{id_turno} = "";
+		$omean->{mean_id} = $despachador->{id};
+		$omean->{timestamp_add} = "";
+		$omean->{timestamp_rm} = "";
+		$omean->{id_usuario_add} = "";
+		$omean->{id_usuario_rm} = "";
+		$omean->{status_mean_turno} = 0;
+		push @means_turno,$omean;
+	}
+	$self->{MEANS_TURNO} = \@means_turno;
+
+	my $tanques = Trate::Lib::Tanques->new();
+	my @tanks = $tanques->getTanquesEstatus();
+	my %tankhash;
+	my $now = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+	foreach my $tank (@tanks){
+		%tankhash = ();
+		$tankhash{timestamp_final} = undef;
+		$tankhash{volumen_inicial} = $tank->{fuel_volume};
+		$tankhash{volumen_final} = undef;
+		$tankhash{id_turno} = $self->{ID_TURNO};
+		$tankhash{tank_name} = $tank->{name};
+		$tankhash{timestamp_inicial} = $now;
+		$tankhash{tank_id} = $tank->{tank_id};
+		push @{$self->{TANQUES_TURNO}},\%tankhash;
+	}
+	
+	my $bombas = Trate::Lib::Bombas->new();
+	my $obombas = $bombas->getBombas();
+	my @pumps = @{$obombas};
+	my %pumphash;
+	foreach my $pump (@pumps){
+		%pumphash = ();
+		$pumphash{id_bomba} = $pump->{ID};
+		$pumphash{totalizador_al_abrir} = $pump->{TOTALIZADOR};
+		$pumphash{totalizador_al_cerrar} = undef;
+		$pumphash{timestamp_al_abrir} = $now;
+		$pumphash{timestamp_al_cerrar} = undef;
+		$pumphash{bomba} = $pump->{PUMP_HEAD};
+		$pumphash{id_turno} = $self->{ID_TURNO};
+		push @{$self->{BOMBAS_TURNO}},\%pumphash;
+	}
+
+	unbless($self);
+	$return{id_turno} = $self->{ID_TURNO};
+	$return{id_usuario_abre} = $self->{ID_USUARIO_ABRE};
+	$return{id_usuario_cierra} = $self->{ID_USUARIO_CIERRA};
+	$return{usuario_abre} = $self->{USUARIO_ABRE};
+	$return{usuario_cierra} = $self->{USUARIO_CIERRA};
+	$return{status} = $self->{STATUS};
+	$return{fecha_abierto} = $self->{FECHA_ABIERTO};
+	$return{fecha_cerrado} = $self->{FECHA_CERRADO};
+	$return{MEANS_TURNO} = $self->{MEANS_TURNO};
+	$return{TANQUES_TURNO} = $self->{TANQUES_TURNO};
+	$return{BOMBAS_TURNO} = $self->{BOMBAS_TURNO};
+	return \%return;
+}
+
 sub getTurno {
 	my $self = shift;
 	my $where_statement = shift;
@@ -386,14 +453,6 @@ sub getTurno {
 	return $turno;
 }
 
-sub getLastTankReadings{
-	my $self = shift;
-	my @tanques = [
-		{"tank_id" => 1, "tank_name" => "Magna1", "totalizador_volumen" => 87210.21}
-	];
-	return \@tanques;
-}
-
 sub insertOpenTotalizerReadings{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
@@ -401,7 +460,7 @@ sub insertOpenTotalizerReadings{
 	my $bombas = Trate::Lib::Bombas->new();
 	my $obombas = $bombas->getBombas();
 	my @pumps = @{$obombas};
-	LOGGER->debug(dump(\@pumps));
+	#LOGGER->debug(dump(\@pumps));
 	my %pumphash;
 	my $now = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
 	foreach my $pump (@pumps){
@@ -429,6 +488,64 @@ sub insertOpenTotalizerReadings{
 	}
 }
 
+sub insertOpenTankReadings{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $result = 0;
+	my $tanques = Trate::Lib::Tanques->new();
+	my @tanks = $tanques->getTanquesEstatus();
+	my %tankhash;
+	my $now = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+	foreach my $tank (@tanks){
+		%tankhash = ();
+		my $preps = "INSERT INTO turno_tanques (id_turno,tank_id,tank_name,volumen_inicial,timestamp_inicial) " .
+			" VALUES ('" .
+				$self->{ID_TURNO} . "','" .
+				$tank->{tank_id} . "','" .
+				$tank->{name} . "','" .
+				$tank->{fuel_volume} . "','" .
+				$now . "')";
+		LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+		my $sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		$sth->finish;
+		$connector->destroy();
+		$tankhash{timestamp_final} = undef;
+		$tankhash{volumen_inicial} = $tank->{fuel_volume};
+		$tankhash{volumen_final} = undef;
+		$tankhash{id_turno} = $self->{ID_TURNO};
+		$tankhash{tank_name} = $tank->{name};
+		$tankhash{timestamp_inicial} = $now;
+		$tankhash{tank_id} = $tank->{tank_id};
+		push @{$self->{TANQUES_TURNO}},\%tankhash;
+	}
+}
+
+
+sub insertCloseTankReadings{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $result = 0;
+	my $bombas = Trate::Lib::Bombas->new();
+	my @pumps = $bombas->getBombas();
+	foreach my $pump (@pumps){
+		my $preps = "UPDATE turno_tanques SET " .
+			" totalizador_al_cerrar='" . $pump->{TOTALIZADOR} . "','" .
+			" timestamp_cerrar = NOW() " . 
+			" WHERE id_turno='" . $self->{ID_TURNO} . "' AND id_bomba";
+		LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+		try {
+			my $sth = $connector->dbh->prepare($preps);
+			$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+			$sth->finish;
+			$connector->destroy();
+			return 1;
+		} catch {
+			return 0;
+		}
+	}
+}
+
 sub insertCloseTotalizerReadings{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
@@ -451,6 +568,46 @@ sub insertCloseTotalizerReadings{
 			return 0;
 		}
 	}
+}
+
+sub cambiarEstatusFlota($){
+	my $self = shift;
+	my $estatus = shift;
+	my $status;
+	if($estatus eq "ACTIVA"){
+		$status = 2;
+	} elsif ($estatus eq "INACTIVA"){
+		$status = 1;
+	} else {
+		return 0;
+	}
+
+	my %paramsheader = (
+		SessionID => "",
+		site_code => "",
+		num_fleets => "1"
+	);
+
+
+	my %soFleet = ();
+	$soFleet{id} = DEFAULT_FLEET_ID;
+	$soFleet{name} = DEFAULT_FLEET_NAME;
+	$soFleet{status} = $status;
+	$soFleet{code} = 1;
+	$soFleet{default_rule} = DEFAULT_RULE;
+	$soFleet{acctyp} = 0;
+	$soFleet{available_amount} = 0;
+
+	my %soFleets;
+	$soFleets{soFleet} = \%soFleet;
+	my %paramsbody;
+	$paramsbody{a_soFleet} = \%soFleets;
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOUpdateFleets");
+	$wsc->sessionId();
+	my $result = $wsc->executehb(\%paramsheader,\%paramsbody);
+	LOGGER->info(dump($result));
+	return $result;
 }
 
 1;

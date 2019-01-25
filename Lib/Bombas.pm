@@ -46,7 +46,7 @@ sub getBombas {
 		unbless($bomba);
 		push (@{$self->{BOMBAS}},$bomba);
 	}	
-	LOGGER->debug(dump(\@{$self->{BOMBAS}}));
+	#LOGGER->debug(dump(\@{$self->{BOMBAS}}));
 	return \@{$self->{BOMBAS}};	
 }
 

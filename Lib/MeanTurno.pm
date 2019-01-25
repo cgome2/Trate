@@ -2,7 +2,6 @@ package Trate::Lib::MeanTurno;
 
 use strict;
 use Trate::Lib::Constants qw(LOGGER);
-use Trate::Lib::Mean;
 
 sub new
 {
@@ -91,10 +90,6 @@ sub insertar {
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	$sth->finish;
 	$connector->destroy();
-        my $mean = Trate::Lib::Mean->new();
-        $mean->{ID}=$self->{MEAN_ID};
-        $mean->getMeanFromId();
-        $mean->activarMean();
 }
 
 

@@ -40,12 +40,14 @@ get '/shifts' => sub {
 };
 
 get '/shifts/:id_turno' => sub {
+	my $usuario;
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	}
+		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
+	}	
 
 	my $TURNOS = Trate::Lib::Turnos->new();
 
@@ -57,11 +59,22 @@ get '/shifts/:id_turno' => sub {
 		$wstmt = " WHERE t.id_turno = '" . params->{id_turno} . "' ";
 	}
 	my $return = 0;	
-	$return = $TURNOS->getTurno($wstmt);
+	if(params->{id_turno} eq "nuevo"){
+		$TURNOS->{FECHA_ABIERTO} = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+		$TURNOS->{ID_USUARIO_ABRE} = $usuario->{idusuarios};
+		$TURNOS->{USUARIO_ABRE} = $usuario->{numero_empleado};
+		$return = $TURNOS->getNew();
+	} else {
+		$return = $TURNOS->getTurno($wstmt);
+	}
+
 	LOGGER->info(dump($return));
-	if ($return eq 0){
+	if ($return eq -1){
 		status 400;
-		return {message => "No existen turnos en el sistema"};
+		return {message => "No hay lectura con los tanques, no se puede abrir turno"};
+	} elsif($return eq 0) {
+		status 400;
+		return {message => "No existe turno"};
 	} else {
 		return $return;
 	}
@@ -84,19 +97,21 @@ put '/shifts' => sub {
 	$turno->idTurno($turno->getTurno($wstmt)->{id_turno} + 1);
 	$turno->{ID_USUARIO_ABRE} = $usuario->{idusuarios};
 	$turno->{STATUS} = 2;
+
 	$turno->abrirTurno();
 	my $allmeans = Trate::Lib::Mean->getDespachadores();
 	my @despachadores = @{$allmeans};
-	LOGGER->info(dump($allmeans));
+	# LOGGER->info(dump($allmeans));
 	my @means = @{$post->{MEANS_TURNO}};
 	my $mean_turno;
+	my $omean = Trate::Lib::Mean->new();
 	my $found = 0;
 	foreach my $despachador (@despachadores){
 		$found = 0;
 		foreach my $mean (@means){
-			LOGGER->debug($despachador->{id} . " vs " . $mean->{mean_id});
+			# LOGGER->debug($despachador->{id} . " vs " . $mean->{mean_id});
 			if($despachador->{id} eq $mean->{mean_id}) {
-				LOGGER->debug($despachador->{id} . " esta en el arreglo del post");
+				# LOGGER->debug($despachador->{id} . " esta en el arreglo del post");
 				$mean_turno = Trate::Lib::MeanTurno->new();
 				$mean_turno->{ID_TURNO} = $turno->idTurno();
 				$mean_turno->{MEAN_ID} = $mean->{mean_id};
@@ -116,12 +131,16 @@ put '/shifts' => sub {
 			$mean_turno->{STATUS_MEAN_TURNO} = 0;
 			$mean_turno->insertar();
 		}
-		push @{$turno->{MEANS_TURNO}},$mean_turno;
+		$omean->id($mean_turno->{MEAN_ID});
+		$omean->fillMeanFromId();
+		$omean->activarMean();
 	}
 
 	$turno->insertOpenTotalizerReadings();
-	LOGGER->info(dump($turno));
-	
+	$turno->insertOpenTankReadings();
+	$turno->cambiarEstatusFlota("ACTIVA");
+
+	return $turno->getTurno($wstmt);
 	# Verificar que no haya despacho
 	# Verificar que no haya jarreos sin devolución
 	# Verificar que no haya recepciones de combustible sin registro
@@ -148,45 +167,15 @@ put '/shifts' => sub {
 	# Obtener totalizadores de bombas
 	# Obtener lecturas de tanques
 	# Calcular movimiento de entrega de turno
-	return {message=>"Cierre de un turno"};
 };
 
-patch '/shifts/:id_turno' => sub {
+patch '/shifts' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-
-
-	
-	# Verificar que no haya despacho
-	# Verificar que no haya jarreos sin devolución
-	# Verificar que no haya recepciones de combustible sin registro
-	# Bloquear servicios
-	# <sit:SOUpdateFleets>
-    #	<!--Optional:-->
-    #     <sit:SessionID>WUrN73Cr693nUTSJxZm..jHIGsXD/AXFykmKtYAFB9YNASy78rqQ</sit:SessionID>
-    #     <sit:site_code>5</sit:site_code>
-    #     <sit:num_fleets>1</sit:num_fleets>
-    #     <sit:a_soFleet>
-    #        <sit:soFleet>
-    #           <sit:id>200000003</sit:id>
-    #           <sit:name>Laboratorio</sit:name>
-    #           <sit:status>2</sit:status>
-    #           <sit:code>1</sit:code>
-    #           <sit:default_rule>200000000</sit:default_rule>
-    #           <sit:acctyp>0</sit:acctyp>
-    #           <sit:available_amount>0</sit:available_amount>
-    #        </sit:soFleet>
-    #     </sit:a_soFleet>
-    #  </sit:SOUpdateFleets>
-
-	# Desactivar tags de despachadores en el turno
-	# Obtener totalizadores de bombas
-	# Obtener lecturas de tanques
-	# Calcular movimiento de entrega de turno
 	return {message=>"Cierre de un turno"};
 };
 true;

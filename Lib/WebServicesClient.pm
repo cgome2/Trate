@@ -110,6 +110,26 @@ sub executeSOHONotifyTransactionLoaded{
 	return $soap->call($method => @params)->result;	
 }
 
+sub executehb{
+	my $self = shift;
+	my %parametrosheader = %{$_[0]};
+	my %parametrosbody = %{$_[1]};
+	$parametrosheader{'SessionID'}=$self->{SESSIONID};
+	$parametrosheader{'site_code'}=SITE_CODE;		
+	my $soap = $self->{SOAP};
+	my $method = SOAP::Data->name('ns1:' . $self->{CALL_NAME})->attr({'xmlns:ns1' => WSURI});
+	my @params;
+	for my $parametroheader (keys %parametrosheader) {
+		push @params, SOAP::Data->name($parametroheader => $parametrosheader{$parametroheader});
+	}
+	for my $parametrobody (keys %parametrosbody) {
+		push @params, SOAP::Data->name($parametrobody => $parametrosbody{$parametrobody});
+	}
+	LOGGER->debug(dump(\@params));
+	return $soap->call($method => @params)->result;	
+}
+
+
 sub executeSOUpdateMeans{
 	my $self = shift;
 	my $mean = shift;

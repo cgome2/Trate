@@ -58,7 +58,6 @@ sub getTanquesEstatus {
 	my @tanques;
 	
 	foreach (@{$self->{TANQUES}}){
-		
 		push @tanques, getTanqueEstatus($_->id,$_->name,$_->capacity);
 	}
 	return @tanques;
