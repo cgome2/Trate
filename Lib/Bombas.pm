@@ -70,7 +70,8 @@ sub getBombaEstatus {
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOGetPumpRunningData");
 	$wsc->sessionId();
-	my $result = $wsc->execute(\%params);	
+	my $result = $wsc->execute(\%params);
+	
 	return $result->{a_soPumpData}->{soPumpData};
 }
 
@@ -85,8 +86,15 @@ sub getBombasEstatus {
 	$wsc->callName("SOGetPumpRunningData");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);	
-	LOGGER->info(dump($result));
-	return $result->{a_soPumpData}->{soPumpData};
+	my @resultado = @{$result->{a_soPumpData}->{soPumpData}};
+	my @bombas;
+	foreach my $b (@resultado){
+		my $bomba = Trate::Lib::Bomba->new();
+		$bomba->{PUMP_HEAD} = $b->{pump_num};
+		$b->{totalizador} = $bomba->totalizador();
+		push @bombas,$b;
+	}
+	return \@bombas;
 }
 
 1;
