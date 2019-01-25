@@ -337,35 +337,35 @@ sub getNew {
 	}
 	$self->{MEANS_TURNO} = \@means_turno;
 
-	my $tanques = Trate::Lib::Tanques->new();
-	my @tanks = $tanques->getTanquesEstatus();
+	# my $tanques = Trate::Lib::Tanques->new();
+	# my @tanks = $tanques->getTanquesEstatus();
 	my $now = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
-	foreach my $tank (@tanks){
-		my %tankhash = ();
-		$tankhash{timestamp_final} = undef;
-		$tankhash{volumen_inicial} = $tank->{fuel_volume};
-		$tankhash{volumen_final} = undef;
-		$tankhash{id_turno} = $self->{ID_TURNO};
-		$tankhash{tank_name} = $tank->{name};
-		$tankhash{timestamp_inicial} = $now;
-		$tankhash{tank_id} = $tank->{tank_id};
-		push @{$self->{TANQUES_TURNO}},\%tankhash;
-	}
+	# foreach my $tank (@tanks){
+	# 	my %tankhash = ();
+	# 	$tankhash{timestamp_final} = undef;
+	# 	$tankhash{volumen_inicial} = $tank->{fuel_volume};
+	# 	$tankhash{volumen_final} = undef;
+	# 	$tankhash{id_turno} = $self->{ID_TURNO};
+	# 	$tankhash{tank_name} = $tank->{name};
+	# 	$tankhash{timestamp_inicial} = $now;
+	# 	$tankhash{tank_id} = $tank->{tank_id};
+	# 	push @{$self->{TANQUES_TURNO}},\%tankhash;
+	# }
 
-	my $bombas = Trate::Lib::Bombas->new();
-	my $obombas = $bombas->getBombas();
-	my @pumps = @{$obombas};
-	foreach my $pump (@pumps){
-		my %pumphash = ();
-		$pumphash{id_bomba} = $pump->{ID};
-		$pumphash{totalizador_al_abrir} = $pump->{TOTALIZADOR};
-		$pumphash{totalizador_al_cerrar} = undef;
-		$pumphash{timestamp_al_abrir} = $now;
-		$pumphash{timestamp_al_cerrar} = undef;
-		$pumphash{bomba} = $pump->{PUMP_HEAD};
-		$pumphash{id_turno} = $self->{ID_TURNO};
-		push @{$self->{BOMBAS_TURNO}},\%pumphash;
-	}
+	# my $bombas = Trate::Lib::Bombas->new();
+	# my $obombas = $bombas->getBombas();
+	# my @pumps = @{$obombas};
+	# foreach my $pump (@pumps){
+	# 	my %pumphash = ();
+	# 	$pumphash{id_bomba} = $pump->{ID};
+	# 	$pumphash{totalizador_al_abrir} = $pump->{TOTALIZADOR};
+	# 	$pumphash{totalizador_al_cerrar} = undef;
+	# 	$pumphash{timestamp_al_abrir} = $now;
+	# 	$pumphash{timestamp_al_cerrar} = undef;
+	# 	$pumphash{bomba} = $pump->{PUMP_HEAD};
+	# 	$pumphash{id_turno} = $self->{ID_TURNO};
+	# 	push @{$self->{BOMBAS_TURNO}},\%pumphash;
+	# }
 
 	unbless($self);
 	$return{id_turno} = $self->{ID_TURNO};
@@ -377,8 +377,8 @@ sub getNew {
 	$return{fecha_abierto} = $self->{FECHA_ABIERTO};
 	$return{fecha_cerrado} = $self->{FECHA_CERRADO};
 	$return{MEANS_TURNO} = $self->{MEANS_TURNO};
-	$return{TANQUES_TURNO} = $self->{TANQUES_TURNO};
-	$return{BOMBAS_TURNO} = $self->{BOMBAS_TURNO};
+	# $return{TANQUES_TURNO} = $self->{TANQUES_TURNO};
+	# $return{BOMBAS_TURNO} = $self->{BOMBAS_TURNO};
 	return \%return;
 }
 
