@@ -523,7 +523,7 @@ sub getLastNTransactions{
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 
 	my $preps = "SELECT idtransacciones,placa,fecha,bomba,cantidad,sale,pase FROM transacciones " .
-				"WHERE idcortes IN (SELECT MAX(idcortes) FROM transacciones) " . 
+				"WHERE idcortes IN (SELECT MAX(id_turno) FROM turnos) " . 
 				"ORDER BY idtransacciones DESC "; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);

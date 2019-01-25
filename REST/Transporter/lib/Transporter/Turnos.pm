@@ -142,41 +142,54 @@ put '/shifts' => sub {
 	$turno->cambiarEstatusFlota("ACTIVA");
 
 	return $turno->getTurno($wstmt);
-	# Verificar que no haya despacho
-	# Verificar que no haya jarreos sin devolución
-	# Verificar que no haya recepciones de combustible sin registro
-	# Bloquear servicios
-	# <sit:SOUpdateFleets>
-    #	<!--Optional:-->
-    #     <sit:SessionID>WUrN73Cr693nUTSJxZm..jHIGsXD/AXFykmKtYAFB9YNASy78rqQ</sit:SessionID>
-    #     <sit:site_code>5</sit:site_code>
-    #     <sit:num_fleets>1</sit:num_fleets>
-    #     <sit:a_soFleet>
-    #        <sit:soFleet>
-    #           <sit:id>200000003</sit:id>
-    #           <sit:name>Laboratorio</sit:name>
-    #           <sit:status>2</sit:status>
-    #           <sit:code>1</sit:code>
-    #           <sit:default_rule>200000000</sit:default_rule>
-    #           <sit:acctyp>0</sit:acctyp>
-    #           <sit:available_amount>0</sit:available_amount>
-    #        </sit:soFleet>
-    #     </sit:a_soFleet>
-    #  </sit:SOUpdateFleets>
-
-	# Desactivar tags de despachadores en el turno
-	# Obtener totalizadores de bombas
-	# Obtener lecturas de tanques
-	# Calcular movimiento de entrega de turno
 };
 
 patch '/shifts' => sub {
+	my $usuario;
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
+	}	
+
+	my $post = from_json( request->body );
+	if($post->{status} eq 1){
+		my $turno = Trate::Lib::Turnos->new();
+		$turno->{ID_TURNO} = $post->{id_turno};
+		$turno->{STATUS} = 1;
+		$turno->{FECHA_ABIERTO} = $post->{fecha_abierto};
+		$turno->{MEANS_TURNO} = $post->{MEANS_TURNO};
+		$turno->{TANQUES_TURNO} = $post->{TANQUES_TURNO};
+		$turno->{BOMBAS_TURNO} = $post->{BOMBAS_TURNO};
+		$turno->{ID_USUARIO_CIERRA} = $usuario->{idusuarios};
+
+		if($turno->verificarJarreosAbiertos()){
+			status 400;
+			return {message => "Existen jarreos sin devolucion"}; 
+		}
+		if($turno->verificarEstadosBombaIdle()){
+			status 400;
+			return {message => "Existen bombas en uso"}; 
+		}
+		if($turno->verificarRecepcionesDocumentos()){
+			status 400;
+			return {message => "Existen recepciones de combustible sin documentar"}; 
+		}
+		if($turno->cambiarEstatusFlota("INACTIVA")){
+			status 400;
+			return {message => "No se han podido bloquear los dispositivos de operación para el cierre"}; 
+		}
+		$turno->bloquearMeansDespachador();
+		$turno->insertCloseTankReadings();
+		$turno->insertCloseTotalizerReadings();
+		$turno->cerrarTurno();
+		$turno->enviarTurnoTrate();
+		status 200;
+		return {message=>"Turno cerrado con exito"};
+	} else {
+		return {message=>"Cambios en despachadores"};
 	}
-	return {message=>"Cierre de un turno"};
 };
 true;

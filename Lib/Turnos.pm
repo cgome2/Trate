@@ -10,6 +10,7 @@ use Trate::Lib::MeanTurno;
 use Data::Dump qw(dump);
 use Data::Structure::Util qw( unbless );
 use Trate::Lib::Utilidades;
+use Trate::Lib::Corte;
 
 
 sub new
@@ -519,55 +520,6 @@ sub insertOpenTankReadings{
 	}
 }
 
-
-sub insertCloseTankReadings{
-	my $self = shift;
-	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $result = 0;
-	my $bombas = Trate::Lib::Bombas->new();
-	my @pumps = $bombas->getBombas();
-	foreach my $pump (@pumps){
-		my $preps = "UPDATE turno_tanques SET " .
-			" totalizador_al_cerrar='" . $pump->{TOTALIZADOR} . "','" .
-			" timestamp_cerrar = NOW() " . 
-			" WHERE id_turno='" . $self->{ID_TURNO} . "' AND id_bomba";
-		LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-		try {
-			my $sth = $connector->dbh->prepare($preps);
-			$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-			$sth->finish;
-			$connector->destroy();
-			return 1;
-		} catch {
-			return 0;
-		}
-	}
-}
-
-sub insertCloseTotalizerReadings{
-	my $self = shift;
-	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $result = 0;
-	my $bombas = Trate::Lib::Bombas->new();
-	my @pumps = $bombas->getBombas();
-	foreach my $pump (@pumps){
-		my $preps = "UPDATE turno_bombas SET " .
-			" totalizador_al_cerrar='" . $pump->{TOTALIZADOR} . "','" .
-			" timestamp_cerrar = NOW() " . 
-			" WHERE id_turno='" . $self->{ID_TURNO} . "' AND id_bomba";
-		LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-		try {
-			my $sth = $connector->dbh->prepare($preps);
-			$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-			$sth->finish;
-			$connector->destroy();
-			return 1;
-		} catch {
-			return 0;
-		}
-	}
-}
-
 sub cambiarEstatusFlota($){
 	my $self = shift;
 	my $estatus = shift;
@@ -586,7 +538,6 @@ sub cambiarEstatusFlota($){
 		num_fleets => "1"
 	);
 
-
 	my %soFleet = ();
 	$soFleet{id} = DEFAULT_FLEET_ID;
 	$soFleet{name} = DEFAULT_FLEET_NAME;
@@ -604,8 +555,152 @@ sub cambiarEstatusFlota($){
 	$wsc->callName("SOUpdateFleets");
 	$wsc->sessionId();
 	my $result = $wsc->executehb(\%paramsheader,\%paramsbody);
-	LOGGER->info(dump($result));
-	return $result;
+	return $result->{rc};
+}
+
+sub verificarJarreosAbiertos{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT count(*) AS jarreos FROM jarreos_t WHERE status_code = 2 AND transaction_timestamp>='" . $self->{FECHA_ABIERTO} . "'";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	if($row->{jarreos} gt 0){
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+sub verificarEstadosBombaIdle{
+	my $self = shift;
+	my $bombas = Trate::Lib::Bombas->new();
+	my @pumps = @{$bombas->getBombasEstatus()};
+	foreach my $pump (@pumps){
+		if($pump->{status} ne 55 && $pump->{status} ne 49){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+sub verificarRecepcionesDocumentos{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT count(*) AS recepciones FROM tank_delivery_readings_t WHERE status = 0 AND end_delivery_timestamp>='" . $self->{FECHA_ABIERTO} . "'";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	if($row->{recepciones} gt 0){
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+sub bloquearMeansDespachador{
+	my $self = shift;
+	my @despachadores = @{$self->{MEANS_TURNO}};
+	foreach my $despachador (@despachadores){
+		my $md = Trate::Lib::Mean->new();
+		$md->id($despachador->{mean_id});
+		$md->fillMeanFromId();
+		LOGGER->debug(dump($md));
+		$md->desactivarMean();
+	}
+}
+
+sub insertCloseTankReadings{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $result = 0;
+	my $tanques = Trate::Lib::Tanques->new();
+	my @tanks = $tanques->getTanquesEstatus();
+	my $now = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+	my $sth;
+	foreach my $tank (@tanks){
+		my $preps = "UPDATE turno_tanques SET " .
+			" volumen_final='" . $tank->{fuel_volume} . "'," .
+			" timestamp_final = NOW() " . 
+			" WHERE id_turno='" . $self->{ID_TURNO} . "' AND tank_id=" . $tank->{tank_id};
+		LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+		$sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	}
+	$sth->finish;
+	$connector->destroy();
+}
+
+sub insertCloseTotalizerReadings{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $result = 0;
+	my $bombas = Trate::Lib::Bombas->new();
+	my $obombas = $bombas->getBombas();
+	my @pumps = @{$obombas};
+	my $now = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+	my $sth;
+	foreach my $pump (@pumps){
+		my $preps = "UPDATE turno_bombas SET " .
+			" totalizador_al_cerrar='" . $pump->{TOTALIZADOR} . "'," .
+			" timestamp_cerrar = NOW() " . 
+			" WHERE id_turno='" . $self->{ID_TURNO} . "' AND id_bomba=" . $pump->{ID};
+		LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+		$sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	}
+	$sth->finish;
+	$connector->destroy();
+}
+
+sub cerrarTurno{
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "UPDATE turnos SET " .
+		" fecha_cierre=NOW()," .
+		" id_usuario_cierra='" . $self->{ID_USUARIO_CIERRA} . "'," .
+		" status = 1 " . 
+		" WHERE id_turno='" . $self->{ID_TURNO} . "'";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+}
+
+sub enviarTurnoTrate {
+	my $self = shift;
+	my @bombas_turno = @{$self->{BOMBAS_TURNO}};
+	foreach my $bomba (@bombas){
+	my $corte = Trate::Lib::Corte->new();
+		$corte->{FOLIO} = undef;
+		$corte->{FECHA_HORA} = undef;
+		$corte->{ESTACION} = undef;
+		$corte->{DISPENSADOR} = undef;
+		$corte->{ENTREGA_TURNO} = undef;
+		$corte->{RECIBE_TURNO} = undef;
+		$corte->{FECHA_HORA_RECEP} = undef;
+		$corte->{INVENTARIO_RECIBIDO_LTS} = undef;
+		$corte->{MOVTOS_TURNO_LTS} = undef;
+		$corte->{INVENTARIO_ENTREGADO_LTS} = undef;
+		$corte->{DIFERENCIA_LTS} = undef;
+		$corte->{INVENTARIO_RECIBIDO_CTO} = undef;
+		$corte->{MOVTOS_TURNO_CTO} = undef;
+		$corte->{INVENTARIO_ENTREGADO_CTO} = undef;
+		$corte->{DIFERENCIA_CTO} = undef;
+		$corte->{AUTORIZO_DIF} = undef;
+		$corte->{CONTADOR_INICIAL} = undef;
+		$corte->{CONTADOR_FINAL} = undef;
+		$corte->{VSERIE} = undef;
+		$corte->{PROCESADA} = undef;
+	}
+
 }
 
 1;
