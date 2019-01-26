@@ -29,8 +29,8 @@ get "/menu" => sub {
 						path => "/estatus/tanques"
 					},
 					{
-						header => "Test",
-						path => "/estatus/test"
+						header => "Turno",
+						path => "/estatus/turno"
 					}
 				]
 			},
@@ -72,12 +72,7 @@ get "/menu" => sub {
 				label => "Turnos",
 				path => "/turnos",
 				icon => "timetable",
-				menu => [
-					{
-						header => "Turnos",
-						path => "/turnos/turnos"
-					}
-				]
+				path => "/turnos"
 			},
 			{
 				label => "Reportes",
@@ -152,7 +147,7 @@ get "/components" => sub {
   switch ($uri) {
     case "/estatus/dispensarios"        { $component = "pumps"; }
     case "/estatus/tanques"             { $component = "tanks"; }
-    case "/estatus/test"                { $component = "transporter"; }
+    case "/estatus/turno"                { $component = "transporter"; }
 
     case "/despacho/contingencias"      { $component = "superTable"; $endpoint = "/pases"; }
     case "/despacho/jarreos"            { $component = "jarreos"; $endpoint = "/jarreos"; }
@@ -161,7 +156,7 @@ get "/components" => sub {
     case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/recepciones_combustible"; }
     case "/recepcion/lecturas"          { $component = "superTable"; $endpoint = "/lecturas_tls"; }
 
-    case "/turnos/turnos"               { $component = "superTable"; $endpoint = "/shifts"; }
+    case "/turnos"                     { $component = "superTable"; $endpoint = "/shifts"; }
 
     # case "/reportes/transacciones"      { $component = "superTable"; $endpoint = ""; }
     # case "/reportes/turnos"             { $component = "superTable"; $endpoint = ""; }
@@ -189,25 +184,26 @@ get "/shifts/table" => sub {
       {
         icon => 'eye',
         label => 'Ver',
-        condition => {
-          status => 1
-        },
+        # condition => {
+        #   status => 1
+        # },
         action => {
           type => 'form',
-          form => '/shifts/ver'
+          form => '/shifts/ver',
+          readonly => 1
         }
       },
-      {
-        icon => 'pencil',
-        label => 'Editar',
-        condition => {
-          status => 2
-        },
-        action => {
-          type => 'form',
-          form => '/shifts'
-        }
-      },
+      # {
+      #   icon => 'pencil',
+      #   label => 'Editar',
+      #   condition => {
+      #     status => 2
+      #   },
+      #   action => {
+      #     type => 'form',
+      #     form => '/shifts'
+      #   }
+      # },
       {
         icon => 'close',
         label => 'Cerrar',
@@ -228,7 +224,8 @@ get "/shifts/table" => sub {
         label => 'Abrir turno',
         action => {
           type => 'form',
-          form => '/shifts'
+          form => '/shifts/nuevo',
+          preload => 'nuevo'
         }
       }
     ],
@@ -292,30 +289,35 @@ get "/shifts/form" => sub {
         type => "text",
         readonly => 1
       },
-      # {
-      #   key => "usuario_cierra",
-      #   label => "Supervisor cierre",
-      #   type => "text",
-      #   readonly => 1
-      # },
-      # {
-      #   key => "fecha_cierre",
-      #   label => "Fecha de cierre",
-      #   type => "text",
-      #   readonly => 1
-      # },
     ],
     details => [
       {
         key => "MEANS_TURNO",
         label => "Despachadores",
-        endpoint => "/shifts/despachadores",
         required => 1,
+        unique => 'mean_id',
         columns => [
           {
+            key => "activo",
+            label => "Activo",
+            type => "checkbox"
+          },
+          {
             key => "mean_id",
+            label => "Id"
+          },
+          {
+            key => "despachador",
             label => "Despachador"
-          }
+          },
+          {
+            key => "usuario_add",
+            label => "Agregado por"
+          },
+          {
+            key => "usuario_rm",
+            label => "Removido por"
+          },
         ]
       },
       {
@@ -364,6 +366,54 @@ get "/shifts/form" => sub {
   };
 };
 
+get "/shifts/nuevo/form" => sub {
+  return {
+    icon => "timetable",
+    title => "Turno",
+    getFrom => "/shifts",
+    sendTo => "/shifts",
+    sqlDates => 1,
+    fields => [
+      {
+        key => "usuario_abre",
+        label => "Supervisor",
+        type => "text",
+        readonly => 1
+      },
+      {
+        key => "fecha_abierto",
+        label => "Fecha",
+        type => "text",
+        readonly => 1
+      },
+    ],
+    details => [
+      {
+        key => "MEANS_TURNO",
+        label => "Despachadores",
+        required => 1,
+        unique => 'mean_id',
+        columns => [
+          {
+            key => "activo",
+            label => "Activo",
+            type => "checkbox"
+          },
+          {
+            key => "mean_id",
+            label => "Id"
+          },
+          {
+            key => "despachador",
+            label => "Despachador"
+          }
+        ]
+      }
+    ]
+  };
+};
+
+
 get "/shifts/ver/form" => sub {
   return {
     icon => "timetable",
@@ -371,6 +421,7 @@ get "/shifts/ver/form" => sub {
     getFrom => "/shifts",
     sendTo => "/shifts",
     sqlDates => 1,
+    print => 1,
     fields => [
       {
         key => "id_turno",
@@ -470,24 +521,6 @@ get "/shifts/ver/form" => sub {
         ]
       }
     ]
-  };
-};
-
-get "/shifts/despachadores/form" => sub {
-  return {
-    icon => "timetable",
-    title => "Despachador",
-    fields => [
-      {
-        key => "mean_id",
-        label => "Despachador",
-        type => "select",
-        optionsSource => "/despachadores",
-        optionsKey => "id",
-        optionsValue => "NAME",
-        required => 1,  
-      }
-    ],
   };
 };
 
