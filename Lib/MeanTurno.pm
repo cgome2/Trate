@@ -82,7 +82,7 @@ sub insertar {
 		INSERT INTO turno_means (id_turno,mean_id,timestamp_add,id_usuario_add,status_mean_turno) VALUES ('" . 
 			$self->{ID_TURNO} . "','" .
                         $self->{MEAN_ID} . "'," .
-                        "NOW()," .
+                        (length($self->{TIMESTAMP_ADD}) gt 0 ? ("NOW()") : "NULL") . "," .
 			(length($self->{ID_USUARIO_ADD}) gt 0 ? ("'" . $self->{ID_USUARIO_ADD} . "'") : "NULL") . ",'" .
 			$self->{STATUS_MEAN_TURNO} . "')";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
@@ -92,6 +92,25 @@ sub insertar {
 	$connector->destroy();
 }
 
+sub actualizar {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $result = 0;
+	my $preps = "
+		UPDATE turno_means " . 
+                        " SET " . 
+                        " timestamp_add=" . (length($self->{TIMESTAMP_ADD}) gt 0 ? ("'" . $self->{TIMESTAMP_ADD} . "'") : "NULL") . "," .
+                        " id_usuario_add=" . (length($self->{ID_USUARIO_ADD}) gt 0 ? ("'" . $self->{ID_USUARIO_ADD} . "'") : "NULL") . "," .
+                        " timestamp_rm=" . (length($self->{TIMESTAMP_RM}) gt 0 ? ("'" . $self->{TIMESTAMP_RM} . "'") : "NULL") . "," .
+                        " id_usuario_rm=" . (length($self->{ID_USUARIO_RM}) gt 0 ? ("'" . $self->{ID_USUARIO_RM} . "'") : "NULL") . "," .
+                        " status_mean_turno='" . $self->{STATUS_MEAN_TURNO} . "'" .
+			" WHERE mean_id='" . $self->{MEAN_ID} . "' AND id_turno='" . $self->{ID_TURNO} . "' LIMIT 1"; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+}
 
 1;
 #EOF

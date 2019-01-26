@@ -303,7 +303,6 @@ sub getDespachadores {
 	while (my $ref = $sth->fetchrow_hashref()) {
     	push @means,$ref;
 	}
-	LOGGER->debug({dump(@means)});
 	$sth->finish;
 	$connector->destroy();
 	return \@means;	

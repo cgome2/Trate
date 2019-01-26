@@ -8,7 +8,7 @@ use List::Util qw(all);
 use Trate::Lib::Usuarios;
 use Trate::Lib::Utilidades;
 use Trate::Lib::Mean;
-
+use Data::Structure::Util qw( unbless );
 
 our $VERSION = '0.1';
 
@@ -30,7 +30,6 @@ get '/shifts' => sub {
 
 	my $TURNOS = Trate::Lib::Turnos->new();
 	$return = $TURNOS->getTurnos($date,$sort,$order);
-	LOGGER->info(dump($return));
 	if ($return eq 0){
 		status 400;
 		return {message => "No existen turnos en el sistema"};
@@ -69,7 +68,6 @@ get '/shifts/:id_turno' => sub {
 		$return = $TURNOS->getTurno($wstmt);
 	}
 
-	LOGGER->info(dump($return));
 	if ($return eq -1){
 		status 400;
 		return {message => "No hay lectura con los tanques, no se puede abrir turno"};
@@ -116,8 +114,9 @@ put '/shifts' => sub {
 				$mean_turno = Trate::Lib::MeanTurno->new();
 				$mean_turno->{ID_TURNO} = $turno->idTurno();
 				$mean_turno->{MEAN_ID} = $mean->{mean_id};
-				$mean_turno->{ID_USUARIO_ADD} = $usuario->{idusuarios};
-				$mean_turno->{STATUS_MEAN_TURNO} = $mean->{status_mean_turno};
+				$mean_turno->{ID_USUARIO_ADD} = $mean->{activo} eq 1 ? $usuario->{idusuarios} : "";
+				$mean_turno->{TIMESTAMP_ADD} = $mean->{activo} eq 1 ? 1 : "";
+				$mean_turno->{STATUS_MEAN_TURNO} = $mean->{activo} eq 1 ? 2 : 0;
 				$mean_turno->insertar();
 				$found = 1;
 				last;
@@ -128,13 +127,14 @@ put '/shifts' => sub {
 			$mean_turno = Trate::Lib::MeanTurno->new();
 			$mean_turno->{ID_TURNO} = $turno->idTurno();
 			$mean_turno->{MEAN_ID} = $despachador->{id};
-			$mean_turno->{ID_USUARIO_ADD} = undef;
+			$mean_turno->{ID_USUARIO_ADD} = "";
+			$mean_turno->{TIMESTAMP_ADD} = "";
 			$mean_turno->{STATUS_MEAN_TURNO} = 0;
 			$mean_turno->insertar();
 		}
 		$omean->id($mean_turno->{MEAN_ID});
 		$omean->fillMeanFromId();
-		$omean->activarMean();
+		$mean_turno->{STATUS_MEAN_TURNO} eq 2 ? $omean->activarMean() : $omean->desactivarMean();
 	}
 
 	$turno->insertOpenTotalizerReadings();
@@ -163,6 +163,14 @@ patch '/shifts' => sub {
 
 		$turno->{STATUS} = 1;
 		$turno->{ID_USUARIO_CIERRA} = $usuario->{idusuarios};
+		$turno->{USUARIO_CIERRA} = $usuario->{numero_empleado};
+		my $oturno = $turno->getTurno($wstmt);
+		$turno->{FECHA_ABIERTO} = $oturno->{fecha_abierto};
+		$turno->{ID_USUARIO_ABRE} = $oturno->{id_usuario_abre};
+		$turno->{USUARIO_ABRE} = $oturno->{usuario_abre};
+		$turno->{MEANS_TURNO} = $oturno->{MEANS_TURNO};
+		$turno->{TANQUES_TURNO} = $oturno->{TANQUES_TURNO};
+		$turno->{BOMBAS_TURNO} = $oturno->{BOMBAS_TURNO};
 
 		if($turno->verificarJarreosAbiertos()){
 			status 400;
@@ -186,9 +194,15 @@ patch '/shifts' => sub {
 		$turno->cerrarTurno();
 		$turno->enviarTurnoTrate();
 		status 200;
-		return {message=>"Turno cerrado con exito"};
+		return {message=>"Turno cerrado con éxito"};
 	} else {
-		return {message=>"Cambios en despachadores"};
+		my $turno = Trate::Lib::Turnos->new();
+		$turno->idTurno($post->{id_turno});
+		$turno->{ID_USUARIO_CIERRA} = $usuario->{idusuarios};
+		$turno->{MEANS_TURNO} = $post->{MEANS_TURNO};
+		$turno->actualizaMeansTurno();
+		status 200;
+		return {message=>"Turno modificado con éxito"};
 	}
 };
 true;

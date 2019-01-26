@@ -59,7 +59,6 @@ sub totalizador {
 	my $sth = $connector->dbh->prepare($preps);
         $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
         my $row = $sth->fetchrow_array();
-        LOGGER->info(dump($row));
         $self->{TOTALIZADOR} = defined $row ? $row : 0;
 	$sth->finish;
 	$connector->destroy();

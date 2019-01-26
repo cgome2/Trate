@@ -1,17 +1,17 @@
-#########################################################
-#Corte - Clase Corte									#
-#                                                       #
-#Autor: Ramses                                          #
-#Fecha: Octubre, 2018                                   #
-#Revision: 1.0                                          #
-#                                                       #
-#########################################################
+#################################################
+# Corte - Clase Corte				#                                                       #
+# Autor: Ramses                                 #
+# Fecha: Octubre, 2018                          #
+# Revision: 1.0                                 #
+#################################################
 
 package Trate::Lib::Corte;
 
 use Trate::Lib::ConnectorInformix;
 use Trate::Lib::ConnectorMariaDB;
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER ESTACION);
+use Data::Dump qw(dump);
+
 use strict;
 
 sub new
@@ -19,7 +19,7 @@ sub new
 	my $self = {};
 	$self->{FOLIO} = undef;
 	$self->{FECHA_HORA} = undef;
-	$self->{ESTACION} = undef;
+	$self->{ESTACION} = ESTACION;
 	$self->{DISPENSADOR} = undef;
 	$self->{ENTREGA_TURNO} = undef;
 	$self->{RECIBE_TURNO} = undef;
@@ -166,47 +166,96 @@ sub insertaMDB{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
-		INSERT INTO ci_cortes VALUES("  .
-			$self->{FOLIO} . "','" . 
-			$self->{FECHA_HORA} . "','" .
-			$self->{ESTACION} . "','" .
-			$self->{DISPENSADOR} . "','" . 
-			$self->{ENTREGA_TURNO} . "','" . 
-			$self->{RECIBE_TURNO} . "','" . 
-			$self->{FECHA_HORA_RECEP} . "','" . 
-			$self->{INVENTARIO_RECIBIDO_LTS} . "','" . 
-			$self->{MOVTOS_TURNO_LTS} . "','" . 
-			$self->{INVENTARIO_ENTREGADO_LTS} . "','" . 
-			$self->{DIFERENCIA_LTS} . "','" . 
-			$self->{INVENTARIO_RECIBIDO_CTO} . "','" . 
-			$self->{MOVTOS_TURNO_CTO} . "','" . 
-			$self->{INVENTARIO_ENTREGADO_CTO} . "','" . 
-			$self->{DIFERENCIA_CTO} . "','" . 
-			$self->{AUTORIZO_DIF} . "','" . 
-			$self->{CONTADOR_INICIAL} . "','" . 
-			$self->{CONTADOR_FINAL} . "','" . 
-			$self->{VSERIE} . "','" . 
-			$self->{PROCESADA} . "')";
+		INSERT INTO ci_cortes " .
+		"(" .
+		"folio," .
+		"fecha_hora," .
+		"estacion," .
+		"dispensador," .
+		"entrega_turno," .
+		"recibe_turno," .
+		"fecha_hora_recep," .
+		"inventario_recibido_lts," .
+		"movtos_turno_lts," .
+		"inventario_entregado_lts," .
+		"diferencia_lts," .
+		"inventario_recibido_cto," .
+		"movtos_turno_cto," .
+		"inventario_entregado_cto," .
+		"diferencia_cto," .
+		"autorizo_dif," .
+		"contador_inicial," .
+		"contador_final," .
+		"vserie," .
+		"procesada" .
+		") VALUES ("  .
+		(length($self->{FOLIO}) gt 0 ? ("'" . $self->{FOLIO} . "'") : ("NULL") )  . ",'" . 
+		$self->{FECHA_HORA} . "','" .
+		$self->{ESTACION} . "','" .
+		$self->{DISPENSADOR} . "','" . 
+		$self->{ENTREGA_TURNO} . "','" . 
+		$self->{RECIBE_TURNO} . "','" . 
+		$self->{FECHA_HORA_RECEP} . "','" . 
+		$self->{INVENTARIO_RECIBIDO_LTS} . "','" . 
+		$self->{MOVTOS_TURNO_LTS} . "','" . 
+		$self->{INVENTARIO_ENTREGADO_LTS} . "','" . 
+		$self->{DIFERENCIA_LTS} . "','" . 
+		$self->{INVENTARIO_RECIBIDO_CTO} . "','" . 
+		$self->{MOVTOS_TURNO_CTO} . "','" . 
+		$self->{INVENTARIO_ENTREGADO_CTO} . "','" . 
+		$self->{DIFERENCIA_CTO} . "'," . 
+		(length($self->{AUTORIZO_DIF}) gt 0 ? ("'" . $self->{AUTORIZO_DIF} . "'") : ("NULL") )  . "," . 
+		(length($self->{CONTADOR_INICIAL}) gt 0 ? ("'" . $self->{CONTADOR_INICIAL} . "'") : ("NULL") )  . "," . 
+		(length($self->{CONTADOR_FINAL}) gt 0 ? ("'" . $self->{CONTADOR_FINAL} . "'") : ("NULL") )  . "," . 
+		(length($self->{VSERIE}) gt 0 ? ("'" . $self->{VSERIE} . "'") : ("NULL") )  . "," . 
+		(length($self->{PROCESADA}) gt 0 ? ("'" . $self->{PROCESADA} . "'") : ("NULL") )  . 
+		")";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-    $sth->finish;
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;	
+	$sth = $connector->dbh->prepare("SELECT max(folio) as folio FROM ci_cortes");
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$self->{FOLIO} = $sth->fetchrow_array();
+	
 	$connector->destroy();	
 	return $self;		
 }
 
 sub insertaInf {
 	my $self = shift;
-	my $connector = Trate::Lib::Informix->new();
+	my $connector = Trate::Lib::ConnectorInformix->new();
 	my $preps = "
-		INSERT INTO ci_cortes VALUES("  .
-			$self->{FOLIO} . "','" . 
-			$self->{FECHA_HORA} . "','" .
+		INSERT INTO ci_cortes " .
+			"(" .
+			"folio," .
+			"fecha_hora," .
+			"estacion," .
+			"dispensador," .
+			"entrega_turno," .
+			"recibe_turno," .
+			"fecha_hora_recep," .
+			"inventario_recibido_lts," .
+			"movtos_turno_lts," .
+			"inventario_entregado_lts," .
+			"diferencia_lts," .
+			"inventario_recibido_cto," .
+			"movtos_turno_cto," .
+			"inventario_entregado_cto," .
+			"diferencia_cto," .
+			"autorizo_dif," .
+			"contador_inicial," .
+			"contador_final," .
+			"vserie," .
+			"procesada" .
+			") VALUES ("  .
+			(length($self->{FOLIO}) gt 0 ? ("'" . $self->{FOLIO} . "'") : ("NULL") )  . ",'" . 
+			substr($self->{FECHA_HORA},0,16) . "','" .
 			$self->{ESTACION} . "','" .
 			$self->{DISPENSADOR} . "','" . 
 			$self->{ENTREGA_TURNO} . "','" . 
 			$self->{RECIBE_TURNO} . "','" . 
-			$self->{FECHA_HORA_RECEP} . "','" . 
+			substr($self->{FECHA_HORA_RECEP},0,16) . "','" . 
 			$self->{INVENTARIO_RECIBIDO_LTS} . "','" . 
 			$self->{MOVTOS_TURNO_LTS} . "','" . 
 			$self->{INVENTARIO_ENTREGADO_LTS} . "','" . 
@@ -214,126 +263,25 @@ sub insertaInf {
 			$self->{INVENTARIO_RECIBIDO_CTO} . "','" . 
 			$self->{MOVTOS_TURNO_CTO} . "','" . 
 			$self->{INVENTARIO_ENTREGADO_CTO} . "','" . 
-			$self->{DIFERENCIA_CTO} . "','" . 
-			$self->{AUTORIZO_DIF} . "','" . 
-			$self->{CONTADOR_INICIAL} . "','" . 
-			$self->{CONTADOR_FINAL} . "','" . 
-			$self->{VSERIE} . "','" . 
-			$self->{PROCESADA} . "')";
+			$self->{DIFERENCIA_CTO} . "'," . 
+			(length($self->{AUTORIZO_DIF}) gt 0 ? ("'" . $self->{AUTORIZO_DIF} . "'") : ("NULL") )  . "," . 
+			(length($self->{CONTADOR_INICIAL}) gt 0 ? ("'" . $self->{CONTADOR_INICIAL} . "'") : ("NULL") )  . "," . 
+			(length($self->{CONTADOR_FINAL}) gt 0 ? ("'" . $self->{CONTADOR_FINAL} . "'") : ("NULL") )  . "," . 
+			(length($self->{VSERIE}) gt 0 ? ("'" . $self->{VSERIE} . "'") : ("NULL") )  . "," . 
+			(length($self->{PROCESADA}) gt 0 ? ("'" . $self->{PROCESADA} . "'") : ("NULL") )  . 
+			")";
 	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
-    $sth->finish;
-	$connector->destroy();	
-	return $self;		
-}
-
-sub actualizaMDB{
-	my $self = shift;
-	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "
-				UPDATE ci_cortes SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
-					"estacion='" . $self->{ESTACION} . "'," .
-					"dispensador='" . $self->{DISPENSADOR} . "'," .
-					"entrega_turno='" . $self->{ENTREGA_TURNO} . "'," . 
-					"recibe_turno='" . $self->{RECIBE_TURNO} . "'," . 
-					"fecha_hora_recep='" . $self->{FECHA_HORA_RECEP} . "'," . 
-					"inventario_recibido_lts='" . $self->{INVENTARIO_RECIBIDO_LTS} . "'," . 
-					"movtos_turno_lts='" . $self->{MOVTOS_TURNO_LTS} . "'," . 
-					"inventario_entregado_lts='" . $self->{INVENTARIO_ENTREGADO_LTS} . "'," . 
-					"diferencia_lts='" . $self->{DIFERENCIA_LTS} . "'," . 
-					"inventario_recibido_cto='" . $self->{INVENTARIO_RECIBIDO_CTO} . "'," . 
-					"movtos_turno_cto='" . $self->{MOVTOS_TURNO_CTO} . "'," . 
-					"inventario_entregado_cto='" . $self->{INVENTARIO_ENTREGADO_CTO} . "'," . 
-					"diferencia_cto='" . $self->{DIFERENCIA_CTO} . "'," . 
-					"autorizo_dif='" . $self->{AUTORIZO_DIF} . "'," . 
-					"contador_inicial='" . $self->{CONTADOR_INICIAL} . "'," . 
-					"folio='" . $self->{FOLIO} . "'," . 
-					"contador_final='" . $self->{CONTADOR_FINAL} . "'," . 
-					"vserie='" . $self->{VSERIE} . "'," . 
-					"procesada='" . $self->{PROCESADA} . "' WHERE folio = '" . $self->{FOLIO} . "'";
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-    $sth->finish;
-	$connector->destroy();	
-	return $self;		
-}
-
-sub actualizaInf{
-	my $self = shift;
-	my $connector = Trate::Lib::Informix->new();
-	my $preps = "
-				UPDATE ci_cortes SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
-					"estacion='" . $self->{ESTACION} . "'," .
-					"dispensador='" . $self->{DISPENSADOR} . "'," .
-					"entrega_turno='" . $self->{ENTREGA_TURNO} . "'," . 
-					"recibe_turno='" . $self->{RECIBE_TURNO} . "'," . 
-					"fecha_hora_recep='" . $self->{FECHA_HORA_RECEP} . "'," . 
-					"inventario_recibido_lts='" . $self->{INVENTARIO_RECIBIDO_LTS} . "'," . 
-					"movtos_turno_lts='" . $self->{MOVTOS_TURNO_LTS} . "'," . 
-					"inventario_entregado_lts='" . $self->{INVENTARIO_ENTREGADO_LTS} . "'," . 
-					"diferencia_lts='" . $self->{DIFERENCIA_LTS} . "'," . 
-					"inventario_recibido_cto='" . $self->{INVENTARIO_RECIBIDO_CTO} . "'," . 
-					"movtos_turno_cto='" . $self->{MOVTOS_TURNO_CTO} . "'," . 
-					"inventario_entregado_cto='" . $self->{INVENTARIO_ENTREGADO_CTO} . "'," . 
-					"diferencia_cto='" . $self->{DIFERENCIA_CTO} . "'," . 
-					"autorizo_dif='" . $self->{AUTORIZO_DIF} . "'," . 
-					"contador_inicial='" . $self->{CONTADOR_INICIAL} . "'," . 
-					"folio='" . $self->{FOLIO} . "'," . 
-					"contador_final='" . $self->{CONTADOR_FINAL} . "'," . 
-					"vserie='" . $self->{VSERIE} . "'," . 
-					"procesada='" . $self->{PROCESADA} . "' WHERE folio = '" . $self->{FOLIO} . "'";
-	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
-    $sth->finish;
-	$connector->destroy();	
-	return $self;		
-}
-
-sub borraMDB{
-	my $self = shift;
-	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "DELETE FROM ci_cortes WHERE folio = '" . $self->{FOLIO} . "'";	
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-    $sth->finish;
-	$connector->destroy();	
-	return $self;		
-}
-
-sub borraInf{
-	my $self = shift;
-	my $connector = Trate::Lib::Informix->new();
-	my $preps = "DELETE FROM ci_cortes WHERE folio = '" . $self->{FOLIO} . "'";	
-	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
-	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
-    $sth->finish;
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+	$sth->finish;
 	$connector->destroy();	
 	return $self;		
 }
 
 sub inserta{
 	my $self = shift;
-	insertaMDB();
-	insertaInf();
-	return $self;	
-}
-
-sub actualiza{
-	my $self = shift;
-	actualizaMDB();
-	actualizaInf();
-	return $self;	
-}
-
-sub borra{
-	my $self = shift;
-	borraMDB();
-	borraInf();	
+	insertaMDB($self);
+	insertaInf($self);
 	return $self;	
 }
 

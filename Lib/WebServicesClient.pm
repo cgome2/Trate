@@ -34,7 +34,7 @@ sub params {
 
 sub sessionId {
 	my $self = shift;
-	LOGGER->debug("Obeniendo SessionID");
+	LOGGER->info("Obeniendo SessionID");
 	my %parametros = (
 		"user" => WSUSER,
 		"password" => WSPASSWORD
@@ -54,7 +54,7 @@ sub sessionId {
 
 sub sessionIdTransporter {
 	my $self = shift;
-	LOGGER->debug("Obeniendo SessionID");
+	LOGGER->info("Obeniendo SessionID");
 	my %parametros = (
 		"user" => USERHOCOMMUNICATOR,
 		"password" => PASSHOCUMMUNICATOR
@@ -68,7 +68,7 @@ sub sessionIdTransporter {
 	}
 	my $xmlResponse = $soap->call($method => @params)->result;
 	$self->{SESSIONID} = $xmlResponse->{SessionID};
-	#LOGGER->debug("SessionID: " . $self->{SESSIONID});
+	LOGGER->debug("SessionID: " . $self->{SESSIONID});
 	return $self->{SESSIONID};
 }
 
@@ -125,7 +125,7 @@ sub executehb{
 	for my $parametrobody (keys %parametrosbody) {
 		push @params, SOAP::Data->name($parametrobody => $parametrosbody{$parametrobody});
 	}
-	LOGGER->debug(dump(\@params));
+	#LOGGER->debug(dump(\@params));
 	return $soap->call($method => @params)->result;	
 }
 
