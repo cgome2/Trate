@@ -50,16 +50,16 @@ put '/recepciones_combustible' => sub {
 	}	
 
 	my $post = from_json( request->body );
-	LOGGER->info(dump($post));
+	LOGGER->debug(dump($post));
     my $FACTURA = Trate::Lib::Factura->new();
     $FACTURA->fecha($post->{fecha_documento});
     $FACTURA->factura($post->{folio_documento});
     $FACTURA->fserie($post->{serie_documento});
     $FACTURA->proveedor($post->{numero_proveedor});
-	LOGGER->info(dump($FACTURA));
+	LOGGER->debug(dump($FACTURA));
     if($FACTURA->existeFactura() eq 0){
 	    status 400;
-	    LOGGER->info("La factura no existe en informix");
+	    LOGGER->info("La factura " . $FACTURA->factura() . " no existe en informix");
 	    return {message => "Factura no existente en informix."};
     }
 	
@@ -84,7 +84,7 @@ put '/recepciones_combustible' => sub {
 
 
 	my $respuesta = $RECEPCION_COMBUSTIBLE->insertarRecepcionCombustible();
-	LOGGER->info($respuesta);
+	LOGGER->debug($respuesta);
 	if ($respuesta eq 1){
 		return {message => "OKComputer"};
 	} else {
@@ -149,7 +149,7 @@ patch '/recepciones_combustible' => sub {
 			return {message => "NOTOKComputer"};
 		} else {
 			my @lecturas_por_asignar = @{$post->{lecturas_combustible}};		
-			LOGGER->info("el valor para la recepcion {" . $RECEPCION_COMBUSTIBLE->idRecepcion() . "}");
+			LOGGER->debug("el valor para la recepcion {" . $RECEPCION_COMBUSTIBLE->idRecepcion() . "}");
 			my @readingstoburn = ();
 			my $existenciaFinal = 0;
 			foreach (@lecturas_por_asignar){
@@ -178,10 +178,9 @@ patch '/recepciones_combustible' => sub {
 				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->idRecepcion($RECEPCION_COMBUSTIBLE->idRecepcion());
 				$existenciaFinal = $_->{end_volume} ge $existenciaFinal ? $_->{end_volume} : $existenciaFinal;
 				
-				LOGGER->info(dump($_));
-				LOGGER->info($_->{id_tank_delivery_reading});
+				LOGGER->debug(dump($_));
+				LOGGER->debug($_->{id_tank_delivery_reading});
 				push @readingstoburn, $_->{id_tank_delivery_reading};	
-				LOGGER->info("Hasta aqui todo va bien..." . $_->{id_tank_delivery_reading});	
 			}
 			
 
@@ -191,7 +190,7 @@ patch '/recepciones_combustible' => sub {
 				status 401;
 				return {message => "Error al insertar el movimiento inventario se ejecuta un rollback"};
 			} else {
-				LOGGER->info(Trate::Lib::LecturasTLS->quemarLecturas(\@readingstoburn,$RECEPCION_COMBUSTIBLE->idRecepcion()));
+				LOGGER->debug(Trate::Lib::LecturasTLS->quemarLecturas(\@readingstoburn,$RECEPCION_COMBUSTIBLE->idRecepcion()));
 			}
 			# Agregar movimiento documental
 			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->fechaHora($RECEPCION_COMBUSTIBLE->fechaDocumento($post->{fecha_documento}));
@@ -249,7 +248,7 @@ get '/recepciones_combustible/:id' => sub {
 		my $lecturas_combustible = $RECEPCION_COMBUSTIBLE->lecturaTls()->getLecturasTls();
 		my @lc = @{$lecturas_combustible};
 		$rc{'lecturas_combustible'} = $lecturas_combustible;
-		LOGGER->info(dump(\%rc));
+		LOGGER->debug(dump(\%rc));
 		my @array = ();
 		push @array, \%rc;
 		return \@array;
@@ -298,7 +297,7 @@ get '/proveedores' => sub {
 		return {error => "No existen proveedores"};
 	} else {
 		status 200;
-		LOGGER->info(dump($prov));
+		LOGGER->debug(dump($prov));
 		return $prov;
 	}
 };

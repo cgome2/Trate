@@ -188,7 +188,6 @@ sub getJarreos{
 
 sub fillJarreoFromTransactionId {
 	my $self = shift;
-	LOGGER->info($self->{TRANSACTION_ID});
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT 
 					*

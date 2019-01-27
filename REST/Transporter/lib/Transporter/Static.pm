@@ -1364,7 +1364,7 @@ get "/pases/manual/form" => sub {
     icon => "hand",
     title => "Manual",
     getFrom => "/pases",
-    sendTo => "/pases/manual",
+    sendTo => "/transacciones",
     fields => [
       {
         key => "pase_id",
@@ -1395,7 +1395,7 @@ get "/pases/manual/form" => sub {
         label => "Despachador",
         type => "select",
         optionsSource => "/despachadores",
-        optionsKey => "mean_id",
+        optionsKey => "id",
         optionsValue => "NAME",
         required => 1
       },
@@ -1404,8 +1404,8 @@ get "/pases/manual/form" => sub {
         label => "Producto",
         type => "select",
         optionsSource => "/productos",
-        optionsKey => "id",
-        optionsValue => "name",
+        optionsKey => "code",
+        optionsValue => "NAME",
         required => 1
       },
       {
@@ -1415,12 +1415,18 @@ get "/pases/manual/form" => sub {
         required => 1
       },
       {
+        key => "totalizador",
+        label => "Totalizador electronico",
+        type => "number",
+        required => 1
+      },
+      {
         key => "bomba",
         label => "Bomba",
         type => "select",
         optionsSource => "/bombas",
-        optionsKey => "id_bomba",
-        optionsValue => "bomba",
+        optionsKey => "PUMP_HEAD",
+        optionsValue => "PUMP_HEAD",
         required => 1
       },
       {

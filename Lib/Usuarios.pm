@@ -148,6 +148,7 @@ sub getUsuarioByToken($) {
 	my $row = $sth->fetchrow_hashref;
 	$sth->finish;
 	$connector->destroy();
+	delete $row->{password};
 	return $row;		
 }
 
@@ -190,6 +191,7 @@ sub getUsuarios {
 		delete $ref->{session_id};
 		delete $ref->{token};
 		delete $ref->{caducidad_token};
+		delete $ref->{password};
     	push @usuarios,$ref;
 	}
 	$sth->finish;

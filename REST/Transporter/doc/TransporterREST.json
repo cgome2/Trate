@@ -1,0 +1,2358 @@
+{
+    "swagger" : "2.0",
+    "info" : {
+      "description" : "Aplicación transporter para llevar información entre plataforma informix de trate hacia ORCU de gasboy.\n[http://www.tecflo.com.mx](http://www.tecflo.com.mx)\n",
+      "version" : "1.0.0",
+      "title" : "Transporter",
+      "termsOfService" : "http://swagger.io/terms/",
+      "contact" : {
+        "email" : "cgomez@tecflo.com.mx"
+      },
+      "license" : {
+        "name" : "Apache 2.0",
+        "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+      }
+    },
+    "host" : "http://10.100.60.191:3000",
+    "basePath" : "/tecflorg/trate/1.0.0",
+    "tags" : [ {
+        "name" : "Estatus",
+        "description" : "Muestra los estados de las bombas y de los tanques de la estación"
+    },{
+        "name" : "Jarreos",
+        "description" : "Recursos para obtener jarreos y generar devoluciones de los mismos"
+    },{
+        "name": "LecturasTLS",
+        "description" : "Lecturas de incrementos de combustible en el TLS"
+    },{
+        "name" : "Means",
+        "description" : "Administración de means o autorizadores (camiones, tags, ...)"
+    },{
+        "name" : "Pases",
+        "description" : "Administración de pases de carga de combustible"
+    },{
+        "name" : "Productos",
+        "description" : "Recursos para obtener el listado de productos y programar cambio de precio en alguno de ellos"
+    },{
+        "name" : "Recepciones de combustible",
+        "description" : "Recursos para registrar las recepciones de combustible"
+    },{
+        "name" : "Static",
+        "description" : "Recursos para uso de componentes visuales"
+    },{
+        "name": "TransaccionManual",
+        "description": "Utilizado para insertar una transacción manual en sistema"
+    },{
+        "name" : "Turnos",
+        "description" : "Recursos para administración de turnos"
+    },{
+        "name" : "Usuarios",
+        "description" : "Administración de usuarios web y asignación de tokens para acceso a los recursos del API"
+    } ],
+    "schemes" : [ "http" ],
+    "paths" : {
+        "/estatusTanques" : {
+            "get" : {
+                "tags" : [ "Estatus" ],
+                "summary" : "Obtiene listado de tanques y su esatus actual",
+                "operationId" : "estatusTanques",
+                "consumes" : [ "application/json" ],
+                "produces" : [ "application/json" ],
+                "parameters" : [ {
+                  "name" : "token",
+                  "in" : "header",
+                  "description" : "Token de sesión valido",
+                  "required" : true,
+                  "type" : "string"
+                } ],
+                "responses" : {
+                  "200" : {
+                    "description" : "Ejecución exitosa",
+                    "schema" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/definitions/EstadoTanque"
+                      }
+                    }
+                  },
+                  "401" : {
+                    "description" : "Acceso no autorizado para este recurso",
+                    "schema" : {
+                      "$ref" : "#/definitions/RespuestaSimple"
+                    }
+                  }
+                }
+              }
+        },
+      
+      
+      
+      
+        "/login/" : {
+        "post" : {
+          "tags" : [ "Usuarios" ],
+          "summary" : "Acceder al sistema",
+          "operationId" : "login",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "in" : "body",
+            "name" : "body",
+            "description" : "datos de usuario y contraseña",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/LoginUsuarios"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Acceso correcto",
+              "schema" : {
+                "$ref" : "#/definitions/Usuario"
+              }
+            },
+            "400" : {
+              "description" : "Usuario o password incorrectos",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/logout/" : {
+        "delete" : {
+          "tags" : [ "Usuarios" ],
+          "summary" : "Salir del sistema",
+          "operationId" : "logout",
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Cierre de sesión correcto",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/usuarios/" : {
+        "get" : {
+          "tags" : [ "Usuarios" ],
+          "summary" : "Obtener listado de usuarios",
+          "operationId" : "getUsuarios",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Usuario"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "put" : {
+          "tags" : [ "Usuarios" ],
+          "summary" : "Agregar un usuario",
+          "operationId" : "putUsuarios",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos del usuario que se desea agregar",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/NewUsuario"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Usuario agregado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "405" : {
+              "description" : "Información de entrada inválida",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "patch" : {
+          "tags" : [ "Usuarios" ],
+          "summary" : "Editar un usuario",
+          "operationId" : "patchUsuarios",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos del usuario que se desea agregar",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/EditUsuario"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Usuario agregado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "405" : {
+              "description" : "Información de entrada inválida",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/usuarios/{idusuarios}" : {
+        "get" : {
+          "tags" : [ "Usuarios" ],
+          "summary" : "Obtener usuario por id",
+          "description" : "Devuelve un usuarios",
+          "operationId" : "getUsuarioByIdusuarios",
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "idusuarios",
+            "in" : "path",
+            "description" : "Idusuarios buscado",
+            "required" : true,
+            "type" : "integer",
+            "format" : "int64"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Exito",
+              "schema" : {
+                "$ref" : "#/definitions/Usuario"
+              }
+            },
+            "400" : {
+              "description" : "Idusuarios inválido",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "404" : {
+              "description" : "Idusuarios no encontrado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/means/" : {
+        "get" : {
+          "tags" : [ "Means" ],
+          "summary" : "Obtener listado de means",
+          "operationId" : "getMeans",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Mean"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "put" : {
+          "tags" : [ "Means" ],
+          "summary" : "Agregar un mean",
+          "operationId" : "putMean",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos del mean que se desea agregar",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/Mean"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Mean agregado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "405" : {
+              "description" : "Información de entrada inválida",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "patch" : {
+          "tags" : [ "Means" ],
+          "summary" : "Modificar un mean",
+          "operationId" : "patchMean",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos del mean que se desea modificar",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/Mean"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Mean modificado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "405" : {
+              "description" : "Información de entrada inválida",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/means/{id}" : {
+        "get" : {
+          "tags" : [ "Means" ],
+          "summary" : "Obtener mean por id",
+          "description" : "Devuelve un mean",
+          "operationId" : "getMeanById",
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "id",
+            "in" : "path",
+            "description" : "Id buscado",
+            "required" : true,
+            "type" : "integer",
+            "format" : "int64"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Exito",
+              "schema" : {
+                "$ref" : "#/definitions/Mean"
+              }
+            },
+            "400" : {
+              "description" : "Id inválido",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "404" : {
+              "description" : "Id no encontrado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/means/auttyp/{auttyp}" : {
+        "get" : {
+          "tags" : [ "Means" ],
+          "summary" : "Obtener mean por tipo de dispositivo",
+          "description" : "Devuelve un arreglo de means",
+          "operationId" : "getMeanByAuttyp",
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "auttyp",
+            "in" : "path",
+            "description" : "Tipo buscado",
+            "required" : true,
+            "type" : "integer",
+            "format" : "int64"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Exito",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Mean"
+                }
+              }
+            },
+            "400" : {
+              "description" : "Tipo inválido",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "404" : {
+              "description" : "Tipo no encontrado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/pases/" : {
+        "get" : {
+          "tags" : [ "Pases" ],
+          "summary" : "Obtiene un pase por alguna combinación de búsqueda (pase) o  (camión)",
+          "operationId" : "obtenerPase",
+          "parameters" : [ {
+            "name" : "pase",
+            "in" : "query",
+            "description" : "Id pase solicitado",
+            "required" : false,
+            "type" : "integer"
+          }, {
+            "name" : "camion",
+            "in" : "query",
+            "description" : "Camión al cual está asignado el pase buscado",
+            "required" : false,
+            "type" : "integer"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Acceso correcto",
+              "schema" : {
+                "$ref" : "#/definitions/Pase"
+              }
+            },
+            "400" : {
+              "description" : "Usuario o password incorrectos",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "patch" : {
+          "tags" : [ "Pases" ],
+          "summary" : "Modificar un pase",
+          "operationId" : "patchPase",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos de la lectura que se desea modificar",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/Pase"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Pase modificado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "405" : {
+              "description" : "Información de entrada inválida",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/pases/{pase}" : {
+        "get" : {
+          "tags" : [ "Pases" ],
+          "summary" : "Obtiene un pase por número de pase",
+          "operationId" : "getPaseByPase",
+          "parameters" : [ {
+            "name" : "pase",
+            "in" : "path",
+            "description" : "Id pase solicitado",
+            "required" : true,
+            "type" : "integer"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Acceso correcto",
+              "schema" : {
+                "$ref" : "#/definitions/Pase"
+              }
+            },
+            "400" : {
+              "description" : "Usuario o password incorrectos",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/lecturas_tls/" : {
+        "get" : {
+          "tags" : [ "Lecturas_tls" ],
+          "summary" : "Obtener listado recepciónes de combustible",
+          "operationId" : "getLecturasTls",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "sort",
+            "in" : "query",
+            "description" : "Valores Posibles:\n  Nombre del campo por el cual se ordenará la salida -\n  * rui - campo rui \n  * start_volume - campo start_volume\n  * end_volume - campo end_volume\n  * start_tc_volume - campo start_tc_volume\n  * end_tc_volume - campo end_tc_volume\n  * start_temp - campo start_temp\n  * end_temp - campo end_temp\n  * start_water - campo start_water\n  * end water - campo end_water\n  * status - campo status\n  * tank_id - campo tank_id\n  * reception_unique_id - campo reception_unique_id\n  * start_delivery_timestamp - campo start_delivery_timestamp\n  * end_delivery_timestamp - campo end_delivery_timestamp\n  * start_height - campo start_height\n  * end_height - campo end_height\n  * quantity_tran - campo quantity_tran\n  * quantity_tls - campo quantity_tls\n  * tank_name - campo tank_name\n  * tank_number - campo tank_number\n",
+            "required" : false,
+            "type" : "string"
+          }, {
+            "name" : "order",
+            "in" : "query",
+            "description" : "Valores Posibles:\n  * asc - Ordenar de forma ascendente\n  * desc - Ordenar de forma descendente\n",
+            "required" : false,
+            "type" : "string"
+          }, {
+            "name" : "page",
+            "in" : "query",
+            "description" : "Número de página solicitado",
+            "required" : false,
+            "type" : "integer"
+          }, {
+            "name" : "limit",
+            "in" : "query",
+            "description" : "Número de registros solicitados en el bloque",
+            "required" : false,
+            "type" : "integer"
+          }, {
+            "name" : "search",
+            "in" : "query",
+            "description" : "Valor de búsqueda deseado",
+            "required" : false,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/LecturaTLS"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "patch" : {
+          "tags" : [ "Lecturas_tls" ],
+          "summary" : "Modificar una lectura agregando la información adicional para ERP en trate",
+          "operationId" : "patchLecturasTls",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos de la lectura que se desea modificar",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/RecepcionCombustible"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Lectura de TLs modificada",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "405" : {
+              "description" : "Información de entrada inválida",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/lecturas_tls/{reception_unique_id}" : {
+        "get" : {
+          "tags" : [ "Lecturas_tls" ],
+          "summary" : "Obtener recepción de combustible por id",
+          "description" : "Devuelve una recepción de combustible",
+          "operationId" : "getRecepcionDeCombustileById",
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "reception_unique_id",
+            "in" : "path",
+            "description" : "Id buscado",
+            "required" : true,
+            "type" : "integer",
+            "format" : "int64"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Exito",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "400" : {
+              "description" : "Id inválido",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "404" : {
+              "description" : "Id no encontrado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/facturas/{fecha}/{factura}/{serie}" : {
+        "get" : {
+          "tags" : [ "Facturas" ],
+          "summary" : "Verifica si una factura de combustible existe en el servidor de informix trate",
+          "operationId" : "getFactura",
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "fecha",
+            "in" : "path",
+            "description" : "Fecha de la factura",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "factura",
+            "in" : "path",
+            "description" : "número de la factura",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "serie",
+            "in" : "path",
+            "description" : "Serie de la factura",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Factura encontrada",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "404" : {
+              "description" : "Factura no encontrada",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/recepciones_combustible/" : {
+        "get" : {
+          "tags" : [ "Recepciones de combustible" ],
+          "summary" : "Obtener listado de Recepciones de Combustible",
+          "operationId" : "getRecepcionesCombustible",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/RecepcionCombustible"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "put" : {
+          "tags" : [ "Recepciones de combustible" ],
+          "summary" : "Inserta los datos documentales de una recepción de combustible",
+          "operationId" : "putRecepcionCombustible",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos del mean que se desea agregar",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/RecepcionCombustible"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/RespuestaSimple"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "patch" : {
+          "tags" : [ "Recepciones de combustible" ],
+          "summary" : "Edita los datos documentales de una recepción de combustible",
+          "operationId" : "editRecepcionCombustible",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos del mean que se desea agregar",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/RecepcionCombustibleYLecturas"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/RespuestaSimple"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/proveedores/" : {
+        "get" : {
+          "tags" : [ "Recepciones de combustible" ],
+          "summary" : "Obtener listado de proveedores de combustible de Trate",
+          "operationId" : "getProveedores",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Proveedor"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/recepciones_combustible/{id}" : {
+        "get" : {
+          "tags" : [ "Recepciones de combustible" ],
+          "summary" : "Obtener listado de Recepciones de Combustible",
+          "operationId" : "getRecepcionesCombustibleById",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "id",
+            "in" : "path",
+            "description" : "Número de recepcion",
+            "required" : true,
+            "type" : "integer"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/RecepcionCombustibleYLecturas"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/recepciones_combustible/veverificarFactura/{fecha}/{factura}/{serie}" : {
+        "get" : {
+          "tags" : [ "Recepciones de combustible" ],
+          "summary" : "Verifica si una factura de cierta serie y fecha existe en el sistema trate",
+          "operationId" : "verificaFactura",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "fecha",
+            "in" : "path",
+            "description" : "Fecha de la factura que desea consultar",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "factura",
+            "in" : "path",
+            "description" : "Número de factura que se desea consultar",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "serie",
+            "in" : "path",
+            "description" : "Serie de la factura que se desea consultar",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/jarreos/" : {
+        "get" : {
+          "tags" : [ "Jarreos" ],
+          "summary" : "Obtener listado de Jarreos que aún no han sido devueltos",
+          "operationId" : "getJarreos",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Jarreo"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "patch" : {
+          "tags" : [ "Jarreos" ],
+          "summary" : "Inserta los movimientos de devolución de los jarreos incluídos en el arreglo",
+          "operationId" : "devolverJarreos",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos de los jarreos que se desean devolver",
+            "required" : true,
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Jarreo"
+              }
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/RespuestaSimple"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/jarreos/{id}" : {
+        "get" : {
+          "tags" : [ "Jarreos" ],
+          "summary" : "Obtener Jarreo por número de transacción",
+          "operationId" : "getJarreoByIdTransaction",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "id",
+            "in" : "path",
+            "description" : "Número de transacción",
+            "required" : true,
+            "type" : "integer"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "$ref" : "#/definitions/Jarreo"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            },
+            "404" : {
+              "description" : "Jarreo no encontrado",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/estatusBombas/framelink/" : {
+        "get" : {
+          "tags" : [ "Bombas" ],
+          "summary" : "Obtener link de estado de bombas",
+          "operationId" : "getEstatusBombasFramelink",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "$ref" : "#/definitions/Url"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/estatusBombas/" : {
+        "get" : {
+          "tags" : [ "Bombas" ],
+          "summary" : "Obtener arreglo de bombas y su estatus",
+          "operationId" : "getEstatusBombas",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Bomba"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/estatusBombas/{id}" : {
+        "get" : {
+          "tags" : [ "Bombas" ],
+          "summary" : "Obtener arreglo de bombas y su estatus",
+          "operationId" : "getEstatusBombasById",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "id",
+            "in" : "path",
+            "description" : "Número de bomba",
+            "required" : true,
+            "type" : "integer"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "$ref" : "#/definitions/Bomba"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/estatusTanques/" : {
+        "get" : {
+          "tags" : [ "Tanques" ],
+          "summary" : "Obtener listado de tanques con su estado actual",
+          "operationId" : "getEstatusTanques",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Tanque"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/last_transactions/" : {
+        "get" : {
+          "tags" : [ "Bombas" ],
+          "summary" : "Obtener listado de últimas transacciones para desplegar en estado de bombas",
+          "operationId" : "getEstatusLastTransactions",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "limit",
+            "in" : "query",
+            "description" : "Número de transacciones a obtener",
+            "required" : false,
+            "type" : "integer"
+          }, {
+            "name" : "page",
+            "in" : "query",
+            "description" : "Página actual en el enlistador de transacciones",
+            "required" : false,
+            "type" : "integer"
+          }, {
+            "name" : "sort",
+            "in" : "query",
+            "description" : "Valores Posibles:\n  Nombre del campo por el cual se ordenará el arreglo de transacciones -\n  * transaction_id\n  * transaction_timestamp\n",
+            "required" : false,
+            "type" : "integer"
+          }, {
+            "name" : "order",
+            "in" : "query",
+            "description" : "Valores Posibles:\n  Tipo de ordenamiento del listado -\n  * asc - ascendente\n  * desc - descendente\n",
+            "required" : false,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Transaccion"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/bombas/" : {
+        "get" : {
+          "tags" : [ "Bombas" ],
+          "summary" : "Obtener arreglo de bombas en formato simple",
+          "operationId" : "getBombas",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/BombaSimple"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/productos/" : {
+        "get" : {
+          "tags" : [ "Productos" ],
+          "summary" : "Listado de productos",
+          "operationId" : "getProductos",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/Producto"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      },
+      "/productos/{id}" : {
+        "get" : {
+          "tags" : [ "Productos" ],
+          "summary" : "Obtener producto por su Id",
+          "operationId" : "getProductoById",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "id",
+            "in" : "path",
+            "description" : "Número de producto",
+            "required" : true,
+            "type" : "integer"
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "$ref" : "#/definitions/Producto"
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        },
+        "patch" : {
+          "tags" : [ "Productos" ],
+          "summary" : "Programa precio para un producto",
+          "operationId" : "schedulePriceChange",
+          "consumes" : [ "application/json" ],
+          "produces" : [ "application/json" ],
+          "parameters" : [ {
+            "name" : "token",
+            "in" : "header",
+            "description" : "Token de sesión valido",
+            "required" : true,
+            "type" : "string"
+          }, {
+            "name" : "id",
+            "in" : "path",
+            "description" : "Número de producto",
+            "required" : true,
+            "type" : "integer"
+          }, {
+            "in" : "body",
+            "name" : "body",
+            "description" : "Datos de los jarreos que se desean devolver",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/Producto"
+            }
+          } ],
+          "responses" : {
+            "200" : {
+              "description" : "Ejecución exitosa",
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/RespuestaSimple"
+                }
+              }
+            },
+            "401" : {
+              "description" : "Acceso no autorizado para este recurso",
+              "schema" : {
+                "$ref" : "#/definitions/RespuestaSimple"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions" : {
+      "Bomba" : {
+        "type" : "object",
+        "required" : [ "fuel_id", "fuel_sale", "fuel_volume", "nozzle_id", "payment_type", "pump_num", "status" ],
+        "properties" : {
+          "pump_num" : {
+            "type" : "integer",
+            "example" : 1,
+            "description" : "Número de posición de carga de la bomba"
+          },
+          "nozzle_id" : {
+            "type" : "integer",
+            "example" : 1,
+            "description" : "Número de manguera en la posición de carga"
+          },
+          "fuel_volume" : {
+            "type" : "number",
+            "example" : 17.43,
+            "description" : "Total de volumen despachado al momento de la consulta en la transacción activa"
+          },
+          "fuel_id" : {
+            "type" : "integer",
+            "example" : 3,
+            "description" : "Identificador del producto despachado"
+          },
+          "fuel_sale" : {
+            "type" : "number",
+            "example" : 340.86,
+            "description" : "Total en pesos despachado al momento de la consulta en la transacción activa"
+          },
+          "payment_type" : {
+            "type" : "integer",
+            "example" : 0,
+            "description" : "Identificador del tipo de pago realizado en la transacción activa"
+          },
+          "status" : {
+            "type" : "number",
+            "description" : "Possible values:\n  * 49 -> IDLE Bomba lista para despacho\n  * 50 -> FUELING Bomba despachando\n  * 53 -> CALL Bomba con leva levantada sin despacho\n  * 55 -> OFFLINE Bomba fuera de linea o sin comunicación con ORCU\n  * 56 -> STOPPED Bomba detenida durante despacho\n  * 57 -> PAYING Bomba en estado de pago\n"
+          }
+        }
+      },
+      "Tanque" : {
+        "type" : "object",
+        "required" : [ "capacity", "date", "date_sql", "density", "density_15", "fuel_height", "fuel_volume", "name", "probe_id", "shift_id", "tank_id", "tc_volume", "temperature", "tlh_id", "ullage", "user", "water_height", "water_volume" ],
+        "properties" : {
+          "tc_volume" : {
+            "type" : "number",
+            "example" : 48527.484,
+            "description" : "Volumen útil del tanque"
+          },
+          "shift_id" : {
+            "type" : "integer",
+            "example" : 0,
+            "description" : "Número de turno en el que se está realizando la lectura"
+          },
+          "date" : {
+            "type" : "string",
+            "example" : "01/15/19 14:36:47",
+            "description" : "Fecha y hora de la medición"
+          },
+          "fuel_volume" : {
+            "type" : "number",
+            "example" : 49318.551,
+            "description" : "Volumen total registrado en la lectura"
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Magna1",
+            "description" : "Nombre del tanque en ORCU"
+          },
+          "density_15" : {
+            "type" : "number",
+            "example" : 0.0,
+            "description" : "Densidad 15"
+          },
+          "density" : {
+            "type" : "number",
+            "example" : 0.0,
+            "description" : "Densidad"
+          },
+          "capacity" : {
+            "type" : "number",
+            "example" : 100000.0,
+            "description" : "Capacidad total del tanque definida en Orcu"
+          },
+          "fuel_height" : {
+            "type" : "number",
+            "example" : 1470.08,
+            "description" : "Altura de la lectura en cm del flotador de combustible"
+          },
+          "water_height" : {
+            "type" : "number",
+            "example" : 0.0,
+            "description" : "Altura de la lectura en cm del flotador de agua"
+          },
+          "user" : {
+            "type" : "integer",
+            "example" : 0,
+            "description" : "Usuario con el que se genera la lectura"
+          },
+          "temperature" : {
+            "type" : "number",
+            "example" : 17.53,
+            "description" : "Temperatura en Celsius del tanque al momento de la lectura"
+          },
+          "probe_id" : {
+            "type" : "integer",
+            "example" : 200000009,
+            "description" : "Identificador de la probeta en ORCU"
+          },
+          "water_volume" : {
+            "type" : "number",
+            "example" : 0.0,
+            "description" : "Volumen de agua en el tanque al momento de la lectura"
+          },
+          "date_sql" : {
+            "type" : "string",
+            "example" : "2019-01-15 14:36:47",
+            "description" : "Fecha y hora de la lectura en formato sql"
+          },
+          "tank_id" : {
+            "type" : "integer",
+            "example" : 200000017,
+            "description" : "Identificador del tanque en ORCU"
+          },
+          "tlh_id" : {
+            "type" : "integer",
+            "example" : 0,
+            "description" : "Identificador de tanque para head office"
+          },
+          "ullage" : {
+            "type" : "number",
+            "example" : 60681.453,
+            "description" : "Merma calculada en litros"
+          }
+        }
+      },
+      "Usuario" : {
+        "type" : "object",
+        "required" : [ "estatus", "idusuarios", "usuario" ],
+        "properties" : {
+          "idusuarios" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "usuario" : {
+            "type" : "string",
+            "example" : "miusuario",
+            "description" : "username no debe contener caracteres especiales y al menos se conformara de 6 caracteres"
+          },
+          "estatus" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "1 activo 0 inactivo"
+          },
+          "nivel" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "nivel de acceso a los recursos del usuario"
+          },
+          "token" : {
+            "type" : "string",
+            "example" : "bf1a2b04fd102c817531e9f8fe818958226a29d6",
+            "description" : "cadena en digesto sha1 hexadecimal que contiene una sesión válidad para acceder a los recursos de la API"
+          },
+          "nombre" : {
+            "type" : "string",
+            "example" : "Nombre Apellido"
+          },
+          "password" : {
+            "type" : "string",
+            "description" : "contraseña digesta en sha1 hexadecimal"
+          },
+          "session_id" : {
+            "type" : "integer",
+            "description" : "identificador único de sesión utilizado para trazar el comportamiento en las bitácoras del sistema"
+          },
+          "caducidad_token" : {
+            "type" : "string",
+            "example" : "2018-12-11 19:33:34",
+            "description" : "fecha hasta la cual es válido el token otorgado durante el login"
+          }
+        }
+      },
+      "RespuestaSimple" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Url" : {
+        "type" : "object",
+        "required" : [ "url" ],
+        "properties" : {
+          "url" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EditUsuario" : {
+        "type" : "object",
+        "required" : [ "estatus", "idusuarios", "nivel", "nombre", "password", "usuario" ],
+        "properties" : {
+          "idusuarios" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "usuario" : {
+            "type" : "string",
+            "example" : "miusuario",
+            "description" : "username no debe contener caracteres especiales y al menos se conformara de 6 caracteres"
+          },
+          "nombre" : {
+            "type" : "string",
+            "example" : "Nombre Apellido"
+          },
+          "nivel" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "nivel de acceso a los recursos del usuario"
+          },
+          "estatus" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "1 activo 0 inactivo"
+          },
+          "password" : {
+            "type" : "string",
+            "example" : "896aaa556c2ac8ab6a3415540b8111d17328ce01",
+            "description" : "contraseña digesta en sha1 hexadecimal"
+          }
+        }
+      },
+      "NewUsuario" : {
+        "type" : "object",
+        "required" : [ "estatus", "nivel", "nombre", "password", "usuario" ],
+        "properties" : {
+          "usuario" : {
+            "type" : "string",
+            "example" : "miusuario",
+            "description" : "username no debe contener caracteres especiales y al menos se conformara de 6 caracteres"
+          },
+          "nombre" : {
+            "type" : "string",
+            "example" : "Nombre Apellido"
+          },
+          "nivel" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "nivel de acceso a los recursos del usuario"
+          },
+          "estatus" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "1 activo 0 inactivo"
+          },
+          "password" : {
+            "type" : "string",
+            "example" : "896aaa556c2ac8ab6a3415540b8111d17328ce01",
+            "description" : "contraseña digesta en sha1 hexadecimal"
+          }
+        }
+      },
+      "LoginUsuarios" : {
+        "type" : "object",
+        "required" : [ "password", "usuario" ],
+        "properties" : {
+          "usuario" : {
+            "type" : "string",
+            "example" : "miusuario",
+            "description" : "username no debe contener caracteres especiales y al menos se conformara de 6 caracteres"
+          },
+          "password" : {
+            "type" : "string",
+            "example" : "896aaa556c2ac8ab6a3415540b8111d17328ce01",
+            "description" : "contraseña digesta en sha1 hexadecimal"
+          }
+        }
+      },
+      "Mean" : {
+        "type" : "object",
+        "required" : [ "NAME", "TYPE", "auttyp", "dept_id", "fleet_id", "hardware_type", "plate", "status", "string" ],
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "Id del dispositivo puede ser vacio para el put y obligatorio para el patch"
+          },
+          "NAME" : {
+            "type" : "integer",
+            "example" : 2232,
+            "description" : "Número económico del dispositivo"
+          },
+          "string" : {
+            "type" : "string",
+            "example" : "7710770050010960",
+            "description" : "cadena única de identificacion de dispositivo"
+          },
+          "TYPE" : {
+            "type" : "integer",
+            "description" : "Posible values: * 2 - Tag vehicular * 3 - Dispositivo montado en vehiculo * 4 - Tag de despachador\n"
+          },
+          "status" : {
+            "type" : "string",
+            "description" : "Posible values: * 2 - Activo * 1 - Inactivo\n",
+            "enum" : [ "2", "1" ]
+          },
+          "hardware_type" : {
+            "type" : "integer",
+            "description" : "Posible values: * 1 - Dispositivo personal * 6 - Dispositivo vehicular\n"
+          },
+          "plate" : {
+            "type" : "string",
+            "example" : "ABC1234",
+            "description" : "placa vehicular"
+          },
+          "fleet_id" : {
+            "type" : "integer",
+            "example" : 200000003,
+            "description" : "número de flota a la que pertenece el dispositivo"
+          },
+          "dept_id" : {
+            "type" : "integer",
+            "example" : 200000129,
+            "description" : "número de departamento al que pertenece el dispositivo"
+          },
+          "auttyp" : {
+            "type" : "integer",
+            "description" : "Posible values: * 1 - Fuelopass * 2 - VIU 3 * 3 - VIU 4 * 4 - VIU 45 * 5 - Electronic Key * 6 - Tag * 7 - Authorizer * 8 - Master Authorizer * 9 - VIU 35 * 10 - TRU * 14 - Fuel Card * 20 - Gasboy Key * 21 - Manual Entry * 22 - VIU 35 E * 23 - VIU 35 NT * 25 - FP HS * 26 - DP only * 27 - DP H * 30 - FP + DP * 40 - FP HS + DP * 41 - URD * 42 - URD + DP\n"
+          }
+        }
+      },
+      "Pase" : {
+        "type" : "object",
+        "required" : [ "camion", "chofer", "fecha_solicitud", "litros", "litros_real", "pase_id", "status", "viaje" ],
+        "properties" : {
+          "pase_id" : {
+            "type" : "integer",
+            "description" : "Id del pase"
+          },
+          "litros" : {
+            "type" : "number",
+            "example" : 200.5,
+            "description" : "Cantidad de litros autorizados para carga"
+          },
+          "chofer" : {
+            "type" : "integer",
+            "example" : 21234,
+            "description" : "número de chofer al cual está asignado el pase"
+          },
+          "litros_real" : {
+            "type" : "number",
+            "description" : "Cantidad de litros despachados con ese pase"
+          },
+          "camion" : {
+            "type" : "integer",
+            "description" : "Número de camión al cual está asignado el pase"
+          },
+          "viaje" : {
+            "type" : "integer",
+            "description" : "Número de viaje al cual está asignado el pase"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Posible values: * A - Activo * T - Transferido * M - Manual * R - Reabierto * D - Despachado * P - Procesado\n"
+          },
+          "fecha_solicitud" : {
+            "type" : "string",
+            "description" : "Fecha en que fue generado el pase"
+          }
+        }
+      },
+      "LecturaTLS" : {
+        "type" : "object",
+        "required" : [ "end_delivery_timestamp", "end_height", "end_tc_volume", "end_temp", "end_volume", "quantity_tls", "quantity_tran", "reception_unique_id", "rui", "start_height", "start_tc_volume", "start_temp", "start_volume", "start_water", "status", "tank_id", "tank_name", "tank_number" ],
+        "properties" : {
+          "rui" : {
+            "type" : "integer",
+            "example" : 2000000010,
+            "description" : "Número consecutivo que identifica la recepción"
+          },
+          "start_volume" : {
+            "type" : "number",
+            "example" : 27000.0,
+            "description" : "Volumen en litros en existencia antes de iniciar el procedimiento de carga de combustible"
+          },
+          "end_volume" : {
+            "type" : "integer",
+            "example" : 46000,
+            "description" : "Volumen en litros en existencia al finalizar el procedimiento de carga de combustible"
+          },
+          "start_tc_volume" : {
+            "type" : "number",
+            "example" : 1485.0,
+            "description" : "Volumen en recta de equivalencia en existencia antes de iniciar el procedimiento de carga de combustible"
+          },
+          "end_tc_volume" : {
+            "type" : "integer",
+            "example" : 1876,
+            "description" : "Volumen en recta de equivalencia en existencia al finalizar el procedimiento de carga de combustible"
+          },
+          "start_temp" : {
+            "type" : "number",
+            "example" : 1485.0,
+            "description" : "Temperatura antes de iniciar el procedimiento de carga de combustible"
+          },
+          "end_temp" : {
+            "type" : "integer",
+            "example" : 1876,
+            "description" : "Temperatura al finalizar el procedimiento de carga de combustible"
+          },
+          "start_water" : {
+            "type" : "number",
+            "example" : 1485.0,
+            "description" : "Cantidad de agua antes de iniciar el procedimiento de carga de combustible"
+          },
+          "end_water" : {
+            "type" : "integer",
+            "example" : 1876,
+            "description" : "Cantidad de agua al finalizar el procedimiento de carga de combustible"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "Posible values:\n  * 0 - Recibida desde orcu sin registro en transporter\n  * 1 - Recibida desde orcu con registro en transporter\n"
+          },
+          "tank_id" : {
+            "type" : "integer",
+            "example" : 20000001,
+            "description" : "Identificador del número de tanque como objeto del orcu"
+          },
+          "reception_unique_id" : {
+            "type" : "integer",
+            "description" : "Número de identificación de la recepción único con fines referenciar con respecto a una recpción de tanque adicional"
+          },
+          "start_delivery_timestmp" : {
+            "type" : "string",
+            "example" : "2018-11-21T17:35:31.000Z",
+            "description" : "Fecha y hora de inicio de descarga de combustible"
+          },
+          "end_delivery_timestamp" : {
+            "type" : "string",
+            "description" : "Fecha y hora de fin de descarga de combustible"
+          },
+          "start_height" : {
+            "type" : "number",
+            "description" : "Altura inicial del tanque en recta de conversión antes de iniciar carga"
+          },
+          "end_height" : {
+            "type" : "number",
+            "description" : "Altura final del tanque en recta de conversión al finalizar la carga"
+          },
+          "quantity_tran" : {
+            "type" : "integer",
+            "description" : "Número de transacciones transcurridas durante la entrega"
+          },
+          "quantity_tls" : {
+            "type" : "number",
+            "description" : "Cantidad de litros despachados durante la entrega"
+          },
+          "tank_name" : {
+            "type" : "string",
+            "description" : "Nombre del tanque que lo identifica"
+          },
+          "tank_number" : {
+            "type" : "integer",
+            "description" : "Número de tanque en transporter"
+          },
+          "ci_movimientos" : {
+            "type" : "integer",
+            "description" : "Número de ci_movimientos con el que es reportada la lectura"
+          },
+          "origen_registro" : {
+            "type" : "string",
+            "example" : "TLS",
+            "description" : "Posible values:\n  * TLS - Lectura automática del TLS\n  * Manual - Lectura registrada manualmente desde transporter\n",
+            "enum" : [ "TLS", "Manual" ]
+          },
+          "id_recepcion" : {
+            "type" : "integer",
+            "example" : 3,
+            "description" : "Identificador de número de recepción documental que permite ligar el registro al documento origen"
+          }
+        }
+      },
+      "RecepcionCombustible" : {
+        "type" : "object",
+        "required" : [ "fecha_documento", "fecha_recepcion", "folio_documento", "ieps_documento", "importe_documento", "iva_documento", "litros_documento", "numero_proveedor", "ppv_documento", "sello_pemex", "serie_documento", "terminal_embarque", "tipo_documento" ],
+        "properties" : {
+          "fecha_recepcion" : {
+            "type" : "string",
+            "example" : "2018-11-21 12:37:24",
+            "description" : "Fecha y hora en que se ingresó el combustible"
+          },
+          "fecha_documento" : {
+            "type" : "string",
+            "example" : "2018-11-21",
+            "description" : "Fecha del documento"
+          },
+          "terminal_embarque" : {
+            "type" : "string",
+            "example" : "1989",
+            "description" : "Número de terminal de embarque"
+          },
+          "sello_pemex" : {
+            "type" : "string",
+            "example" : "678912",
+            "description" : "Sello de pemex"
+          },
+          "folio_documento" : {
+            "type" : "string",
+            "example" : "293112",
+            "description" : "Folio del documento de compra"
+          },
+          "tipo_documento" : {
+            "type" : "string",
+            "example" : "Factura",
+            "description" : "Define el tipo de documento"
+          },
+          "serie_documento" : {
+            "type" : "string",
+            "example" : "RP",
+            "description" : "Serie del documento"
+          },
+          "numero_proveedor" : {
+            "type" : "string",
+            "example" : "15001",
+            "description" : "Número de proveedor dentro del sistema ERP que distribuye el combustible"
+          },
+          "litros_documento" : {
+            "type" : "number",
+            "example" : 20000.0,
+            "description" : "Cantidad de litros indicada en la factura"
+          },
+          "ppv_documento" : {
+            "type" : "number",
+            "example" : 19.29,
+            "description" : "Precio unitario indicado en la factura"
+          },
+          "importe_documento" : {
+            "type" : "number",
+            "example" : 385800.0,
+            "description" : "Cantidad total en pesos indicados en la factura"
+          },
+          "iva_documento" : {
+            "type" : "number",
+            "example" : 53213.79,
+            "description" : "IVA indicado en la factura"
+          },
+          "ieps_documento" : {
+            "type" : "number",
+            "example" : 1879.2,
+            "description" : "IEPS indicado en la factura"
+          },
+          "reception_id" : {
+            "type" : "number",
+            "example" : 2.0,
+            "description" : "Número identificador de la recepción, este dato será ignorado cuando se genera un nuevo registro, solamente será considerado para actualización de un registro existente"
+          }
+        }
+      },
+      "RecepcionCombustibleYLecturas" : {
+        "type" : "object",
+        "required" : [ "fecha_documento", "fecha_recepcion", "folio_documento", "ieps_documento", "importe_documento", "iva_documento", "lecturas_recepcion", "litros_documento", "numero_proveedor", "ppv_documento", "sello_pemex", "serie_documento", "status", "terminal_embarque", "tipo_documento" ],
+        "properties" : {
+          "fecha_recepcion" : {
+            "type" : "string",
+            "example" : "2018-11-21 12:37:24",
+            "description" : "Fecha y hora en que se ingresó el combustible"
+          },
+          "fecha_documento" : {
+            "type" : "string",
+            "example" : "2018-11-21",
+            "description" : "Fecha del documento"
+          },
+          "terminal_embarque" : {
+            "type" : "string",
+            "example" : "1989",
+            "description" : "Número de terminal de embarque"
+          },
+          "sello_pemex" : {
+            "type" : "string",
+            "example" : "678912",
+            "description" : "Sello de pemex"
+          },
+          "folio_documento" : {
+            "type" : "string",
+            "example" : "293112",
+            "description" : "Folio del documento de compra"
+          },
+          "tipo_documento" : {
+            "type" : "string",
+            "example" : "Factura",
+            "description" : "Define el tipo de documento"
+          },
+          "serie_documento" : {
+            "type" : "string",
+            "example" : "RP",
+            "description" : "Serie del documento"
+          },
+          "numero_proveedor" : {
+            "type" : "string",
+            "example" : "15001",
+            "description" : "Número de proveedor dentro del sistema ERP que distribuye el combustible"
+          },
+          "litros_documento" : {
+            "type" : "number",
+            "example" : 20000.0,
+            "description" : "Cantidad de litros indicada en la factura"
+          },
+          "ppv_documento" : {
+            "type" : "number",
+            "example" : 19.29,
+            "description" : "Precio unitario indicado en la factura"
+          },
+          "importe_documento" : {
+            "type" : "number",
+            "example" : 385800.0,
+            "description" : "Cantidad total en pesos indicados en la factura"
+          },
+          "iva_documento" : {
+            "type" : "number",
+            "example" : 53213.79,
+            "description" : "IVA indicado en la factura"
+          },
+          "ieps_documento" : {
+            "type" : "number",
+            "example" : 1879.2,
+            "description" : "IEPS indicado en la factura"
+          },
+          "status" : {
+            "type" : "number",
+            "example" : 2.0,
+            "description" : "Valores posibles:\n    * 1 - Recepción sin lecturas asignadas\n    * 2 - Recepción con lecturas asignadas\n"
+          },
+          "reception_id" : {
+            "type" : "number",
+            "example" : 2.0,
+            "description" : "Número identificador de la recepción, este dato será ignorado cuando se genera un nuevo registro, solamente será considerado para actualización de un registro existente"
+          },
+          "lecturas_recepcion" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/LecturaTLS"
+            }
+          }
+        }
+      },
+      "Proveedor" : {
+        "type" : "object",
+        "required" : [ "id", "proveedor" ],
+        "properties" : {
+          "id" : {
+            "type" : "number",
+            "example" : 52001.0,
+            "description" : "Número identificador del proveedor"
+          },
+          "proveedor" : {
+            "type" : "string",
+            "example" : "PEMEX Refinación",
+            "description" : "Nombre del proveedor"
+          },
+          "status" : {
+            "type" : "string",
+            "example" : "2",
+            "description" : "Posible values:\n  * 1 - Proveedor inactivo\n  * 2 - Proveedor activo\n",
+            "enum" : [ "1", "2" ]
+          }
+        }
+      },
+      "Jarreo" : {
+        "type" : "object",
+        "required" : [ "return_date", "return_tank_object_id", "return_time", "return_timestamp", "return_total_price", "status_code", "transaction_dispensed_quantity", "transaction_id", "transaction_ieps", "transaction_iva", "transaction_ppv", "transaction_pump_head_external_code", "transaction_timestamp", "transaction_total_price" ],
+        "properties" : {
+          "transaction_id" : {
+            "type" : "string",
+            "example" : "300089281",
+            "description" : "Número de transaccion"
+          },
+          "transaction_timestamp" : {
+            "type" : "string",
+            "example" : "2018-11-21",
+            "description" : "Fecha del jarreo"
+          },
+          "transaction_dispensed_quantity" : {
+            "type" : "number",
+            "example" : 20.42,
+            "description" : "Cantidad en litros despachada"
+          },
+          "transaction_ppv" : {
+            "type" : "number",
+            "example" : 19.47,
+            "description" : "Precio unitario"
+          },
+          "transaction_total_price" : {
+            "type" : "number",
+            "example" : 397.58,
+            "description" : "Total despachada en pesos"
+          },
+          "transaction_iva" : {
+            "type" : "number",
+            "example" : 11.21,
+            "description" : "Iva en la transaccion"
+          },
+          "transaction_ieps" : {
+            "type" : "number",
+            "example" : 9.2787,
+            "description" : "IEPS en la transaccion"
+          },
+          "transaction_pump_head_external_code" : {
+            "type" : "integer",
+            "example" : 1,
+            "description" : "Número de bomba"
+          },
+          "return_timestamp" : {
+            "type" : "string",
+            "example" : "2019-01-12 12:34:21",
+            "description" : "Fecha y hora de devolución"
+          },
+          "return_total_price" : {
+            "type" : "number",
+            "example" : 397.58,
+            "description" : "Total en peso de la cantidad devuelta"
+          },
+          "return_tank_object_id" : {
+            "type" : "number",
+            "example" : 1.0,
+            "description" : "Número de tanque donde se devolvió el producto"
+          },
+          "return_date" : {
+            "type" : "string",
+            "example" : "2019-01-12",
+            "description" : "Fecha de la devolución"
+          },
+          "return_time" : {
+            "type" : "string",
+            "example" : "12:34:21",
+            "description" : "Hora de la devolución"
+          },
+          "status_code" : {
+            "type" : "number",
+            "example" : 2.0,
+            "description" : "Valores posibles:\n    * 1 - Jarreo devuelto a tanque\n    * 2 - Jarreo sin devolución a tanque\n"
+          }
+        }
+      },
+      "Transaccion" : {
+        "type" : "object",
+        "required" : [ "bomba", "cantidad", "fecha", "idtransacciones", "pase", "placa", "sale" ],
+        "properties" : {
+          "idtransacciones" : {
+            "type" : "string",
+            "example" : "300089281",
+            "description" : "Número de transaccion"
+          },
+          "fecha" : {
+            "type" : "string",
+            "example" : "2018-11-21 17:21:12",
+            "description" : "Fecha y hora de la transacción"
+          },
+          "cantidad" : {
+            "type" : "number",
+            "example" : 20.42,
+            "description" : "Cantidad en litros despachada"
+          },
+          "ppv" : {
+            "type" : "number",
+            "example" : 19.47,
+            "description" : "Precio unitario"
+          },
+          "sale" : {
+            "type" : "number",
+            "example" : 397.58,
+            "description" : "Total despachada en pesos"
+          },
+          "placa" : {
+            "type" : "string",
+            "example" : "9999",
+            "description" : "Número económico del autorizador"
+          },
+          "pase" : {
+            "type" : "integer",
+            "example" : 3907,
+            "description" : "Número de pase que autorizó la transacción"
+          },
+          "bomba" : {
+            "type" : "integer",
+            "example" : 1,
+            "description" : "Número de bomba donde se realizó la transacción"
+          }
+        }
+      },
+      "BombaSimple" : {
+        "type" : "object",
+        "required" : [ "pump_head", "side", "status_code" ],
+        "properties" : {
+          "pump_head" : {
+            "type" : "integer",
+            "example" : 1,
+            "description" : "Número de bomba"
+          },
+          "side" : {
+            "type" : "integer",
+            "example" : 1,
+            "description" : "Número de posición de carga"
+          },
+          "status_code" : {
+            "type" : "integer",
+            "description" : "* 1 - Inactiva en ORCU * 2 - Activa en ORCU\n"
+          }
+        }
+      },
+      "Producto" : {
+        "type" : "object",
+        "required" : [ "code", "code2", "id", "last_updated", "name", "next_price", "next_update", "price", "usuario" ],
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "example" : 200000008,
+            "description" : "Número de producto en ORCU"
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Diesel",
+            "description" : "Nombre del producto en ORCU"
+          },
+          "code" : {
+            "type" : "integer",
+            "example" : 1,
+            "description" : "Código de identificación corto del producto en ORCU"
+          },
+          "status" : {
+            "type" : "integer",
+            "example" : 2,
+            "description" : "2 - Activo, 1 - Inactivo"
+          },
+          "price" : {
+            "type" : "number",
+            "example" : 19.23,
+            "description" : "Precio unitario del producto"
+          },
+          "code2" : {
+            "type" : "string",
+            "example" : "DI",
+            "description" : "Identificador corto para el producto"
+          },
+          "last_updated" : {
+            "type" : "string",
+            "example" : "2019-01-15 18:32:46",
+            "description" : "Ultima fecha de actualización del precio"
+          },
+          "next_update" : {
+            "type" : "string",
+            "example" : "2019-01-16 00:00:00",
+            "description" : "Siguente fecha programada para actualización de precio"
+          },
+          "next_price" : {
+            "type" : "number",
+            "example" : 19.35,
+            "description" : "Siguiente precio para la próxima fecha programada de actualización de precio"
+          },
+          "usuario" : {
+            "type" : "string",
+            "description" : "Número de empleado del usuario que programa el cambio de precio"
+          }
+        }
+      }
+    }
+  }

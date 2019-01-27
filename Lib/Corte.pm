@@ -210,7 +210,7 @@ sub insertaMDB{
 		(length($self->{VSERIE}) gt 0 ? ("'" . $self->{VSERIE} . "'") : ("NULL") )  . "," . 
 		(length($self->{PROCESADA}) gt 0 ? ("'" . $self->{PROCESADA} . "'") : ("NULL") )  . 
 		")";
-	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	$sth->finish;	
@@ -270,7 +270,7 @@ sub insertaInf {
 			(length($self->{VSERIE}) gt 0 ? ("'" . $self->{VSERIE} . "'") : ("NULL") )  . "," . 
 			(length($self->{PROCESADA}) gt 0 ? ("'" . $self->{PROCESADA} . "'") : ("NULL") )  . 
 			")";
-	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
 	$sth->finish;

@@ -16,7 +16,7 @@ use strict;
 $ENV{INFORMIXSERVER} = INFORMIX_SERVER;
 
 
-LOGGER->info("Servidor de informix" . INFORMIX_SERVER);
+LOGGER->debug("Servidor de informix" . INFORMIX_SERVER);
 
 
 # (1) salir a menos que envien los 21 argumentos
@@ -51,7 +51,7 @@ $MOVIMIENTO->{IEPS} = $ieps;
 $MOVIMIENTO->{STATUS} = $status;
 $MOVIMIENTO->{PROCESADA} = $procesada;
 $MOVIMIENTO->{TRANSACTION_ID} = $transaction_id;
-LOGGER->info("El movimiento para informix seria \n" . dump($MOVIMIENTO));
+LOGGER->debug("El movimiento para informix seria \n" . dump($MOVIMIENTO));
 try { 
 	if(WITHINFORMIX eq 1){
 		$return = $MOVIMIENTO->enviarMovimientoInformix() or die(LOGGER->fatal("ERROR AL ENVIAR MOVIMIENTO A INFORMIX"));

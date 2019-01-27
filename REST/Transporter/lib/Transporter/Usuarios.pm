@@ -19,6 +19,7 @@ post '/login' => sub {
 		$USUARIOS->usuario($post->{usuario});
 		$USUARIOS->password($post->{password});
 		if($USUARIOS->login() eq 1){
+			delete $USUARIOS->{password};
 			return unbless($USUARIOS);
 		} else {
 			status 404	;
@@ -90,10 +91,10 @@ put '/usuarios' => sub {
 	$USUARIOS->password($post->{password});
 	$USUARIOS->numeroEmpleado($post->{numero_empleado});
 	if($USUARIOS->addUsuarios() eq 1){
-		return {message => "OKComputer"};
+		return {message => "Exito"};
 	} else {
 		status 405;
-		return {message => "NotOkComputer"};
+		return {message => "Falla"};
 	}
 };
 
@@ -108,10 +109,10 @@ patch '/usuarios' => sub {
 	$USUARIOS->numeroEmpleado($post->{numero_empleado});
 	$USUARIOS->password($post->{password});
 	if($USUARIOS->updateUsuarios() eq 1){
-		return {data => "OKComputer"};
+		return {message => "Exito"};
 	} else {
 		status 401;
-		return {data => "NotOkComputer"};
+		return {message => "Falla"};
 	}
 };
 

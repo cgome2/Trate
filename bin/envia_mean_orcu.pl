@@ -34,7 +34,7 @@ $mean->plate($plate);
 $mean->status($status);
 $mean->string($string);
 $mean->type($type);
-LOGGER->debug(dump($mean));
+#LOGGER->debug(dump($mean));
 try {
 	$return = $mean->createMeanOrcu();
 } catch {

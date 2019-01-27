@@ -216,7 +216,17 @@ sub activarMean {
 	$wsc->callName("SOUpdateMeanStatus");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);
-	LOGGER->info(dump($result));
+	if($result->{rc} eq 2){
+		LOGGER->info("El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser activado");	
+		return 0;
+	}
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = " UPDATE means SET status = 2 WHERE id='" . $self->{ID} . "' LIMIT 1";
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+	LOGGER->info("El dispositivo " . $self->{NAME} . " ha sido activado");
 	return $result;
 }
 
@@ -232,7 +242,17 @@ sub desactivarMean {
 	$wsc->callName("SOUpdateMeanStatus");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);
-	LOGGER->info(dump($result));
+	if($result->{rc} eq 2){
+		LOGGER->info("El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser desactivado");	
+		return 0;
+	}
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = " UPDATE means SET status = 1 WHERE id='" . $self->{ID} . "' LIMIT 1";
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+	LOGGER->info("El dispositivo " . $self->{NAME} . " ha sido desactivado");
 	return $result;
 }
 
@@ -289,6 +309,24 @@ sub getMeanFromId {
 	}
 }
 
+sub fillMeanFromName {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT id FROM means WHERE NAME='" . $self->{NAME} . "' AND status IN (1,2) LIMIT 1"; 
+	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	if(length($row->{id})){
+		$self->{ID} = $row->{id};
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 sub getDespachadores {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
@@ -332,7 +370,7 @@ sub fillMeanFromId {
 	return $self;
 }
 
-sub assignRuleToVehicleOrcu{
+sub assignRuleToVehicleOrcu {
 	my $self = shift;
 
 	my %params = (
@@ -384,6 +422,7 @@ sub getTypeMeanForView ($){
 	my $label = "";
 	#my %mean = %{$ref};
 	LOGGER->debug(dump($mean));
+	
 	if($mean->{auttyp} eq 1 && $mean->{hardware_type} eq 6 && $mean->{TYPE} eq 3){
 		$label = "Fuelopass";
 	}

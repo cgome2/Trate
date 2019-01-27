@@ -83,7 +83,7 @@ patch '/pases' => sub {
 
 	try {
 		$return = $PASE->updatePase();
-		LOGGER->info("el return es: [" . $return . "]");
+		LOGGER->debug("el return es: [" . $return . "]");
 		if($return eq 0){
 			status 500;
 			return {message => "NotOkComputer"};

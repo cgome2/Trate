@@ -5,7 +5,7 @@ use Transporter::Means;
 use Transporter::LecturasTLS;
 use Transporter::Usuarios;
 use Transporter::Pases;
-use Transporter::TransaccionManual;
+use Transporter::Transacciones;
 use Transporter::Estatus;
 use Transporter::RecepcionCombustible;
 use Transporter::Jarreos;

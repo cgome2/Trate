@@ -15,13 +15,16 @@ our $VERSION = '0.1';
 set serializer => 'JSON';
 
 get '/shifts' => sub {
+	my $usuario;
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;
 		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	}
+		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
+	}	
 
+	LOGGER->info("El usuario " . $usuario->{idusuarios} . " solicita los turnos del sistema");
 	my $return = 0;	
 	my $date = length(params->{date}) gt 0 ? params->{date} : "";
 	my $sort = length(params->{sort}) gt 0 ? params->{sort} : "";
@@ -48,6 +51,8 @@ get '/shifts/:id_turno' => sub {
 		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
 	}	
 
+	LOGGER->info("El usuario " . $usuario->{idusuarios} . " solicita el turno " . params->{id_turno});
+
 	my $TURNOS = Trate::Lib::Turnos->new();
 
 	my $wstmt;
@@ -63,15 +68,13 @@ get '/shifts/:id_turno' => sub {
 		$TURNOS->{FECHA_ABIERTO} = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
 		$TURNOS->{ID_USUARIO_ABRE} = $usuario->{idusuarios};
 		$TURNOS->{USUARIO_ABRE} = $usuario->{numero_empleado};
+		LOGGER->info("Devolviendo una instancia de turno nuevo");
 		$return = $TURNOS->getNew();
 	} else {
 		$return = $TURNOS->getTurno($wstmt);
 	}
 
-	if ($return eq -1){
-		status 400;
-		return {message => "No hay lectura con los tanques, no se puede abrir turno"};
-	} elsif($return eq 0) {
+	if ($return eq 0) {
 		status 400;
 		return {message => "No existe turno"};
 	} else {
@@ -89,7 +92,28 @@ put '/shifts' => sub {
 		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
 	}	
 
+	LOGGER->info("El usuario " . $usuario->{idusuarios} . " solicita abrir turno");
+
 	my $post = from_json( request->body );
+
+	if (Trate::Lib::Turnos->existeUnTurnoAbierto() eq 1){
+		LOGGER->error("No se puede tener más de un turno abierto");
+		status 400;
+		return {message=>"Primero se deben cerrar todos los turnos antes de abrir uno nuevo"};
+	}
+	my @means = @{$post->{MEANS_TURNO}};
+	my $activos = 0;
+	foreach my $mean (@means){
+		if($mean->{activo} eq 1){
+			$activos = $activos + 1;
+			last;	
+		}
+	}
+	if ($activos eq 0){
+		status 400;
+		LOGGER->info("Al menos se requiere un despachador en el turno para poder abrirlo");
+		return {message=>"Al menos se requiere un despachador en el turno para poder abrirlo"};
+	}
 
 	my $turno = Trate::Lib::Turnos->new();
 	my $wstmt = " ORDER BY t.fecha_abierto DESC ";	
@@ -98,19 +122,19 @@ put '/shifts' => sub {
 	$turno->{STATUS} = 2;
 
 	$turno->abrirTurno();
+	LOGGER->info("Abriendo el turno");
 	my $allmeans = Trate::Lib::Mean->getDespachadores();
 	my @despachadores = @{$allmeans};
-	# LOGGER->info(dump($allmeans));
-	my @means = @{$post->{MEANS_TURNO}};
+	LOGGER->debug(dump($allmeans));
 	my $mean_turno;
 	my $omean = Trate::Lib::Mean->new();
 	my $found = 0;
 	foreach my $despachador (@despachadores){
 		$found = 0;
 		foreach my $mean (@means){
-			# LOGGER->debug($despachador->{id} . " vs " . $mean->{mean_id});
+			LOGGER->debug($despachador->{id} . " vs " . $mean->{mean_id});
 			if($despachador->{id} eq $mean->{mean_id}) {
-				# LOGGER->debug($despachador->{id} . " esta en el arreglo del post");
+				LOGGER->debug($despachador->{id} . " esta en el arreglo del post");
 				$mean_turno = Trate::Lib::MeanTurno->new();
 				$mean_turno->{ID_TURNO} = $turno->idTurno();
 				$mean_turno->{MEAN_ID} = $mean->{mean_id};
@@ -136,11 +160,14 @@ put '/shifts' => sub {
 		$omean->fillMeanFromId();
 		$mean_turno->{STATUS_MEAN_TURNO} eq 2 ? $omean->activarMean() : $omean->desactivarMean();
 	}
-
+	LOGGER->info("Agregando despachadores al turno");
 	$turno->insertOpenTotalizerReadings();
+	LOGGER->info("Insertando lecturas de totalizadores de bombas");
 	$turno->insertOpenTankReadings();
+	LOGGER->info("Insertando lecturas de existencia de tanques");
 	$turno->cambiarEstatusFlota("ACTIVA");
-
+	LOGGER->info("Activando flota");
+	LOGGER->info("Turno abierto");
 	return $turno->getTurno($wstmt);
 };
 
@@ -154,8 +181,11 @@ patch '/shifts' => sub {
 		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
 	}	
 
+	LOGGER->info("El usuario " . $usuario->{idusuarios} . " solicita modificar el turno");
+
 	my $post = from_json( request->body );
 	if($post->{status} eq 1){
+		LOGGER->info("Iniciando cierre de turno [" . $post->{id_turno} . "]");
 		my $wstmt;
 		my $turno = Trate::Lib::Turnos->new();
 		$turno->idTurno($post->{id_turno});
@@ -174,34 +204,49 @@ patch '/shifts' => sub {
 
 		if($turno->verificarJarreosAbiertos()){
 			status 400;
+			LOGGER->info("El turno no puede ser cerrado debido a que existen jarreos sin devolucion");
 			return {message => "Existen jarreos sin devolucion"}; 
 		}
+		LOGGER->info("Verificando si existen jarreos abiertos en el turno");
 		if($turno->verificarEstadosBombaIdle()){
 			status 400;
+			LOGGER->info("El turno no puede ser cerrado debido a que existen bombas en uso");
 			return {message => "Existen bombas en uso"}; 
 		}
+		LOGGER->info("Verificando si existen bombas en uso");
 		if($turno->verificarRecepcionesDocumentos()){
 			status 400;
+			LOGGER->info("El turno no puede ser cerrado debido a que existen recepciones de combustible sin documentar");
 			return {message => "Existen recepciones de combustible sin documentar"}; 
 		}
+		LOGGER->info("Verificando si existen recepciones de combustible sin documentar");
 		if($turno->cambiarEstatusFlota("INACTIVA")){
 			status 400;
+			LOGGER->info("El turno no puede ser cerrado debido a que no se han podido bloquear los dispositivos");
 			return {message => "No se han podido bloquear los dispositivos de operación para el cierre"}; 
 		}
 		$turno->bloquearMeansDespachador();
+		LOGGER->info("Bloqueando despachadores del turno");
 		$turno->insertCloseTankReadings();
+		LOGGER->info("Insertando lecturas de existencia de tanques al cierre");
 		$turno->insertCloseTotalizerReadings();
+		LOGGER->info("Insertando lecturas de totalizadores de bombas al cierre");
 		$turno->cerrarTurno();
+		LOGGER->info("Cambiando estado de turno a cerrado");
 		$turno->enviarTurnoTrate();
+		LOGGER->info("Enviando informacion del corte a Trate");
 		status 200;
+		LOGGER->info("Fin del cierre de turno");
 		return {message=>"Turno cerrado con éxito"};
 	} else {
+		LOGGER->info("Modificando los despachadores del turno");
 		my $turno = Trate::Lib::Turnos->new();
 		$turno->idTurno($post->{id_turno});
 		$turno->{ID_USUARIO_CIERRA} = $usuario->{idusuarios};
 		$turno->{MEANS_TURNO} = $post->{MEANS_TURNO};
 		$turno->actualizaMeansTurno();
 		status 200;
+		LOGGER->info("Despachadores del turno modificados con éxito");
 		return {message=>"Turno modificado con éxito"};
 	}
 };

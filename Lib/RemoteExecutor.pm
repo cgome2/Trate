@@ -36,7 +36,7 @@ sub remoteQuery {
 	my @responseArray = [];
 	my $ret;
 	$self->{COMMAND} = "ssh " . $self->{ORCU} . " \"sqlite3 " . $self->{SQLITE_DATABASE} . " \\\"" . $self->{QUERY} . ";\\\" \\\".exit\\\"\"";
-	LOGGER->info($self->{COMMAND});
+	LOGGER->debug($self->{COMMAND});
 
     unless (eval { $response = `$self->{COMMAND}`; @responseArray = split(/\n/,$response); $ret = \@responseArray;}) {
         $ret = 0;

@@ -258,7 +258,7 @@ sub insertaInf{
 			$self->{STATUS} . "','" .
 			$self->{PROCESADA} . "','" .
 			$self->{TRANSACTION_ID} . "')";
-	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
     $sth->finish;
@@ -327,7 +327,7 @@ sub actualizaInf{
 					"status='" . $self->{STATUS} . "'," .
 					"procesada='" . $self->{PROCESADA} . "'," .
 					"transaction_id='" . $self->{TRANSACTION_ID} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
-	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
     $sth->finish;
@@ -407,7 +407,7 @@ sub enviarMovimientoInformix {
 		$preps .= $self->{STATUS} eq '' ?  "NULL," : "'" . $self->{STATUS} . "',";
 		$preps .= $self->{PROCESADA} eq '' ?  "NULL," : "'" . $self->{PROCESADA} . "',";
 		$preps .= $self->{TRANSACTION_ID} eq '' ?  "NULL)" : "'" . $self->{TRANSACTION_ID} . "')";
-	LOGGER->info("Ejecutando sql[ ", $preps, " ]");
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 
 	try {
 		my $sth = $connector->dbh->prepare($preps) or die(LOGGER->fatal("NO PUDO OBTENER UN CONECTOR DEL FACTORY"));
@@ -419,7 +419,7 @@ sub enviarMovimientoInformix {
 		LOGGER->fatal("NO SE CONCRETO LA TRANSACCION SOLICITADA");
 		$return = 0;
 	} finally {
-		LOGGER->info("EL RESULTADO DE LA TRANSACCION ES: $return");
+		LOGGER->debug("EL RESULTADO DE LA TRANSACCION ES: $return");
 		return $return;
 	};
 }

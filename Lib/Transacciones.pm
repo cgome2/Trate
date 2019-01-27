@@ -18,6 +18,7 @@ use Trate::Lib::Pase;
 use Trate::Lib::Mean;
 use Trate::Lib::Jarreo;
 use Trate::Lib::Turnos;
+use Trate::Lib::Index;
 use Try::Catch;
 use Data::Dump qw(dump);
 
@@ -237,7 +238,7 @@ sub procesaTransaccionesNuevas($){
 		$self->{TURNO} = getTurno($row->{'timestamp'});
 		$self->{IDCORTES} = $self->{TURNO}->idTurno();
 		$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
-		$self->{IDDESPACHADORES} = $row->{'driver_name'} eq "" ? 0 : $row->{'driver_name'};
+		$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
 		$self->{ODOMETRO} = $row->{'odometer'} eq "" ? 0 : $row->{'odometer'};
 		$self->{PLACA} = $row->{'plate'};
 		$self->{TOTALIZADOR} = $row->{'totalizer_vol'};
@@ -306,8 +307,8 @@ sub insertaTransaccion{
 			"pase," .
 			"start_flow," .
 			"end_flow" .
-			") VALUES('"  .
-			$self->{IDTRANSACCIONES} . "','" .
+			") VALUES("  .
+			(length($self->{IDTRANSACCIONES}) gt 0 ? ("'" . $self->{IDTRANSACCIONES} . "'") : "NULL") . ",'" .
 			$self->{IDPRODUCTOS} . "','" .
 			$self->{IDCORTES} . "','" .
 			$self->{IDVEHICULOS} . "','" .
@@ -341,7 +342,7 @@ sub insertaTransaccion{
 # Insert movimiento object locally and remotely at informix
 # @params: No params required
 # @return: Current object Trate::Lib::Transacciones
-sub insertaMovimiento{
+sub insertaMovimiento {
 	my $self = shift;
 	my $movimiento = Trate::Lib::Movimiento->new();
 	$movimiento->{FECHA_HORA} = $self->{FECHA};
@@ -400,7 +401,7 @@ sub insertaMovimientoJarreo{
 	$movimiento->{PROCESADA} = 'N';
 	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
 	$movimiento->{ID_RECEPCION} = 'NULL';
-	LOGGER->info(dump($movimiento));
+	LOGGER->debug(dump($movimiento));
 	$movimiento->insertaMDB();
 	return $self;
 }
@@ -431,7 +432,7 @@ sub insertaMovimientoDevolucionJarreo(){
 	$movimiento->{PROCESADA} = 'N';
 	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
 	$movimiento->{ID_RECEPCION} = 'NULL';
-	LOGGER->info(dump($movimiento));
+	LOGGER->debug(dump($movimiento));
 	$movimiento->insertaMDB();
 	return $self;
 }
@@ -453,7 +454,7 @@ sub insertaJarreo{
 	$jarreo->{TRANSACTION_IEPS} = 1;
 	$jarreo->{TRANSACTION_PUMP_HEAD_EXTERNAL_CODE} = $self->{BOMBA};
 	$jarreo->{STATUS_CODE} = 2;
-	#LOGGER->debug(dump($jarreo));
+	LOGGER->debug(dump($jarreo));
 	$jarreo->inserta();	
 }
 
@@ -619,6 +620,39 @@ sub notifyTransactionLoaded {
 		LOGGER->error("NO se pudo notificar al orcu sobre la descarga de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
 		return 0;
 	}
+}
+
+sub insertaTransaccionManual {
+	my $self = shift;
+	$mean_desactivar = $self->{PLACA};
+	my $idx = Trate::Lib::Index->new();
+	$idx->{INDEX_TYPE} = "TRANSMAN";
+	$self->{IDTRANSACCIONES} = $idx->consumeIndex();
+	$self->{PPV} = $self->{VENTA}/$self->{CANTIDAD};
+	$self->{MANGUERA} = 1;
+	$self->{PRODUCTO} = "Diesel";
+	$self->{IDVEHICULOS} = 0;
+	$self->{TURNO} = getTurno($self->{FECHA});
+	$self->{IDCORTES} = $self->{TURNO}->idTurno();
+	$self->{START_FLOW} = "";
+	$self->{END_FLOW} = "";
+	insertaTransaccion($self);
+
+	$self->{PASE}->supervisor($self->{TURNO}->usuarioAbre());
+	$self->{PASE}->updatePase();
+
+	insertaMovimiento($self);
+
+	my $mean = Trate::Lib::Mean->new();
+	$mean->name($mean_desactivar);
+	if($mean->fillMeanFromName() eq 1){
+		$mean->desactivarMean();
+	}
+	$mean->name($self->{PASE}->{CAMION});
+	if($mean->fillMeanFromName() eq 1){
+		$mean->desactivarMean();
+	}
+	return $self;
 }
 
 1;

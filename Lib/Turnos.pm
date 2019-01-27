@@ -222,6 +222,7 @@ sub getNew {
 		my $omean = ();
 		$omean->{id_turno} = "";
 		$omean->{mean_id} = $despachador->{id};
+		$omean->{despachador} = $despachador->{NAME};
 		$omean->{timestamp_add} = "";
 		$omean->{timestamp_rm} = "";
 		$omean->{id_usuario_add} = "";
@@ -383,6 +384,38 @@ sub insertOpenTankReadings{
 		$tankhash{tank_id} = $tank->{tank_id};
 		push @{$self->{TANQUES_TURNO}},\%tankhash;
 	}
+}
+
+sub fillBombasTurno {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $bombaTurno = Trate::Lib::BombaTurno->new();
+
+	my $prepsBombas = "SELECT * FROM turno_bombas WHERE id_turno=" . $self->{ID_TURNO};
+	my $sthBombas = $connector->dbh->prepare($prepsBombas);
+	$sthBombas->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsBombas");
+	my @bombasTurno = ();
+
+	while (my $b = $sthBombas->fetchrow_hashref()){
+		push @bombasTurno, $b;
+	}
+	$self->{BOMBAS_TURNO} = \@bombasTurno;
+	return $self;
+}
+
+sub fillTanquesTurno {
+	my $self = shift;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT * FROM turno_tanques WHERE id_turno=" . $self->{ID_TURNO};
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @tanquesTurno = ();
+	while (my $t = $sth->fetchrow_hashref()){
+		push @tanquesTurno,$t;
+	}
+
+	$self->{TANQUES_TURNO} = \@tanquesTurno;
+	return $self;
 }
 
 # activa o desactiva la flota principal en el orcu
@@ -594,6 +627,7 @@ sub getLitrosRecibidos {
 # envia el corte al servidor de trate
 sub enviarTurnoTrate {
 	my $self = shift;
+	fillTanquesTurno($self);
 	#inserta movimiento con tanques
 	my @tt = @{$self->{TANQUES_TURNO}};
 	my $corte = Trate::Lib::Corte->new();
@@ -618,6 +652,7 @@ sub enviarTurnoTrate {
 	$corte->folio("");
 	$corte->inserta();
 
+	fillBombasTurno($self);
 	my @bombas_turno = @{$self->{BOMBAS_TURNO}};
 	foreach my $bomba (@bombas_turno){
 		$corte = Trate::Lib::Corte->new();
@@ -679,5 +714,18 @@ sub actualizaMeansTurno() {
 		LOGGER->debug(dump($mean_turno));
 	}
 }
+
+sub existeUnTurnoAbierto {
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT count(*) turnos_abiertos FROM turnos WHERE status = 2";
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+	$connector->destroy();
+	LOGGER->info("Se verificó si hay turnos abiertos encontrando [" . $row->{turnos_abiertos} . "] como resultado");
+	return ($row->{turnos_abiertos} gt 0 ? 1 : 0);
+}
+
 1;
 #EOF

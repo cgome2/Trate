@@ -219,7 +219,7 @@ sub updatePase{
 		if ($rowsaffected ge 1){
 			return 1;			
 		} else {
-			LOGGER->info("El pase no se actualizó en MariaDB rolling back");
+			LOGGER->info("El pase [" . $self->{pase}  . "] no se actualizó en MariaDB");
 			return 0;
 		}
 	} catch {
@@ -250,7 +250,7 @@ sub actualizaInformix {
 		if ($rowsaffected ge 1){
 			return 1;			
 		} else {
-			LOGGER->info("El pase no se actualizó en informix rolling back");
+			LOGGER->info("El pase [" . $self->{PASE} . "] no se actualizó en informix");
 			return 0;
 		}
 		

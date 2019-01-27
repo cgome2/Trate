@@ -1,8 +1,8 @@
 package Trate::Lib::WebServicesClient;
 
 use Trate::Lib::Constants qw(LOGGER HO_ROLE WSURI WSPROXY WSUSER WSPASSWORD SITE_CODE WSXMLSCHEMA USERHOCOMMUNICATOR PASSHOCUMMUNICATOR);
-use SOAP::Lite +trace => 'debug';
-#use SOAP::Lite on_fault => sub {my($soap, $res) = @_; die LOGGER->info(ref $res) ? LOGGER->info($res->faultdetail) : LOGGER->info($soap->transport->status),"\n"};
+#use SOAP::Lite +trace => 'debug';
+use SOAP::Lite on_fault => sub {my($soap, $res) = @_; die LOGGER->error(ref $res) ? LOGGER->error($res->faultdetail) : LOGGER->info($soap->transport->status),"\n"};
 use SOAP::Lite;
 use XML::Twig;
 use Data::Dump qw(dump);
@@ -34,7 +34,7 @@ sub params {
 
 sub sessionId {
 	my $self = shift;
-	LOGGER->info("Obeniendo SessionID");
+	LOGGER->debug("Obeniendo SessionID");
 	my %parametros = (
 		"user" => WSUSER,
 		"password" => WSPASSWORD
@@ -54,7 +54,7 @@ sub sessionId {
 
 sub sessionIdTransporter {
 	my $self = shift;
-	LOGGER->info("Obeniendo SessionID");
+	LOGGER->debug("Obeniendo SessionID");
 	my %parametros = (
 		"user" => USERHOCOMMUNICATOR,
 		"password" => PASSHOCUMMUNICATOR
@@ -82,7 +82,7 @@ sub execute{
 	my $method = SOAP::Data->name('ns1:' . $self->{CALL_NAME})->attr({'xmlns:ns1' => WSURI});
 	my @params;
 	for my $parametro (keys %parametros) {
-		#LOGGER->debug($parametro . " " . dump($parametros{$parametro}));
+		LOGGER->debug($parametro . " " . dump($parametros{$parametro}));
 		push @params, SOAP::Data->name($parametro => $parametros{$parametro});
 	}
 	
@@ -125,7 +125,7 @@ sub executehb{
 	for my $parametrobody (keys %parametrosbody) {
 		push @params, SOAP::Data->name($parametrobody => $parametrosbody{$parametrobody});
 	}
-	#LOGGER->debug(dump(\@params));
+	LOGGER->debug(dump(\@params));
 	return $soap->call($method => @params)->result;	
 }
 

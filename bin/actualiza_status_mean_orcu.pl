@@ -8,7 +8,7 @@ use Try::Catch;
 
 my $num_args = $#ARGV + 1;
 
-LOGGER->info("Ejecutando con [ " . $num_args . " ] argumentos, meanName:[ " . $ARGV[0] . " ] status:[ " . $ARGV[1] . "]");
+LOGGER->debug("Ejecutando con [ " . $num_args . " ] argumentos, meanName:[ " . $ARGV[0] . " ] status:[ " . $ARGV[1] . "]");
 if ($num_args != 2) {
     LOGGER->error("Uso: actualiza_status_mean_orcu.pl meanName status(1: inactivar, 2: activar)");
     print("Uso: actualiza_status_mean_orcu.pl meanName status(1: inactivar, 2: activar)\n");

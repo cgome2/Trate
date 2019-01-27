@@ -14,18 +14,6 @@ our $VERSION = '0.1';
 
 set serializer => 'JSON';
 
-get '/estatusBombas/framelink' => sub {
-	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
-		status 401;
-		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
-	} else {
-		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
-	}
-	my $wsc = Trate::Lib::WebServicesClient->new();
-	my %return = ('url'=>ORCUURL . "pump_status.htm?ID=" . $wsc->sessionId);
-	return \%return;
-};
-
 get '/estatusTanques' => sub {
 	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
 		status 401;

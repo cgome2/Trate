@@ -195,7 +195,7 @@ get '/tanques' => sub {
 	}
 	my $TANQUES = Trate::Lib::Tanques->new();
 	my $tanques = $TANQUES->getTanques();
-	LOGGER->info(dump($tanques));
+	LOGGER->debug(dump($tanques));
 	
 	return unbless($tanques);
 };
