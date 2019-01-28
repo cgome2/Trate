@@ -1,4 +1,9 @@
 #!/usr/bin/env perl
+
+BEGIN {
+	push @INC,"/usr/local/orpak/perl";
+}
+
 use Dancer ':syntax';
 use FindBin '$RealBin';
 use Plack::Handler::FCGI;

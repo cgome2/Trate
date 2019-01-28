@@ -1,0 +1,2101 @@
+swagger: '2.0'
+info:
+  description: |
+    Aplicación transporter para llevar información entre plataforma informix de trate hacia ORCU de gasboy.
+    [http://www.tecflo.com.mx](http://www.tecflo.com.mx)
+  version: 1.0.0
+  title: Transporter
+  termsOfService: http://swagger.io/terms/
+  contact: 
+    email: cgomez@tecflo.com.mx
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+# host: 10.100.60.191:3000
+# basePath: /v2
+tags:
+- name: Estatus
+  description: Muestra los estados de las bombas y de los tanques de la estación
+- name: Jarreos
+  description: Recursos para obtener jarreos y generar devoluciones de los mismos
+- name: LecturasTLS
+  description: Lecturas de incrementos de combustible en el TLS
+- name: Means
+  description: Administración de means o autorizadores (camiones, tags, ...)
+- name: Pases
+  description: Administración de pases de carga de combustible
+- name: Productos
+  description: Recursos para obtener el listado de productos y programar cambio de precio en alguno de ellos
+- name: Recepciones de combustible
+  description: Recursos para registrar las recepciones de combustible
+- name: Static
+  description: Recursos para uso de componentes visuales
+- name: TransaccionManual
+  description: Recursos para insertar una transacción de forma manual al sistema
+- name: Turnos
+  description: Recursos para administración de turnos
+- name: Usuarios
+  description: Administración de usuarios web y asignación de tokens para acceso a los recursos del API
+paths:
+  /estatusTanques:
+    get:
+      tags:
+      - Estatus
+      summary: Obtener estatus de los tanques
+      operationId: estatu
+      consume:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Listado de estado de tanques correctos
+          schema:
+            $ref: '#/definitions/EstadoTanque'
+        400:
+          description: Error durante la solicitud al servidor
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /login/:
+    post:
+      tags:
+      - Usuarios
+      summary: Acceder al sistema
+      operationId: login
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        description: datos de usuario y contraseña
+        required: true
+        schema:
+          $ref: '#/definitions/LoginUsuarios'
+      responses:
+        200:
+          description: Acceso correcto
+          schema:
+            $ref: '#/definitions/Usuario'
+        400:
+          description: Usuario o password incorrectos
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /logout/:
+    delete:
+      tags:
+      - Usuarios
+      summary: Salir del sistema
+      operationId: logout
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Cierre de sesión correcto
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /usuarios/:
+    get:
+      tags:
+      - Usuarios
+      summary: Obtener listado de usuarios
+      operationId: getUsuarios
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Usuario'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    put:
+      tags:
+      - Usuarios
+      summary: Agregar un usuario
+      operationId: putUsuarios
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Datos del usuario que se desea agregar
+        required: true
+        schema:
+          $ref: '#/definitions/NewUsuario'
+      responses:
+        200:
+          description: Usuario agregado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        405:
+          description: Información de entrada inválida
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    patch:
+      tags:
+      - Usuarios
+      summary: Editar un usuario
+      operationId: patchUsuarios
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Datos del usuario que se desea agregar
+        required: true
+        schema:
+          $ref: '#/definitions/EditUsuario'
+      responses:
+        200:
+          description: Usuario agregado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        405:
+          description: Información de entrada inválida
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /usuarios/{idusuarios}:
+    get:
+      tags:
+      - Usuarios
+      summary: Obtener usuario por id
+      description: Devuelve un usuarios
+      operationId: getUsuarioByIdusuarios
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: idusuarios
+        in: path
+        description: Idusuarios buscado
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: Exito
+          schema:
+            $ref: '#/definitions/Usuario'
+        400:
+          description: Idusuarios inválido
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        404:
+          description: Idusuarios no encontrado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+
+  /means/:
+    get:
+      tags:
+      - Means
+      summary: Obtener listado de means
+      operationId: getMeans
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Mean'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    put:
+      tags:
+      - Means
+      summary: Agregar un mean
+      operationId: putMean
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Datos del mean que se desea agregar
+        required: true
+        schema:
+          $ref: '#/definitions/Mean'
+      responses:
+        200:
+          description: Mean agregado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        405:
+          description: Información de entrada inválida
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    patch:
+      tags:
+      - Means
+      summary: Modificar un mean
+      operationId: patchMean
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Datos del mean que se desea modificar
+        required: true
+        schema:
+          $ref: '#/definitions/Mean'
+      responses:
+        200:
+          description: Mean modificado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        405:
+          description: Información de entrada inválida
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /means/{id}:
+    get:
+      tags:
+      - Means
+      summary: Obtener mean por id
+      description: Devuelve un mean
+      operationId: getMeanById
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Id buscado
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: Exito
+          schema:
+            $ref: '#/definitions/Mean'
+        400:
+          description: Id inválido
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        404:
+          description: Id no encontrado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /means/auttyp/{auttyp}:
+    get:
+      tags:
+      - Means
+      summary: Obtener mean por tipo de dispositivo
+      description: Devuelve un arreglo de means
+      operationId: getMeanByAuttyp
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: auttyp
+        in: path
+        description: Tipo buscado
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: Exito
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Mean'
+        400:
+          description: Tipo inválido
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        404:
+          description: Tipo no encontrado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /pases/:
+    get:
+      tags: 
+      - Pases
+      summary: Obtiene un pase por alguna combinación de búsqueda (pase) o  (camión)
+      operationId: obtenerPase
+      parameters:
+      - name: pase
+        in: query
+        description: Id pase solicitado
+        type: integer
+      - name: camion
+        in: query
+        description: Camión al cual está asignado el pase buscado
+        type: integer
+      responses:
+        200:
+          description: Acceso correcto
+          schema:
+            $ref: '#/definitions/Pase'
+        400:
+          description: Usuario o password incorrectos
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    patch:
+      tags:
+      - Pases
+      summary: Modificar un pase
+      operationId: patchPase
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Datos de la lectura que se desea modificar
+        required: true
+        schema:
+          $ref: '#/definitions/Pase'
+      responses:
+        200:
+          description: Pase modificado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        405:
+          description: Información de entrada inválida
+          schema:
+            $ref: '#/definitions/RespuestaSimple'      
+  /pases/{pase}:
+    get:
+      tags: 
+      - Pases
+      summary: Obtiene un pase por número de pase
+      operationId: getPaseByPase
+      parameters:
+      - name: pase
+        in: path
+        description: Id pase solicitado
+        type: integer
+        required: true
+      responses:
+        200:
+          description: Acceso correcto
+          schema:
+            $ref: '#/definitions/Pase'
+        400:
+          description: Usuario o password incorrectos
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /lecturas_tls/:
+    get:
+      tags:
+      - Lecturas_tls
+      summary: Obtener listado recepciónes de combustible
+      operationId: getLecturasTls
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - in: query
+        name: sort
+        type: string
+        description: >
+          Valores Posibles:
+            Nombre del campo por el cual se ordenará la salida -
+            * rui - campo rui 
+            * start_volume - campo start_volume
+            * end_volume - campo end_volume
+            * start_tc_volume - campo start_tc_volume
+            * end_tc_volume - campo end_tc_volume
+            * start_temp - campo start_temp
+            * end_temp - campo end_temp
+            * start_water - campo start_water
+            * end water - campo end_water
+            * status - campo status
+            * tank_id - campo tank_id
+            * reception_unique_id - campo reception_unique_id
+            * start_delivery_timestamp - campo start_delivery_timestamp
+            * end_delivery_timestamp - campo end_delivery_timestamp
+            * start_height - campo start_height
+            * end_height - campo end_height
+            * quantity_tran - campo quantity_tran
+            * quantity_tls - campo quantity_tls
+            * tank_name - campo tank_name
+            * tank_number - campo tank_number
+      - in: query
+        name: order
+        type: string
+        description: >
+          Valores Posibles:
+            * asc - Ordenar de forma ascendente
+            * desc - Ordenar de forma descendente
+      - in: query
+        name: page
+        type: integer
+        description: Número de página solicitado
+      - in: query
+        name: limit
+        type: integer
+        description: Número de registros solicitados en el bloque
+      - in: query
+        name: search
+        type: string
+        description: Valor de búsqueda deseado
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/LecturaTLS'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    patch:
+      tags:
+      - Lecturas_tls
+      summary: Modificar una lectura agregando la información adicional para ERP en trate
+      operationId: patchLecturasTls
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Datos de la lectura que se desea modificar
+        required: true
+        schema:
+          $ref: '#/definitions/RecepcionCombustible'
+      responses:
+        200:
+          description: Lectura de TLs modificada
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        405:
+          description: Información de entrada inválida
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /lecturas_tls/{reception_unique_id}:
+    get:
+      tags:
+      - Lecturas_tls
+      summary: Obtener recepción de combustible por id
+      description: Devuelve una recepción de combustible
+      operationId: getRecepcionDeCombustileById
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: reception_unique_id
+        in: path
+        description: Id buscado
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: Exito
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        400:
+          description: Id inválido
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        404:
+          description: Id no encontrado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+
+  /facturas/{fecha}/{factura}/{serie}:
+    get:
+      tags:
+      - Facturas
+      summary: Verifica si una factura de combustible existe en el servidor de informix trate
+      operationId: getFactura
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: fecha
+        in: path
+        description: Fecha de la factura
+        required: true
+        type: string
+      - name: factura
+        in: path 
+        type: string
+        required: true
+        description: número de la factura
+      - name: serie
+        in: path
+        type: string
+        required: true
+        description: Serie de la factura
+      responses:
+        200:
+          description: Factura encontrada
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        404:
+          description: Factura no encontrada
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /recepciones_combustible/:
+    put:
+      tags:
+      - Recepciones de combustible
+      summary: Inserta los datos documentales de una recepción de combustible
+      operationId: putRecepcionCombustible
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        description: Datos del mean que se desea agregar
+        required: true
+        schema:
+          $ref: '#/definitions/RecepcionCombustible'
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    get:
+      tags:
+      - Recepciones de combustible
+      summary: Obtener listado de Recepciones de Combustible
+      operationId: getRecepcionesCombustible
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RecepcionCombustible'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    patch:
+      tags:
+      - Recepciones de combustible
+      summary: Edita los datos documentales de una recepción de combustible
+      operationId: editRecepcionCombustible
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        description: Datos del mean que se desea agregar
+        required: true
+        schema:
+          $ref: '#/definitions/RecepcionCombustibleYLecturas'
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /proveedores/:
+    get:
+      tags:
+      - Recepciones de combustible
+      summary: Obtener listado de proveedores de combustible de Trate
+      operationId: getProveedores
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Proveedor'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /recepciones_combustible/{id}:
+    get:
+      tags:
+      - Recepciones de combustible
+      summary: Obtener listado de Recepciones de Combustible
+      operationId: getRecepcionesCombustibleById
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Número de recepcion
+        required: true
+        type: integer
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RecepcionCombustibleYLecturas'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /recepciones_combustible/veverificarFactura/{fecha}/{factura}/{serie}:
+    get:
+      tags:
+      - Recepciones de combustible
+      summary: Verifica si una factura de cierta serie y fecha existe en el sistema trate
+      operationId: verificaFactura
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: fecha
+        in: path
+        description: Fecha de la factura que desea consultar
+        required: true
+        type: string
+      - name: factura
+        in: path
+        description: Número de factura que se desea consultar
+        required: true
+        type: string
+      - name: serie
+        in: path
+        description: Serie de la factura que se desea consultar
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+      
+  /jarreos/:
+    get:
+      tags:
+      - Jarreos
+      summary: Obtener listado de Jarreos que aún no han sido devueltos
+      operationId: getJarreos
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Jarreo'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    patch:
+      tags:
+      - Jarreos
+      summary: Inserta los movimientos de devolución de los jarreos incluídos en el arreglo
+      operationId: devolverJarreos
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        description: Datos de los jarreos que se desean devolver
+        required: true
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/Jarreo'
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /jarreos/{id}:
+    get:
+      tags:
+      - Jarreos
+      summary: Obtener Jarreo por número de transacción
+      operationId: getJarreoByIdTransaction
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Número de transacción
+        required: true
+        type: integer
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            $ref: '#/definitions/Jarreo'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+        404:
+          description: Jarreo no encontrado
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /estatusBombas/framelink/:
+    get:
+      tags:
+      - Bombas
+      summary: Obtener link de estado de bombas
+      operationId: getEstatusBombasFramelink
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            $ref: '#/definitions/Url'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /estatusBombas/:
+    get:
+      tags:
+      - Bombas
+      summary: Obtener arreglo de bombas y su estatus
+      operationId: getEstatusBombas
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Bomba'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /estatusBombas/{id}:
+    get:
+      tags:
+      - Bombas
+      summary: Obtener arreglo de bombas y su estatus
+      operationId: getEstatusBombasById
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Número de bomba
+        required: true
+        type: integer
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            $ref: '#/definitions/Bomba'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /last_transactions/:
+    get:
+      tags:
+      - Bombas
+      summary: Obtener listado de últimas transacciones para desplegar en estado de bombas
+      operationId: getEstatusLastTransactions
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - in: query
+        name: limit
+        type: integer
+        description: Número de transacciones a obtener
+      - in: query
+        name: page
+        type: integer
+        description: Página actual en el enlistador de transacciones
+      - in: query
+        name: sort
+        type: integer
+        description: >
+          Valores Posibles:
+            Nombre del campo por el cual se ordenará el arreglo de transacciones -
+            * transaction_id
+            * transaction_timestamp
+      - in: query
+        name: order
+        type: string
+        description: >
+          Valores Posibles:
+            Tipo de ordenamiento del listado -
+            * asc - ascendente
+            * desc - descendente
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Transaccion'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /bombas/:
+    get:
+      tags:
+      - Bombas
+      summary: Obtener arreglo de bombas en formato simple
+      operationId: getBombas
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/BombaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /productos/:
+    get:
+      tags:
+      - Productos
+      summary: Listado de productos
+      operationId: getProductos
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Producto'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+  /productos/{id}:
+    get:
+      tags:
+      - Productos
+      summary: Obtener producto por su Id
+      operationId: getProductoById
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Número de producto
+        required: true
+        type: integer
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            $ref: '#/definitions/Producto'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+    patch:
+      tags:
+      - Productos
+      summary: Programa precio para un producto
+      operationId: schedulePriceChange
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: token
+        in: header
+        description: Token de sesión valido
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Número de producto
+        required: true
+        type: integer
+      - name: body
+        in: body
+        description: Datos de los jarreos que se desean devolver
+        required: true
+        schema:
+          $ref: '#/definitions/Producto'
+      responses:
+        200:
+          description: Ejecución exitosa
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RespuestaSimple'
+        401:
+          description: Acceso no autorizado para este recurso
+          schema:
+            $ref: '#/definitions/RespuestaSimple'
+
+definitions:
+  Bomba:
+    type: object
+    required:
+    - pump_num
+    - nozzle_id
+    - fuel_volume
+    - fuel_id
+    - fuel_sale
+    - payment_type
+    - status
+    properties:
+      pump_num:
+        type: integer
+        description: Número de posición de carga de la bomba
+        example: "1"
+      nozzle_id:
+        type: integer
+        description: Número de manguera en la posición de carga
+        example: "1"
+      fuel_volume:
+        type: number
+        description: Total de volumen despachado al momento de la consulta en la transacción activa
+        example: "17.43"
+      fuel_id:
+        type: integer
+        description: Identificador del producto despachado
+        example: "3"
+      fuel_sale:
+        type: number
+        description: Total en pesos despachado al momento de la consulta en la transacción activa
+        example: "340.86"
+      payment_type:
+        type: integer
+        description: Identificador del tipo de pago realizado en la transacción activa
+        example: "0"
+      status:
+        type: number
+        description: >
+          Possible values:
+            * 49 -> IDLE Bomba lista para despacho
+            * 50 -> FUELING Bomba despachando
+            * 53 -> CALL Bomba con leva levantada sin despacho
+            * 55 -> OFFLINE Bomba fuera de linea o sin comunicación con ORCU
+            * 56 -> STOPPED Bomba detenida durante despacho
+            * 57 -> PAYING Bomba en estado de pago
+        enum:
+          [49,50,53,55,56,57]
+
+  Usuario:
+    type: object
+    required:
+    - idusuarios
+    - usuario
+    - estatus
+    properties:
+      idusuarios:
+        type: integer
+        format: int64
+      usuario:
+        type: string
+        description: username no debe contener caracteres especiales y al menos se conformara de 6 caracteres
+        example: miusuario
+      estatus:
+        type: integer
+        description: 1 activo 0 inactivo
+        format: int64
+      nivel:
+        type: integer
+        description: nivel de acceso a los recursos del usuario
+        format: int64
+      token:
+        type: string
+        description: cadena en digesto sha1 hexadecimal que contiene una sesión válidad para acceder a los recursos de la API
+        example: bf1a2b04fd102c817531e9f8fe818958226a29d6
+      nombre:
+        type: string
+        example: Nombre Apellido
+      password:
+        type: string
+        description: contraseña digesta en sha1 hexadecimal
+      session_id:
+        type: integer
+        description: identificador único de sesión utilizado para trazar el comportamiento en las bitácoras del sistema
+      caducidad_token:
+        type: string
+        description: fecha hasta la cual es válido el token otorgado durante el login
+        example: '2018-12-11 19:33:34'
+  RespuestaSimple:
+    type: object
+    properties:
+      message:
+        type: string
+  Url:
+    type: object
+    required:
+    - url
+    properties:
+      url:
+        type: string
+  EditUsuario:
+    type: object
+    required:
+    - idusuarios
+    - usuario
+    - nombre
+    - nivel
+    - estatus
+    - password
+    properties:
+      idusuarios:
+        type: integer
+        format: int64
+      usuario:
+        type: string
+        description: username no debe contener caracteres especiales y al menos se conformara de 6 caracteres
+        example: miusuario
+      nombre:
+        type: string
+        example: Nombre Apellido
+      nivel:
+        type: integer
+        description: nivel de acceso a los recursos del usuario
+        format: int64
+      estatus:
+        type: integer
+        description: 1 activo 0 inactivo
+        format: int64
+      password:
+        type: string
+        description: contraseña digesta en sha1 hexadecimal
+        example: 896aaa556c2ac8ab6a3415540b8111d17328ce01
+  NewUsuario:
+    type: object
+    required:
+    - usuario
+    - nombre
+    - nivel
+    - estatus
+    - password
+    properties:
+      usuario:
+        type: string
+        description: username no debe contener caracteres especiales y al menos se conformara de 6 caracteres
+        example: miusuario
+      nombre:
+        type: string
+        example: Nombre Apellido
+      nivel:
+        type: integer
+        description: nivel de acceso a los recursos del usuario
+        format: int64
+      estatus:
+        type: integer
+        description: 1 activo 0 inactivo
+        format: int64
+      password:
+        type: string
+        description: contraseña digesta en sha1 hexadecimal
+        example: 896aaa556c2ac8ab6a3415540b8111d17328ce01
+  LoginUsuarios:
+    type: object
+    required:
+    - usuario
+    - password
+    properties:
+      usuario:
+        type: string
+        description: username no debe contener caracteres especiales y al menos se conformara de 6 caracteres
+        example: miusuario
+      password:
+        type: string
+        description: contraseña digesta en sha1 hexadecimal
+        example: 896aaa556c2ac8ab6a3415540b8111d17328ce01
+  Mean:
+    type: object
+    required:
+    - NAME
+    - string
+    - TYPE
+    - status
+    - hardware_type
+    - plate
+    - fleet_id
+    - dept_id
+    - auttyp
+    properties:
+      id:
+        type: integer
+        description: Id del dispositivo puede ser vacio para el put y obligatorio para el patch
+      NAME:
+        type: integer
+        description: Número económico del dispositivo
+        example: 2232
+      string:
+        type: string
+        description: cadena única de identificacion de dispositivo
+        example: 7710770050010960
+      "TYPE":
+        type: integer
+        description: >
+            Posible values:
+            * 2 - Tag vehicular
+            * 3 - Dispositivo montado en vehiculo
+            * 4 - Tag de despachador
+        enum:
+          [2,3,4]
+      status:
+        type: string
+        description: >
+            Posible values:
+            * 2 - Activo
+            * 1 - Inactivo
+        enum: [2,1]
+      hardware_type:
+        type: integer
+        description: >
+            Posible values:
+            * 1 - Dispositivo personal
+            * 6 - Dispositivo vehicular
+        enum:
+          [1,6]
+      plate:
+        type: string
+        description: placa vehicular
+        example: ABC1234
+      fleet_id:
+        type: integer
+        description: número de flota a la que pertenece el dispositivo
+        example: 200000003
+      dept_id:
+        type: integer
+        description: número de departamento al que pertenece el dispositivo
+        example: 200000129
+      auttyp:
+        type: integer
+        description: >
+            Posible values:
+            * 1 - Fuelopass
+            * 2 - VIU 3
+            * 3 - VIU 4
+            * 4 - VIU 45
+            * 5 - Electronic Key
+            * 6 - Tag
+            * 7 - Authorizer
+            * 8 - Master Authorizer
+            * 9 - VIU 35
+            * 10 - TRU
+            * 14 - Fuel Card
+            * 20 - Gasboy Key
+            * 21 - Manual Entry
+            * 22 - VIU 35 E
+            * 23 - VIU 35 NT
+            * 25 - FP HS
+            * 26 - DP only
+            * 27 - DP H
+            * 30 - FP + DP
+            * 40 - FP HS + DP
+            * 41 - URD
+            * 42 - URD + DP
+        enum:
+          [1,2,3,4,5,6,7,8,9,10,14,20,21,22,23,25,26,27,30,40,41,42]
+
+  Pase:
+    type: object
+    required:
+    - pase_id
+    - litros
+    - chofer
+    - litros_real
+    - camion
+    - viaje
+    - status
+    - fecha_solicitud
+    properties:
+      pase_id:
+        type: integer
+        description: Id del pase
+      litros:
+        type: number
+        description: Cantidad de litros autorizados para carga
+        example: 200.50
+      chofer:
+        type: integer
+        description: número de chofer al cual está asignado el pase
+        example: 21234
+      litros_real:
+        type: number
+        description: Cantidad de litros despachados con ese pase
+      camion:
+        type: integer
+        description: Número de camión al cual está asignado el pase
+      viaje:
+        type: integer
+        description: Número de viaje al cual está asignado el pase
+      status:
+        type: integer
+        description: >
+            Posible values:
+            * A - Activo
+            * T - Transferido
+            * M - Manual
+            * R - Reabierto
+            * D - Despachado
+            * P - Procesado
+        enum: ['A','T','M','R','D','P']
+      fecha_solicitud:
+        type: string
+        description: Fecha en que fue generado el pase
+
+  LecturaTLS:
+    type: object
+    required:
+    - reception_unique_id
+    - tank_id
+    - start_volume
+    - end_volume
+    - end_temp
+    - start_delivery_timestamp
+    - end_delivery_timestamp
+    - rui
+    - status
+    - start_tc_volume
+    - end_tc_volume
+    - start_height
+    - end_height
+    - start_temp
+    - start_water
+    - end water
+    - tank_name
+    - tank_number
+    - quantity_tls
+    - quantity_tran
+    properties:
+      rui:
+        type: integer
+        description: Número consecutivo que identifica la recepción
+        example: 2000000010
+      start_volume:
+        type: number
+        description: Volumen en litros en existencia antes de iniciar el procedimiento de carga de combustible
+        example: 27000.00
+      end_volume:
+        type: integer
+        description: Volumen en litros en existencia al finalizar el procedimiento de carga de combustible
+        example: 46000.00
+      start_tc_volume:
+        type: number
+        description: Volumen en recta de equivalencia en existencia antes de iniciar el procedimiento de carga de combustible
+        example: 1485.00
+      end_tc_volume:
+        type: integer
+        description: Volumen en recta de equivalencia en existencia al finalizar el procedimiento de carga de combustible
+        example: 1876.00
+      start_temp:
+        type: number
+        description: Temperatura antes de iniciar el procedimiento de carga de combustible
+        example: 1485.00
+      end_temp:
+        type: integer
+        description: Temperatura al finalizar el procedimiento de carga de combustible
+        example: 1876.00
+      start_water:
+        type: number
+        description: Cantidad de agua antes de iniciar el procedimiento de carga de combustible
+        example: 1485.00
+      end_water:
+        type: integer
+        description: Cantidad de agua al finalizar el procedimiento de carga de combustible
+        example: 1876.00
+      status:
+        type: integer
+        description: >
+            Posible values:
+              * 0 - Recibida desde orcu sin registro en transporter
+              * 1 - Recibida desde orcu con registro en transporter
+      tank_id:
+        type: integer
+        description: Identificador del número de tanque como objeto del orcu
+        example: 20000001
+      reception_unique_id:
+        type: integer
+        description: Número de identificación de la recepción único con fines referenciar con respecto a una recpción de tanque adicional
+      start_delivery_timestmp:
+        type: string
+        description: Fecha y hora de inicio de descarga de combustible
+        example: 2018-11-21 17:35:31
+      end_delivery_timestamp:
+        type: string
+        description: Fecha y hora de fin de descarga de combustible
+      start_height:
+        type: number
+        description: Altura inicial del tanque en recta de conversión antes de iniciar carga
+      end_height:
+        type: number
+        description: Altura final del tanque en recta de conversión al finalizar la carga
+      quantity_tran: 
+        type: integer
+        description: Número de transacciones transcurridas durante la entrega
+      quantity_tls:
+        type: number
+        description: Cantidad de litros despachados durante la entrega
+      tank_name:
+        type: string
+        description: Nombre del tanque que lo identifica
+      tank_number:
+        type: integer
+        description: Número de tanque en transporter
+      ci_movimientos:
+        type: integer
+        description: Número de ci_movimientos con el que es reportada la lectura
+      origen_registro:
+        type: string
+        description: >
+            Posible values:
+              * TLS - Lectura automática del TLS
+              * Manual - Lectura registrada manualmente desde transporter
+        enum: ["TLS", "Manual"]
+        example: "TLS"
+      id_recepcion:
+        type: integer
+        description: Identificador de número de recepción documental que permite ligar el registro al documento origen
+        example: "3"
+          
+  RecepcionCombustible:
+    type: object
+    required:
+    - fecha_recepcion 
+    - fecha_documento
+    - terminal_embarque
+    - sello_pemex
+    - folio_documento
+    - numero_proveedor
+    - tipo_documento
+    - serie_documento
+    - litros_documento
+    - ppv_documento
+    - importe_documento
+    - iva_documento
+    - ieps_documento
+    properties:
+      fecha_recepcion:
+        type: string
+        description: Fecha y hora en que se ingresó el combustible
+        example: "2018-11-21 12:37:24"
+      fecha_documento:
+        type: string
+        description: Fecha del documento
+        example: "2018-11-21"
+      terminal_embarque:
+        type: string
+        description: Número de terminal de embarque
+        example: "1989"
+      sello_pemex:
+        type: string
+        description: Sello de pemex
+        example: "678912"
+      folio_documento:
+        type: string
+        description: Folio del documento de compra
+        example: "293112"
+      tipo_documento:
+        type: string
+        description: Define el tipo de documento
+        example: "Factura"
+      serie_documento:
+        type: string
+        description: Serie del documento
+        example: "RP"
+      numero_proveedor:
+        type: string
+        description: Número de proveedor dentro del sistema ERP que distribuye el combustible
+        example: "15001"
+      litros_documento:
+        type: number
+        description: Cantidad de litros indicada en la factura
+        example: "20000.00"
+      ppv_documento:
+        type: number
+        description: Precio unitario indicado en la factura
+        example: "19.29"
+      importe_documento:
+        type: number
+        description: Cantidad total en pesos indicados en la factura
+        example: "385800.00"
+      iva_documento:
+        type: number
+        description: IVA indicado en la factura
+        example: "53213.79"
+      ieps_documento:
+        type: number
+        description: IEPS indicado en la factura
+        example: "1879.20"
+      reception_id:
+        type: number
+        description: Número identificador de la recepción, este dato será ignorado cuando se genera un nuevo registro, solamente será considerado para actualización de un registro existente
+        example: "2"
+  RecepcionCombustibleYLecturas:
+    type: object
+    required:
+    - fecha_recepcion 
+    - fecha_documento
+    - terminal_embarque
+    - sello_pemex
+    - folio_documento
+    - numero_proveedor
+    - tipo_documento
+    - serie_documento
+    - litros_documento
+    - ppv_documento
+    - importe_documento
+    - iva_documento
+    - ieps_documento
+    - lecturas_recepcion
+    - status
+    properties:
+      fecha_recepcion:
+        type: string
+        description: Fecha y hora en que se ingresó el combustible
+        example: "2018-11-21 12:37:24"
+      fecha_documento:
+        type: string
+        description: Fecha del documento
+        example: "2018-11-21"
+      terminal_embarque:
+        type: string
+        description: Número de terminal de embarque
+        example: "1989"
+      sello_pemex:
+        type: string
+        description: Sello de pemex
+        example: "678912"
+      folio_documento:
+        type: string
+        description: Folio del documento de compra
+        example: "293112"
+      tipo_documento:
+        type: string
+        description: Define el tipo de documento
+        example: "Factura"
+      serie_documento:
+        type: string
+        description: Serie del documento
+        example: "RP"
+      numero_proveedor:
+        type: string
+        description: Número de proveedor dentro del sistema ERP que distribuye el combustible
+        example: "15001"
+      litros_documento:
+        type: number
+        description: Cantidad de litros indicada en la factura
+        example: "20000.00"
+      ppv_documento:
+        type: number
+        description: Precio unitario indicado en la factura
+        example: "19.29"
+      importe_documento:
+        type: number
+        description: Cantidad total en pesos indicados en la factura
+        example: "385800.00"
+      iva_documento:
+        type: number
+        description: IVA indicado en la factura
+        example: "53213.79"
+      ieps_documento:
+        type: number
+        description: IEPS indicado en la factura
+        example: "1879.20"
+      status:
+        type: number
+        description: >
+          Valores posibles:
+              * 1 - Recepción sin lecturas asignadas
+              * 2 - Recepción con lecturas asignadas
+        enum: ["1", "2"]
+        example: "2"
+      reception_id:
+        type: number
+        description: Número identificador de la recepción, este dato será ignorado cuando se genera un nuevo registro, solamente será considerado para actualización de un registro existente
+        example: "2"
+      lecturas_recepcion:
+        type: array
+        items:
+          $ref: '#/definitions/LecturaTLS'
+        
+  Proveedor:
+    type: object
+    required:
+    - id 
+    - proveedor
+    properties:
+      id:
+        type: number
+        description: Número identificador del proveedor
+        example: "52001"
+      proveedor:
+        type: string
+        description: Nombre del proveedor
+        example: "PEMEX Refinación"
+      status:
+        type: string
+        description: >
+            Posible values:
+              * 1 - Proveedor inactivo
+              * 2 - Proveedor activo
+        enum: [1, 2]
+        example: "2"
+
+  Jarreo:
+    type: object
+    required:
+    - transaction_id
+    - transaction_timestamp
+    - transaction_dispensed_quantity
+    - transaction_ppv
+    - transaction_total_price
+    - transaction_iva
+    - transaction_ieps
+    - transaction_pump_head_external_code
+    - return_timestamp
+    - return_total_price
+    - return_tank_object_id
+    - return_date
+    - return_time
+    - status_code
+    properties:
+      transaction_id:
+        type: string
+        description: Número de transaccion
+        example: "300089281"
+      transaction_timestamp:
+        type: string
+        description: Fecha del jarreo
+        example: "2018-11-21"
+      transaction_dispensed_quantity:
+        type: number
+        description: Cantidad en litros despachada
+        example: "20.42"
+      transaction_ppv:
+        type: number
+        description: Precio unitario
+        example: "19.47"
+      transaction_total_price:
+        type: number
+        description: Total despachada en pesos
+        example: "397.58"
+      transaction_iva:
+        type: number
+        description: Iva en la transaccion
+        example: "11.21"
+      transaction_ieps:
+        type: number
+        description: IEPS en la transaccion
+        example: "9.2787"
+      transaction_pump_head_external_code:
+        type: integer
+        description: Número de bomba
+        example: "1"
+      return_timestamp:
+        type: string
+        description: Fecha y hora de devolución
+        example: "2019-01-12 12:34:21"
+      return_total_price:
+        type: number
+        description: Total en peso de la cantidad devuelta
+        example: "397.58"
+      return_tank_object_id:
+        type: number
+        description: Número de tanque donde se devolvió el producto
+        example: "1"
+      return_date:
+        type: string
+        description: Fecha de la devolución
+        example: "2019-01-12"
+      return_time:
+        type: string
+        description: Hora de la devolución
+        example: "12:34:21"
+      status_code:
+        type: number
+        description: >
+          Valores posibles:
+              * 1 - Jarreo devuelto a tanque
+              * 2 - Jarreo sin devolución a tanque
+        enum: ["1", "2"]
+        example: "2"
+  Transaccion:
+    type: object
+    required:
+    - idtransacciones
+    - fecha
+    - cantidad
+    - sale
+    - placa
+    - pase
+    - bomba
+    properties:
+      idtransacciones:
+        type: string
+        description: Número de transaccion
+        example: "300089281"
+      fecha:
+        type: string
+        description: Fecha y hora de la transacción
+        example: "2018-11-21 17:21:12"
+      cantidad:
+        type: number
+        description: Cantidad en litros despachada
+        example: "20.42"
+      ppv:
+        type: number
+        description: Precio unitario
+        example: "19.47"
+      sale:
+        type: number
+        description: Total despachada en pesos
+        example: "397.58"
+      placa:
+        type: string
+        description: Número económico del autorizador
+        example: "9999"
+      pase:
+        type: integer
+        description: Número de pase que autorizó la transacción
+        example: "3907"
+      bomba:
+        type: integer
+        description: Número de bomba donde se realizó la transacción
+        example: "1"
+  BombaSimple:
+    type: object
+    required:
+    - pump_head
+    - side
+    - status_code
+    - id
+    - nozzles
+    properties:
+      pump_head:
+        type: integer
+        description: Número de bomba
+        example: "1"
+      side:
+        type: integer
+        description: Número de posición de carga
+        example: "1"
+      status_code:
+        type: integer
+        description: >
+          * 1 - Inactiva en ORCU
+          * 2 - Activa en ORCU
+  Producto:
+    type: object
+    required:
+    - id
+    - name
+    - code
+    - status  P
+    - price
+    - code2
+    - last_updated
+    - next_update
+    - next_price
+    - usuario
+    properties:
+      id:
+        type: integer
+        description: Número de producto en ORCU
+        example: "200000008"
+      name:
+        type: string
+        description: Nombre del producto en ORCU
+        example: "Diesel"
+      code:
+        type: integer
+        description: Código de identificación corto del producto en ORCU
+        example: "1"
+      status:
+        type: integer
+        description: 2 - Activo, 1 - Inactivo
+        example: "2"
+      price:
+        type: number
+        description: Precio unitario del producto
+        example: "19.23"
+      code2:
+        type: string
+        description: Identificador corto para el producto
+        example: "DI"
+      last_updated:
+        type: string
+        description: Ultima fecha de actualización del precio
+        example: "2019-01-15 18:32:46"
+      next_update:
+        type: string
+        description: Siguente fecha programada para actualización de precio
+        example: "2019-01-16 00:00:00"
+      next_price:
+        type: number
+        description: Siguiente precio para la próxima fecha programada de actualización de precio
+        example: "19.35"
+      usuario:
+        type: string
+        description: Número de empleado del usuario que programa el cambio de precio
+  EstadoTanque:
+    type: object
+    required:
+    - ullage
+    - fuel_height
+    - fuel_volume
+    - user
+    - date
+    - water_volume
+    - probe_id
+    - capacity
+    - density_15
+    - tlh_id
+    - temperature
+    - tank_id
+    - shift_id
+    - date_sql
+    - density
+    - tc_volume
+    - water_height
+    - name
+    properties:
+      ullage:
+        type: number
+        description: Merma
+        example: "19409.812"
+      fuel_height:
+        type: number
+        description: Altura que alcanza el combustible en el tanque
+        example: "2455.91"
+      user:
+        type: number
+        description: Número de empleado o usuario que solicitó el estado del tanque
+        example: "1"
+      date:
+        type: string
+        description: Fecha de ejecucion
+        example: "01/26/19 18:45:30"
+      water_volume:
+        type: number
+        description: Volumen de agua en el tanque
+        example: "19.23"
+      probe_id:
+        type: integer
+        description: Identificador único de la probeta en el sistema
+        example: "200000009"
+      capacity:
+        type: number
+        description: Capacidad total del tanque
+        example: "100000.000000"
+      density_15:
+        type: number
+        description: Densidad
+        example: "0.000"
+      next_price:
+        type: number
+        description: Siguiente precio para la próxima fecha programada de actualización de precio
+        example: "19.35"
+      tlh_id:
+        type: integer
+        description: No utilizado
+        example: "0"
+      temperature:
+        type: number
+        description: Temperatura actual en grados centígrados
+        example: "22.17"
+      tank_id:
+        type: integer
+        description: Identificador único en el sistema Orcu para el Tanque
+        example: "200000017"
+      shift_id:
+        type: integer
+        description: Identificador único del turno durante el cual se genera la consulta a orcu
+        example: "0"
+      date_sql:
+        type: string
+        description: Fecha en formato mysql
+        example: "2019-01-26 18:45:30"
+      density:
+        type: number
+        description: Densidad
+        example: "0.000"
+      tc_volume:
+        type: number
+        description: Volumen que puede ser extraido por venta
+        example: "85734.039"
+      water_height:
+        type: number
+        description: Altura del agua existente 
+        example: "0.00"
+      name:
+        type: string
+        description: Nombre del tanque en Orcu
+        example: "Diesel"
+# Added by API Auto Mocking Plugin
+basePath: /tecflorg/trate/1.0.0
+schemes:
+ - https
+ - http
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
