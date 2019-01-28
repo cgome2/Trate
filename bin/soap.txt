@@ -1,0 +1,12 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sit="http://orpak.com/SiteOmatServices/">
+   <soap:Header/>
+   <soap:Body>
+      <sit:SOHOGetNewUpdatedTransactions>
+         <!--Optional:-->
+         <sit:SessionID>?</sit:SessionID>
+         <sit:site_code>?</sit:site_code>
+         <sit:ho_role>?</sit:ho_role>
+         <sit:max_size>?</sit:max_size>
+      </sit:SOHOGetNewUpdatedTransactions>
+   </soap:Body>
+</soap:Envelope>
