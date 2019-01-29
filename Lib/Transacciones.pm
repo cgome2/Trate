@@ -118,6 +118,7 @@ sub getNewUpdatedTransactionsFromOrcu{
 	$wsc->sessionIdTransporter();
 	
 	my $result = $wsc->execute(\%params);
+	print $result;
 	LOGGER->debug(dump($result));
 	if ($result->{num_transactions} gt 1){
 		return procesaTransaccionesNuevas($self,$result->{a_soTransaction}->{soTransaction});
@@ -167,11 +168,11 @@ sub procesaTransacciones($){
 		LOGGER->debug(dump($row));
 		$self->{IDTRANSACCIONES} = $row->{'id'};
 		$self->{IDPRODUCTOS} = $row->{'product_code'};
-		$self->{TURNO} = getTurno($row->{'date'} . " " . $row->{'time'});
+		$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
+		$self->{TURNO} = getTurno($self->{'FECHA'});
 		$self->{IDCORTES} = $self->{TURNO}->idTurno();
 		$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
 		$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
-		$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
 		$self->{BOMBA} = $row->{'pump'};
 		$self->{MANGUERA} = $row->{'nozzle'};
 		$self->{CANTIDAD} = $row->{'quantity'};
@@ -191,7 +192,7 @@ sub procesaTransacciones($){
 				insertaJarreo($self);
 			} else {
 				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
-				$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'} . ' ' . $row->{'time'});
+				$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
 				insertaMovimiento($self);
 				actualizaPase($self);
 				limpiaReglaCarga($self);
@@ -230,12 +231,12 @@ sub procesaTransaccionesNuevas($){
 		$self->{VENTA} = $row->{'total_price'};
 		$self->{CANTIDAD} = $row->{'quantity'};
 		$self->{PPV} = $row->{'ppv'};
-		$self->{FECHA} = $row->{'timestamp'};
+		$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
 		$self->{BOMBA} = $row->{'pump'};
 		$self->{MANGUERA} = $row->{'nozzle'};
 		$self->{PRODUCTO} = $row->{'product_name'};
 		$self->{IDPRODUCTOS} = $row->{'product_code'};
-		$self->{TURNO} = getTurno($row->{'timestamp'});
+		$self->{TURNO} = getTurno($self->{'FECHA'});
 		$self->{IDCORTES} = $self->{TURNO}->idTurno();
 		$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
 		$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
@@ -256,7 +257,7 @@ sub procesaTransaccionesNuevas($){
 				insertaJarreo($self);
 			} else {
 				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
-				$self->{PASE} = getPase($row->{'mean_name'},$row->{'date'} . ' ' . $row->{'time'});
+				$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
 				insertaMovimiento($self);
 				actualizaPase($self);
 				limpiaReglaCarga($self);
@@ -352,9 +353,9 @@ sub insertaMovimiento {
 	$movimiento->{VIAJE} = $self->{PASE}->viaje();
 	$movimiento->{CAMION} = $self->{PASE}->camion();
 	$movimiento->{CHOFER} = $self->{PASE}->chofer();
-	$movimiento->{SELLO} = 'NULL';
+	$movimiento->{SELLO} = '';
 	$movimiento->{TIPO_REFERENCIA} = '3';
-	$movimiento->{SERIE} = 'NULL';
+	$movimiento->{SERIE} = '';
 	$movimiento->{REFERENCIA} = $self->{PASE}->pase();
 	$movimiento->{MOVIMIENTO} = '2';
 	$movimiento->{LITROS_ESP} = $self->{PASE}->litros();
@@ -366,7 +367,7 @@ sub insertaMovimiento {
 	$movimiento->{STATUS} = '0';
 	$movimiento->{PROCESADA} = 'N';
 	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
-	$movimiento->{ID_RECEPCION} = 'NULL';
+	$movimiento->{ID_RECEPCION} = '';
 	$movimiento->insertaMDB();
 	return $self;
 }
@@ -386,9 +387,9 @@ sub insertaMovimientoJarreo{
 	$movimiento->{VIAJE} = 0;
 	$movimiento->{CAMION} = 0;
 	$movimiento->{CHOFER} = 0;
-	$movimiento->{SELLO} = 'NULL';
+	$movimiento->{SELLO} = '';
 	$movimiento->{TIPO_REFERENCIA} = '3';
-	$movimiento->{SERIE} = 'NULL';
+	$movimiento->{SERIE} = '';
 	$movimiento->{REFERENCIA} = 0;
 	$movimiento->{MOVIMIENTO} = '3';
 	$movimiento->{LITROS_ESP} = 0;
@@ -400,7 +401,7 @@ sub insertaMovimientoJarreo{
 	$movimiento->{STATUS} = '0';
 	$movimiento->{PROCESADA} = 'N';
 	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
-	$movimiento->{ID_RECEPCION} = 'NULL';
+	$movimiento->{ID_RECEPCION} = '';
 	LOGGER->debug(dump($movimiento));
 	$movimiento->insertaMDB();
 	return $self;
@@ -417,9 +418,9 @@ sub insertaMovimientoDevolucionJarreo(){
 	$movimiento->{VIAJE} = 0;
 	$movimiento->{CAMION} = 0;
 	$movimiento->{CHOFER} = 0;
-	$movimiento->{SELLO} = 'NULL';
+	$movimiento->{SELLO} = '';
 	$movimiento->{TIPO_REFERENCIA} = '4';
-	$movimiento->{SERIE} = 'NULL';
+	$movimiento->{SERIE} = '';
 	$movimiento->{REFERENCIA} = $self->{IDTRANSACCIONES};
 	$movimiento->{MOVIMIENTO} = '4';
 	$movimiento->{LITROS_ESP} = 0;
@@ -431,7 +432,7 @@ sub insertaMovimientoDevolucionJarreo(){
 	$movimiento->{STATUS} = '0';
 	$movimiento->{PROCESADA} = 'N';
 	$movimiento->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
-	$movimiento->{ID_RECEPCION} = 'NULL';
+	$movimiento->{ID_RECEPCION} = '';
 	LOGGER->debug(dump($movimiento));
 	$movimiento->insertaMDB();
 	return $self;

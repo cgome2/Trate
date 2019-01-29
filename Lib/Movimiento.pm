@@ -193,35 +193,61 @@ sub insertaMDB{
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $return = 0;
 	my $preps = "
-		INSERT INTO ci_movimientos VALUES('"  .
+		INSERT INTO ci_movimientos (" .
+                        "fecha_hora," .
+                        "estacion," .
+                        "dispensador," .
+                        "supervisor," .
+                        "despachador," .
+                        "viaje," .
+                        "camion," .
+                        "chofer," .
+                        "sello," .
+                        "tipo_referencia," .
+                        "serie," .
+                        "referencia," .
+                        "movimiento," .
+                        "litros_esp," .
+                        "litros_real," .
+                        "costo_esp," .
+                        "costo_real," .
+                        "iva," .
+                        "ieps," .
+                        "status," .
+                        "procesada," .
+			"transaction_id," .
+			"id," .
+                        "id_recepcion) " .
+                        "VALUES('"  .
 			$self->{FECHA_HORA} . "','" .
-			$self->{ESTACION} . "','" .
-			$self->{DISPENSADOR} . "','" . 
-			$self->{SUPERVISOR} . "','" . 
-			$self->{DESPACHADOR} . "','" . 
-			$self->{VIAJE} . "','" . 
-			$self->{CAMION} . "','" .
-			$self->{CHOFER} . "','" .
-			$self->{SELLO} . "','" .
-			$self->{TIPO_REFERENCIA} . "','" .
-			$self->{SERIE} . "','" .
-			$self->{REFERENCIA} . "','" .
-			$self->{MOVIMIENTO} . "','" .
-			$self->{LITROS_ESP} . "','" .
-			$self->{LITROS_REAL} . "','" .
+			$self->{ESTACION} . "'," .
+			(length($self->{DISPENSADOR}) gt 0 ? ("'" . $self->{DISPENSADOR} . "'") : "NULL") . "," . 
+			"'" . $self->{SUPERVISOR} . "'," . 
+			(length($self->{DESPACHADOR}) gt 0 ? ("'" . $self->{DESPACHADOR} . "'") : "NULL") . "," . 
+			(length($self->{VIAJE}) gt 0 ? ("'" . $self->{VIAJE} . "'") : "NULL") . "," . 
+			(length($self->{CAMION}) gt 0 ? ("'" . $self->{CAMION} . "'") : "NULL") . "," .
+			(length($self->{CHOFER}) gt 0 ? ("'" . $self->{CHOFER} . "'") : "NULL") . "," .
+			(length($self->{SELLO}) gt 0 ? ("'" . $self->{SELLO} . "'") : "NULL") . "," .
+			(length($self->{TIPO_REFERENCIA}) gt 0 ? ("'" . $self->{TIPO_REFERENCIA} . "'") : "NULL") . "," .
+			"'" . $self->{SERIE} . "'," .
+			(length($self->{REFERENCIA}) gt 0 ? ("'" . $self->{REFERENCIA} . "'") : "NULL") . "," .
+			"'" . $self->{MOVIMIENTO} . "'," .
+			(length($self->{LITROS_ESP}) gt 0 ? ("'" . $self->{LITROS_ESP} . "'") : "NULL") . "," .
+			"'" . $self->{LITROS_REAL} . "','" .
 			$self->{COSTO_ESP} . "','" .
 			$self->{COSTO_REAL} . "','" .
 			$self->{IVA} . "','" .
 			$self->{IEPS} . "','" .
 			$self->{STATUS} . "','" .
-			$self->{PROCESADA} . "','" .
-			$self->{TRANSACTION_ID} . "',NULL, '" . 
+			$self->{PROCESADA} . "'," .
+			(length($self->{TRANSACTION_ID}) gt 0 ? ("'" . $self->{TRANSACTION_ID} . "'") : "NULL") . "," .
+			"NULL,'" . 
 			$self->{ID_RECEPCION} . "')";
 	LOGGER->debug("Ejecutando sql[ ". $preps . " ]");
 	try {
 		my $sth = $connector->dbh->prepare($preps);
 		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-	    $sth->finish;
+	    	$sth->finish;
 		$connector->destroy();
 		$return = 1;
 	} catch {
@@ -235,33 +261,57 @@ sub insertaInf{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorInformix->new();
 	my $preps = "
-		INSERT INTO ci_movimientos VALUES('"  .
+		INSERT INTO ci_movimientos (" .
+			"fecha_hora," .
+			"estacion," .
+			"dispensador," .
+			"supervisor," .
+			"despachador," .
+			"viaje," .
+			"camion," .
+			"chofer," .
+			"sello," .
+			"tipo_referencia," .
+			"serie," .
+		       	"referencia," .	
+			"movimiento," .
+			"litros_esp," .
+			"litros_real," .
+			"costo_esp," .
+			"costo_real," .
+			"iva," .
+			"ieps," .
+			"status," .
+			"procesada," .
+			"transaction_id) " .
+			"VALUES('"  .
 			$self->{FECHA_HORA} . "','" .
-			$self->{ESTACION} . "','" .
-			$self->{DISPENSADOR} . "','" . 
-			$self->{SUPERVISOR} . "','" . 
-			$self->{DESPACHADOR} . "','" . 
-			$self->{VIAJE} . "','" . 
-			$self->{CAMION} . "','" .
-			$self->{CHOFER} . "','" .
-			$self->{SELLO} . "','" .
-			$self->{TIPO_REFERENCIA} . "','" .
-			$self->{SERIE} . "','" .
-			$self->{REFERENCIA} . "','" .
-			$self->{MOVIMIENTO} . "','" .
-			$self->{LITROS_ESP} . "','" .
-			$self->{LITROS_REAL} . "','" .
+			$self->{ESTACION} . "'," .
+			(length($self->{DISPENSADOR}) gt 0 ? ("'" . $self->{DISPENSADOR} . "'") : "NULL" ) . "," .
+			"'" . $self->{SUPERVISOR} . "'," .
+			(length($self->{DESPACHADOR}) gt 0 ? ("'" . $self->{DESPACHADOR} . "'") : "NULL") . "," .
+			(length($self->{VIAJE}) gt 0 ? ("'" . $self->{VIAJE} . "'") : "NULL") . "," .
+			(length($self->{CAMION}) gt 0 ? ("'" . $self->{CAMION} . "'") : "NULL") . "," .
+			(length($self->{CHOFER}) gt 0 ? ("'" . $self->{CHOFER} . "'") : "NULL") . "," .
+			(length($self->{SELLO}) gt 0 ? ("'" . $self->{SELLO} . "'") : "NULL") . "," . 
+                        (length($self->{TIPO_REFERENCIA}) gt 0 ? ("'" . $self->{TIPO_REFERENCIA} . "'") : "NULL") . "," .
+                        "'" . $self->{SERIE} . "'," .
+                        (length($self->{REFERENCIA}) gt 0 ? ("'" . $self->{REFERENCIA} . "'") : "NULL") . "," .
+                        "'" . $self->{MOVIMIENTO} . "'," .
+                        (length($self->{LITROS_ESP}) gt 0 ? ("'" . $self->{LITROS_ESP} . "'") : "NULL") . "," .
+                        "'" . $self->{LITROS_REAL} . "','" .
 			$self->{COSTO_ESP} . "','" .
 			$self->{COSTO_REAL} . "','" .
 			$self->{IVA} . "','" .
 			$self->{IEPS} . "','" .
 			$self->{STATUS} . "','" .
 			$self->{PROCESADA} . "','" .
-			$self->{TRANSACTION_ID} . "')";
+			(length($self->{TRANSACTION_ID}) gt 0 ? ("'" . $self->{TRANSACTION_ID} . "'") : "NULL") . ")";
+	
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
-    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
-    $sth->finish;
+    	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");
+    	$sth->finish;
 	$connector->destroy();
 	return $self;
 }
@@ -272,18 +322,18 @@ sub actualizaMDB{
 	my $preps = "
 				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
 					"estacion='" . $self->{ESTACION} . "'," .
-					"dispensador='" . $self->{DISPENSADOR} . "'," .
+					"dispensador=" . (length($self->{DISPENSADOR}) gt 0 ? ("'" . $self->{DISPENSADOR} . "'") : "NULL") . "," .
 					"supervisor='" . $self->{SUPERVISOR} . "'," .
-					"despachador='" . $self->{DESPACHADOR} . "'," .
-					"viaje='" . $self->{VIAJE} . "'," .
-					"camion='" . $self->{CAMION} . "'," .
-					"chofer='" . $self->{CHOFER} . "'," .
-					"sello='" . $self->{SELLO} . "'," .
-					"tipo_referencia='" . $self->{TIPO_REFERENCIA} . "'," .
-					"serie='" . $self->{SERIE} . "'," .
-					"referencia='" . $self->{REFERENCIA} . "'," . 
+					"despachador=" . (length($self->{DESPACHADOR}) gt 0 ? ("'" . $self->{DESPACHADOR} . "'") : "NULL") . "," .
+					"viaje=" . (length($self->{VIAJE}) gt 0 ? ("'" . $self->{VIAJE} . "'") : "NULL") . "," .
+					"camion=" . (length($self->{CAMION}) gt 0 ? ("'" . $self->{CAMION} . "'") : "NULL") . "," .
+					"chofer=" . (length($self->{CHOFER}) gt 0 ? ("'" . $self->{CHOFER} . "'") : "NULL") . "," .
+					"sello=" . (length($self->{SELLO}) gt 0 ? ("'" . $self->{SELLO} . "'") : "NULL") . "," .
+					"tipo_referencia=" . (length($self->{TIPO_REFERENCIA}) gt 0 ? ("'" . $self->{TIPO_REFERENCIA} . "'") : "NULL") . "," .
+					"serie='" . (length($self->{SERIE}) gt 0 ? ("'" . $self->{SERIE} . "'") : "NULL") . "," .
+					"referencia=" . (length($self->{REFERENCIA}) gt 0 ? ("'" . $self->{REFERENCIA} . "'") : "NULL") . "," . 
 					"movimiento='" . $self->{MOVIMIENTO} . "'," .
-					"litros_esp='" . $self->{LITROS_ESP} . "'," .
+					"litros_esp=" . (length($self->{LITROS_ESP}) gt 0 ? ("'" . $self->{LITROS_ESP} . "'") : "NULL") . "," .
 					"litros_real='" . $self->{LITROS_REAL} . "'," .
 					"costo_esp='" . $self->{COSTO_ESP} . "'," .
 					"costo_real='" . $self->{COSTO_REAL} . "'," .
@@ -291,7 +341,7 @@ sub actualizaMDB{
 					"ieps='" . $self->{IEPS} . "'," .
 					"status='" . $self->{STATUS} . "'," .
 					"procesada='" . $self->{PROCESADA} . "'," .
-					"transaction_id='" . $self->{TRANSACTION_ID} . "'" .
+					"transaction_id=" . (length($self->{TRANSACTION_ID}) gt 0 ? ("'" . $self->{TRANSACTION_ID} . "'") : "NULL") . "," .
 					"id_recepcion='" . $self->{ID_RECEPCION} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
@@ -307,18 +357,18 @@ sub actualizaInf{
 	my $preps = "
 				UPDATE ci_movimientos SET fecha_hora = '" . $self->{FECHA_HORA} . "'," .
 					"estacion='" . $self->{ESTACION} . "'," .
-					"dispensador='" . $self->{DISPENSADOR} . "'," .
+					"dispensador=" . (length($self->{DISPENSADOR}) gt 0 ? ("'" . $self->{DISPENSADOR} . "'") : "NULL") . "," .
 					"supervisor='" . $self->{SUPERVISOR} . "'," .
-					"despachador='" . $self->{DESPACHADOR} . "'," .
-					"viaje='" . $self->{VIAJE} . "'," .
-					"camion='" . $self->{CAMION} . "'," .
-					"chofer='" . $self->{CHOFER} . "'," .
-					"sello='" . $self->{SELLO} . "'," .
-					"tipo_referencia='" . $self->{TIPO_REFERENCIA} . "'," .
-					"serie='" . $self->{SERIE} . "'," .
-					"referencia='" . $self->{REFERENCIA} . "'," . 
-					"movimiento='" . $self->{MOVIMIENTO} . "'," .
-					"litros_esp='" . $self->{LITROS_ESP} . "'," .
+					"despachador=" . (length($self->{DESPACHADOR}) gt 0 ? ("'" . $self->{DESPACHADOR} . "'") : "NULL") . "," .
+					"viaje=" . (length($self->{VIAJE}) gt 0 ? ("'" . $self->{VIAJE} . "'") : "NULL") . "," .
+					"camion=" . (length($self->{CAMION}) gt 0 ? ("'" . $self->{CAMION} . "'") : "NULL") . "," .
+					"chofer=" . (length($self->{CHOFER}) gt 0 ? ("'" . $self->{CHOFER} . "'") : "NULL") . "," .
+					"sello=" . (length($self->{SELLO}) gt 0 ? ("'" . $self->{SELLO} . "'") : "NULL") . "," .
+                                        "tipo_referencia=" . (length($self->{TIPO_REFERENCIA}) gt 0 ? ("'" . $self->{TIPO_REFERENCIA} . "'") : "NULL") . "," .
+                                        "serie=" . (length($self->{SERIE}) gt 0 ? ("'" . $self->{SERIE} . "'") : "NULL") . "," .
+                                        "referencia=" . (length($self->{REFERENCIA}) gt 0 ? ("'" . $self->{REFERENCIA} . "'") : "NULL") . "," .
+                                        "movimiento='" . $self->{MOVIMIENTO} . "'," .
+                                        "litros_esp=" . (length($self->{LITROS_ESP}) gt 0 ? ("'" . $self->{LITROS_ESP} . "'") : "NULL") . "," .
 					"litros_real='" . $self->{LITROS_REAL} . "'," .
 					"costo_esp='" . $self->{COSTO_ESP} . "'," .
 					"costo_real='" . $self->{COSTO_REAL} . "'," .
@@ -326,7 +376,7 @@ sub actualizaInf{
 					"ieps='" . $self->{IEPS} . "'," .
 					"status='" . $self->{STATUS} . "'," .
 					"procesada='" . $self->{PROCESADA} . "'," .
-					"transaction_id='" . $self->{TRANSACTION_ID} . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
+					"transaction_id=" . (length($self->{TRANSACTION_ID}) gt 0 ? ("'" . $self->{TRANSACTION_ID} . "'") : "NULL") . "' WHERE movimiento = '" . $self->{MOVIMIENTO} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:trate: $preps");

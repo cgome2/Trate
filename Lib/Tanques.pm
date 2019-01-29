@@ -32,8 +32,24 @@ sub getTanques {
 	$wsc->callName("SOGetTankList");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);	
-	if($result->{num_of_tanks} gt 0){
-		my $tanque = Trate::Lib::Tanque->new();
+
+	my $tanque = Trate::Lib::Tanque->new();
+	
+	if($result->{num_of_tanks} eq 1) {
+		$tanque = Trate::Lib::Tanque->new();	
+		my $tanke = $result->{a_soTank}->{soTank};
+                $tanque->id($tanke->{id});
+                $tanque->capacity($tanke->{capacity});
+                $tanque->name($tanke->{name});
+                $tanque->number($tanke->{number});
+                $tanque->productId($tanke->{product_id});
+                $tanque->status($tanke->{status});
+		push (@{$self->{TANQUES}},$tanque);
+		return \@{$self->{TANQUES}};
+		
+	} elsif($result->{num_of_tanks} gt 1){
+		$tanque = Trate::Lib::Tanque->new();
+		
 		my @tankes = @{$result->{a_soTank}->{soTank}};
 		foreach my $tanke (@tankes) {
 			$tanque = Trate::Lib::Tanque->new();

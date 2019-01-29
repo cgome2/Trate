@@ -31,18 +31,18 @@ my ($fecha_hora,$estacion,$dispensador,$supervisor,$despachador,$viaje,$camion,$
 my $MOVIMIENTO = Trate::Lib::Movimiento->new();
 $MOVIMIENTO->{FECHA_HORA} = $fecha_hora;
 $MOVIMIENTO->{ESTACION} = $estacion;
-$MOVIMIENTO->{DISPENSADOR}= $dispensador;
+$MOVIMIENTO->{DISPENSADOR}= (length($dispensador) gt 0 ? $dispensador : "");
 $MOVIMIENTO->{SUPERVISOR} = $supervisor;
 $MOVIMIENTO->{DESPACHADOR} = $despachador;
-$MOVIMIENTO->{VIAJE} =$viaje;
-$MOVIMIENTO->{CAMION} = $camion;
-$MOVIMIENTO->{SELLO} = $sello eq "NULL" ? "" : $sello;
-$MOVIMIENTO->{CHOFER} = $chofer;
-$MOVIMIENTO->{TIPO_REFERENCIA} = $tipo_referencia;
-$MOVIMIENTO->{SERIE} = $serie eq "NULL" ? "" : $serie;
-$MOVIMIENTO->{REFERENCIA} = $referencia;
+$MOVIMIENTO->{VIAJE} =(length($viaje) gt 0 ? $viaje : "");
+$MOVIMIENTO->{CAMION} = (length($camion) gt 0 ? $camion : "");
+$MOVIMIENTO->{SELLO} = (length($sello) gt 0 ? $sello : "");
+$MOVIMIENTO->{CHOFER} = (length($chofer) gt 0 ? $chofer : "");
+$MOVIMIENTO->{TIPO_REFERENCIA} = (length($tipo_referencia) gt 0 ? $tipo_referencia : "");
+$MOVIMIENTO->{SERIE} = (length($serie) gt 0 ? $serie : "");
+$MOVIMIENTO->{REFERENCIA} = (length($referencia) gt 0 ? $referencia : "");
 $MOVIMIENTO->{MOVIMIENTO} = $movimiento;
-$MOVIMIENTO->{LITROS_ESP} = $litros_esp;
+$MOVIMIENTO->{LITROS_ESP} = (length($litros_esp) gt 0 ? $litros_esp : "");
 $MOVIMIENTO->{LITROS_REAL} = $litros_real;
 $MOVIMIENTO->{COSTO_ESP} = $costo_esp;
 $MOVIMIENTO->{COSTO_REAL} = $costo_real;
@@ -50,7 +50,7 @@ $MOVIMIENTO->{IVA} = $iva;
 $MOVIMIENTO->{IEPS} = $ieps;
 $MOVIMIENTO->{STATUS} = $status;
 $MOVIMIENTO->{PROCESADA} = $procesada;
-$MOVIMIENTO->{TRANSACTION_ID} = $transaction_id;
+$MOVIMIENTO->{TRANSACTION_ID} = (length($transaction_id) gt 0 ? $transaction_id : "");
 LOGGER->debug("El movimiento para informix seria \n" . dump($MOVIMIENTO));
 try { 
 	if(WITHINFORMIX eq 1){
