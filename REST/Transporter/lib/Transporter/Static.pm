@@ -74,21 +74,21 @@ get "/menu" => sub {
 				icon => "timetable",
 				path => "/turnos"
 			},
-			{
-				label => "Reportes",
-				path => "/reportes",
-				icon => "clipboard-text",
-				menu => [
-					{
-						header => "Reporte de Transacciones",
-						path => "/reportes/transacciones"
-					},
-					{
-						header => "Reporte de Turnos",
-						path => "/reportes/turnos"
-					}
-				]
-			},
+			# {
+			# 	label => "Reportes",
+			# 	path => "/reportes",
+			# 	icon => "clipboard-text",
+			# 	menu => [
+			# 		{
+			# 			header => "Reporte de Transacciones",
+			# 			path => "/reportes/transacciones"
+			# 		},
+			# 		{
+			# 			header => "Reporte de Turnos",
+			# 			path => "/reportes/turnos"
+			# 		}
+			# 	]
+			# },
 			{
 				label => "Configuracion",
 				path => "/configuracion",
@@ -97,10 +97,6 @@ get "/menu" => sub {
 					{
 						header => "Usuarios",
 						path => "/configuracion/usuarios"
-					},
-					{
-						header => "Perfiles",
-						path => "/configuracion/perfiles"
 					},
 					{
 						header => "Vehiculos",
@@ -162,7 +158,6 @@ get "/components" => sub {
     # case "/reportes/turnos"             { $component = "superTable"; $endpoint = ""; }
 
     case "/configuracion/usuarios"      { $component = "superTable"; $endpoint = "/usuarios"; }
-    # case "/configuracion/perfiles"      { $component = "superTable"; $endpoint = ""; }
     case "/configuracion/vehiculos"     { $component = "superTable"; $endpoint = "/means"; }
   }
 
@@ -467,6 +462,10 @@ get "/shifts/ver/form" => sub {
           {
             key => "despachador",
             label => "Despachador"
+          },
+          {
+            key => "status",
+            label => "Estatus"
           },
           {
             key => "usuario_add",
