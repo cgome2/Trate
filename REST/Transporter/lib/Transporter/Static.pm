@@ -361,6 +361,7 @@ get "/shifts/form" => sub {
   };
 };
 
+
 get "/shifts/nuevo/form" => sub {
   return {
     icon => "timetable",
