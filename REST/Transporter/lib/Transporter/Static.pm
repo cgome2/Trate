@@ -193,17 +193,17 @@ get "/shifts/table" => sub {
           readonly => 1
         }
       },
-      # {
-      #   icon => 'pencil',
-      #   label => 'Editar',
-      #   condition => {
-      #     status => 2
-      #   },
-      #   action => {
-      #     type => 'form',
-      #     form => '/shifts'
-      #   }
-      # },
+      {
+        icon => 'pencil',
+        label => 'Editar',
+        condition => {
+          status => 2
+        },
+        action => {
+          type => 'form',
+          form => '/shifts'
+        }
+      },
       {
         icon => 'close',
         label => 'Cerrar',
@@ -254,8 +254,8 @@ get "/shifts/table" => sub {
         key => "status",
         label => "Estatus",
         map => [
-          { from => "2", to => 'Abierto' },
-          { from => "1", to => 'Cerrado' }
+          { from => 2, to => 'Abierto' },
+          { from => 1, to => 'Cerrado' }
         ]
       }
     ]
