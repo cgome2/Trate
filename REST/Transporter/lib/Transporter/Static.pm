@@ -6,6 +6,7 @@ use Data::Dump qw(dump);
 use Data::Structure::Util qw( unbless );
 use Trate::Lib::Constants qw(LOGGER);
 use Trate::Lib::Usuarios;
+use utf8;
 
 our $VERSION = "0.1";
 
@@ -54,7 +55,7 @@ get "/menu" => sub {
 				]
 			},
 			{
-				label => "Recepcion de Combustible",
+				label => "Recepción de Combustible",
 				path => "/recepcion",
 				icon => "receipt",
 				menu => [
@@ -73,21 +74,17 @@ get "/menu" => sub {
 				icon => "timetable",
 				path => "/turnos"
 			},
-			# {
-			# 	label => "Reportes",
-			# 	path => "/reportes",
-			# 	icon => "clipboard-text",
-			# 	menu => [
-			# 		{
-			# 			header => "Reporte de Transacciones",
-			# 			path => "/reportes/transacciones"
-			# 		},
-			# 		{
-			# 			header => "Reporte de Turnos",
-			# 			path => "/reportes/turnos"
-			# 		}
-			# 	]
-			# },
+			{
+				label => "Reportes",
+				path => "/reportes",
+				icon => "clipboard-text",
+				menu => [
+					{
+						header => "Transacciones",
+						path => "/reportes/transacciones"
+					}
+				]
+			},
 			{
 				label => "Configuracion",
 				path => "/configuracion",
@@ -177,7 +174,7 @@ get "/pass/form" => sub {
   return {
     icon => "account-key",
     title => "Cambiar contrasena",
-    sendTo => "/cambiar",
+    sendTo => "/usuarios/cambiarpassword",
     fields => [
       {
         key => "actual",
