@@ -93,6 +93,7 @@ get "/menu" => sub {
 				label => "Configuracion",
 				path => "/configuracion",
 				icon => "settings",
+        level => 1,
 				menu => [
 					{
 						header => "Usuarios",
