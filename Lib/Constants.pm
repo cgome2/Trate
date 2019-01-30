@@ -38,7 +38,8 @@ use constant DEFAULT_RULE => "200000000";
 use constant HO_ROLE => "5";
 use constant PROVEEDOR => "15002";
 
-use constant ORCU_ADDRESS => "root\@10.100.60.196";
+use constant ORCU_ADDRESS => "root\@maac-lab.ddns.net";
+# use constant ORCU_ADDRESS => "root\@10.100.60.196";
 use constant SQLITE_DATABASE => "/usr/local/orpak/BOS/DB/DATA.DB";
 
 use constant ORCURETRIEVEFILE => "/usr/local/orpak/perl/Trate/orcuretrieve.xml";
@@ -49,8 +50,8 @@ use constant USERWS => "Admin";
 use constant PASSWORDWS => "Admin";
 use constant USERHOCOMMUNICATOR => "transporter";
 use constant PASSHOCUMMUNICATOR => "!Ortech1";
-# use constant ORCUURL => "http://maac-lab.ddns.net:3443/";
-use constant ORCUURL => "http://10.100.60.196:3443/";
+use constant ORCUURL => "http://maac-lab.ddns.net:3443/";
+# use constant ORCUURL => "http://10.100.60.196:3443/";
 use constant WSURI => ORCUURL . "SiteOmatService/";
 use constant WSPROXY => ORCUURL . "SiteOmatService/SiteOmatService.asmx"; 
 use constant WSUSER => "Admin";

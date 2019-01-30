@@ -153,10 +153,9 @@ get "/components" => sub {
     case "/recepcion/documentos"        { $component = "superTable"; $endpoint = "/recepciones_combustible"; }
     case "/recepcion/lecturas"          { $component = "superTable"; $endpoint = "/lecturas_tls"; }
 
-    case "/turnos"                     { $component = "superTable"; $endpoint = "/shifts"; }
+    case "/turnos"                      { $component = "superTable"; $endpoint = "/shifts"; }
 
-    # case "/reportes/transacciones"      { $component = "superTable"; $endpoint = ""; }
-    # case "/reportes/turnos"             { $component = "superTable"; $endpoint = ""; }
+    case "/reportes/transacciones"      { $component = "reporter"; $endpoint = "/transacciones"; }
 
     case "/configuracion/usuarios"      { $component = "superTable"; $endpoint = "/usuarios"; }
     case "/configuracion/vehiculos"     { $component = "superTable"; $endpoint = "/means"; }
@@ -167,6 +166,90 @@ get "/components" => sub {
     component => $component,
     endPoint => $endpoint,
     id => $id
+  };
+};
+
+get "/transacciones/form" => sub {
+  return {
+    icon => "account-key",
+    title => "Transacciones",
+    fields => [
+      {
+        key => "date_from",
+        label => "Fecha (desde)",
+        type => "date"
+      },
+      {
+        key => "date_to",
+        label => "Fecha (hasta)",
+        type => "date"
+      },
+      {
+        key => "transaction_from",
+        label => "Transacción (desde)",
+        type => "number"
+      },
+      {
+        key => "transaction_to",
+        label => "Transacción (hasta)",
+        type => "number"
+      },
+      {
+        key => "pase_desde",
+        label => "Pase (desde)",
+        type => "number"
+      },
+      {
+        key => "pase_hasta",
+        label => "Pase (hasta)",
+        type => "number"
+      },
+      {
+        key => "litros_desde",
+        label => "Litros (desde)",
+        type => "number"
+      },
+      {
+        key => "litros_hasta",
+        label => "Litros (hasta)",
+        type => "number"
+      },
+      {
+        key => "camiones",
+        label => "Camiones",
+        type => "select",
+        multiple => 1,
+        optionsSource => "/means/contingencia",
+        optionsKey => "id",
+        optionsValue => "NAME"
+      },
+      {
+        key => "bombas",
+        label => "Bombas",
+        type => "select",
+        multiple => 1,
+        options => [
+          { key => "1", value => "1" },
+          { key => "2", value => "2" },
+          { key => "3", value => "3" },
+          { key => "4", value => "4" }
+        ]
+      },
+      {
+        key => "estatus_pase",
+        label => "Estatus del Pase",
+        type => "select",
+        multiple => 1,
+        options => [
+          { key => "A", value => "Activo" },
+          { key => "D", value => "Despachado" },
+          { key => "R", value => "Reabierto" },
+          { key => "T", value => "Transferido" },
+          { key => "C", value => "Despachado en contingencia" },
+          { key => "M", value => "Despachado en manual" }
+        ]
+      }
+    ]
   };
 };
 
