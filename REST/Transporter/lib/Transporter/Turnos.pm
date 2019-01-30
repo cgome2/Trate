@@ -27,7 +27,7 @@ get '/shifts' => sub {
 	LOGGER->info("El usuario " . $usuario->{idusuarios} . " solicita los turnos del sistema");
 	my $return = 0;	
 	my $date = length(params->{date}) gt 0 ? params->{date} : "";
-	my $sort = length(params->{sort}) gt 0 ? params->{sort} : "";
+	my $sort = (length(params->{'sort'}) gt 0 && defined(params->{'sort'})) ? params->{'sort'} : "";
 	my $order = length(params->{order}) gt 0 ? params->{order} : "";
 
 

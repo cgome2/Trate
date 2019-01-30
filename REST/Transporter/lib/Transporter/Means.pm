@@ -85,9 +85,9 @@ put '/means' => sub {
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	my $request = Dancer::Request->new(env => \%ENV);
+	#my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
-	
+	LOGGER->debug(dump($post));
 	if(
 		($post->{TYPE} eq 3 && $post->{hardware_type} eq 6 && $post->{auttyp} eq 1) ||
 		($post->{TYPE} eq 3 && $post->{hardware_type} eq 6 && $post->{auttyp} eq 23) ||
@@ -123,7 +123,7 @@ patch '/means' => sub {
 	} else {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
-	my $request = Dancer::Request->new(env => \%ENV);
+	#my $request = Dancer::Request->new(env => \%ENV);
 	my $post = from_json( request->body );
 
 	if(
