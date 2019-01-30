@@ -517,8 +517,10 @@ sub bloquearMeansDespachador{
 		my $md = Trate::Lib::Mean->new();
 		$md->id($despachador->{mean_id});
 		$md->fillMeanFromId();
-		#LOGGER->debug(dump($md));
-		$md->desactivarMean();
+		LOGGER->debug(dump($md));
+		if($despachador->{status_mean_turno} eq 2){
+			$md->desactivarMean();
+		}
 	}
 }
 

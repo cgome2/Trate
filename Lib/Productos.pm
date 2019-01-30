@@ -173,7 +173,10 @@ sub getProductos{
 
 	my @productos = ();
 	my $existeProductoTransporter = 0;
-	if($result->{num_of_products} gt 0){
+
+	LOGGER->debug(dump($result));
+
+	if($result->{num_of_products} gt 1){
 		my @produkts = @{$result->{a_soProduct}->{soProduct}};
 		foreach my $produkt (@produkts) {
 			$self->{ID} = $produkt->{id};
@@ -205,6 +208,37 @@ sub getProductos{
 			);
 			push (@productos,\%producto);
 		}
+	} elsif($result->{num_of_products} eq 1){
+		my $produkto = $result->{a_soProduct}->{soProduct};
+		$self->{ID} = $produkto->{id};
+		$existeProductoTransporter = getProductoById($self);
+		if($existeProductoTransporter eq 0){
+			$self->{STATUS} = $produkto->{status};
+			$self->{PRICE} = $produkto->{price};
+			$self->{NAME} = $produkto->{name};
+			$self->{CODE} = $produkto->{code};
+			$self->{LAST_UPDATED} = "";
+			$self->{NEXT_UPDATE} = "";
+			$self->{NEXT_PRICE} = "";
+			$self->{USUARIO} = "";
+			if($self->addProductoTransporter($self) eq 0){
+				return 0;
+			}
+		}
+		my %pproducto = (
+			"id" => $produkto->{id},
+			"NAME" => $produkto->{name},
+			"code" => $produkto->{code},
+			"status" => $produkto->{status},
+			"price" => $produkto->{price},
+			"code2" => $produkto->{code2},
+			"last_updated" => $self->{LAST_UPDATED},
+			"next_update" => $self->{NEXT_UPDATE},
+			"next_price" => $self->{NEXT_PRICE},
+			"usuario" => $self->{USUARIO}
+		);
+		push (@productos,\%pproducto);
+	
 	}
 	return \@productos;
 }
