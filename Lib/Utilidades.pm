@@ -12,6 +12,8 @@ package Trate::Lib::Utilidades;
 use strict;
 use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE);
 use Data::Dump qw(dump);
+use Digest::SHA1 qw(sha1_hex);
+
 
 sub getCurrentTimestampMariaDB {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
@@ -39,6 +41,11 @@ sub getInformixDate($){
 	my $informixDate = $day . "/" . $month . "/" . $year;
 	LOGGER->debug($informixDate);
 	return $informixDate
+}
+
+sub getSha1($){
+	my $string = pop;
+	return sha1_hex($string);
 }
 
 1;

@@ -148,7 +148,7 @@ sub getUsuarioByToken($) {
 	my $row = $sth->fetchrow_hashref;
 	$sth->finish;
 	$connector->destroy();
-	delete $row->{password};
+	#delete $row->{password};
 	return $row;		
 }
 
@@ -224,6 +224,7 @@ sub addUsuarios {
 
 sub updateUsuarios {
 	my $self = shift;
+	LOGGER->debug(dump($shift));
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "UPDATE usuarios set nombre='" . $self->{nombre} . "'," ;
 	if($self->{password}) {

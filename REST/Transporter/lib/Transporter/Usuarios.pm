@@ -6,6 +6,7 @@ use Data::Dump qw(dump);
 use Data::Structure::Util qw( unbless );
 use Trate::Lib::Constants qw(LOGGER);
 use Trate::Lib::Usuarios;
+use Trate::Lib::Utilidades;
 
 our $VERSION = '0.1';
 
@@ -116,5 +117,30 @@ patch '/usuarios' => sub {
 	}
 };
 
+put '/usuarios/cambiarpassword' => sub {
+	my $usuario;
+	if(Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0){
+		status 401;
+		return {error => "Token de sesion invalido ingrese nuevamente al sistema"};
+	} else {
+		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
+		$usuario = Trate::Lib::Usuarios->getUsuarioByToken(request->headers->{token});
+	}	
+
+	my $post = from_json( request->body );
+	if ($usuario->{password} eq Trate::Lib::Utilidades->getSha1($post->{actual})){
+	 	$usuario->{password} = $post->{nueva};
+	 	LOGGER->info(dump($usuario));
+		bless $usuario, "Trate::Lib::Usuarios";
+		LOGGER->debug(ref $usuario);
+		if($usuario->updateUsuarios() eq 1){
+			return {message => "Exito"};
+		} else {
+			status 401;
+			return {message => "Falla"};
+		}
+		return {message => "Datos incorrectos"};
+	}
+};
 
 true;
