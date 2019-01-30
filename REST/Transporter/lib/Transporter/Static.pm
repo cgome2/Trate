@@ -70,7 +70,6 @@ get "/menu" => sub {
 			},
 			{
 				label => "Turnos",
-				path => "/turnos",
 				icon => "timetable",
 				path => "/turnos"
 			},
@@ -104,6 +103,11 @@ get "/menu" => sub {
 						path => "/configuracion/vehiculos"
 					}
 				]
+			},
+			{
+				label => "Cambiar contrasena",
+				icon => "account-key",
+				path => "/cambiar-contrasena",
 			}
 		]
 	};
@@ -160,12 +164,33 @@ get "/components" => sub {
 
     case "/configuracion/usuarios"      { $component = "superTable"; $endpoint = "/usuarios"; }
     case "/configuracion/vehiculos"     { $component = "superTable"; $endpoint = "/means"; }
+    case "/cambiar-contrasena"          { $component = "superForm"; $endpoint = "/pass"; }
   }
 
   return {
     component => $component,
     endPoint => $endpoint,
     id => $id
+  };
+};
+
+get "/pass/form" => sub {
+  return {
+    icon => "account-key",
+    title => "Cambiar contrasena",
+    sendTo => "/cambiar",
+    fields => [
+      {
+        key => "actual",
+        label => "Contrasena actual",
+        type => "password"
+      },
+      {
+        key => "nueva",
+        label => "Nueva contrasena",
+        type => "password"
+      }
+    ]
   };
 };
 
@@ -210,7 +235,8 @@ get "/shifts/table" => sub {
           type => 'http',
           endpoint => '/shifts',
           verb => 'patch',
-          override => { status => 1 }
+          override => { status => 1 },
+          block => "Cerrando turno"
         }
       }
     ],
