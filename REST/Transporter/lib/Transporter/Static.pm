@@ -260,6 +260,7 @@ get "/shifts/table" => sub {
 
 get "/shifts/form" => sub {
   return {
+    block => "Actualizando turno",
     icon => "timetable",
     title => "Turno",
     getFrom => "/shifts",
@@ -364,6 +365,7 @@ get "/shifts/form" => sub {
 
 get "/shifts/nuevo/form" => sub {
   return {
+    block => "Abriendo turno",
     icon => "timetable",
     title => "Turno",
     getFrom => "/shifts",
