@@ -19,11 +19,11 @@ use constant LOGGER => get_logger("Trate");
 use constant DRIVER_INFORMIX => 'Informix';
 use constant DATABASE_INFORMIX => 'master';
 use constant DSN_INFORMIX => "DBI:" . DRIVER_INFORMIX . ":" . DATABASE_INFORMIX;
-#use constant USER_INFORMIX => "trateusr";
-#use constant PASSWORD_INFORMIX => "t1710e";
-use constant USER_INFORMIX => "informix";
-use constant PASSWORD_INFORMIX => "ortech";
-use constant INFORMIX_SERVER => "prueba";
+use constant USER_INFORMIX => "trateusr";
+use constant PASSWORD_INFORMIX => "usrtrate";
+#use constant USER_INFORMIX => "informix";
+#use constant PASSWORD_INFORMIX => "ortech";
+use constant INFORMIX_SERVER => "almacen2";
 
 use constant DRIVER_MARIADB => "mysql";
 use constant DATABASE_MARIADB => "orpak";
@@ -31,14 +31,14 @@ use constant DSN_MARIADB => "DBI:" . DRIVER_MARIADB . ":database=" . DATABASE_MA
 use constant USER_MARIADB => "trateuser";
 use constant PASSWORD_MARIADB => "tratepassword";
 
-use constant DEFAULT_FLEET_ID => "200000003";
-use constant DEFAULT_FLEET_NAME => "Laboratorio";
-use constant DEFAULT_DEPT_ID => "200000129";
+use constant DEFAULT_FLEET_ID => "200000002";
+use constant DEFAULT_FLEET_NAME => "Trate de Occidente SA de CV";
+use constant DEFAULT_DEPT_ID => "200000002";
 use constant DEFAULT_RULE => "200000000";
 use constant HO_ROLE => "5";
 use constant PROVEEDOR => "15002";
 
-use constant ORCU_ADDRESS => "root\@maac-lab.ddns.net";
+use constant ORCU_ADDRESS => "root\@10.100.60.196";
 use constant SQLITE_DATABASE => "/usr/local/orpak/BOS/DB/DATA.DB";
 
 use constant ORCURETRIEVEFILE => "/usr/local/orpak/perl/Trate/orcuretrieve.xml";
@@ -50,12 +50,12 @@ use constant PASSWORDWS => "Admin";
 use constant USERHOCOMMUNICATOR => "transporter";
 use constant PASSHOCUMMUNICATOR => "!Ortech1";
 # use constant ORCUURL => "http://maac-lab.ddns.net:3443/";
-use constant ORCUURL => "http://maac-lab.ddns.net:3443/";
+use constant ORCUURL => "http://10.100.60.196:3443/";
 use constant WSURI => ORCUURL . "SiteOmatService/";
 use constant WSPROXY => ORCUURL . "SiteOmatService/SiteOmatService.asmx"; 
 use constant WSUSER => "Admin";
 use constant WSPASSWORD => "Admin";
-use constant SITE_CODE => "5";
+use constant SITE_CODE => "1";
 use constant WSXMLSCHEMA => "2001";
 
 use constant TRUE => 1;

@@ -265,6 +265,7 @@ sub getTurno {
 	my $prepsMeans;
 	my $sthMeans;
 
+	LOGGER->debug("RAMSES 1");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	my $turno = $sth->fetchrow_hashref();
@@ -275,6 +276,8 @@ sub getTurno {
 	my $bombaTurno = Trate::Lib::BombaTurno->new();
 	my $tanqueTurno = Trate::Lib::TanqueTurno->new();
 	my $meanTurno = Trate::Lib::MeanTurno->new();
+
+	LOGGER->debug("RAMSES 2");
 
 	$prepsBombas = "SELECT * FROM turno_bombas WHERE id_turno=" . $turno->{id_turno};
 	$sthBombas = $connector->dbh->prepare($prepsBombas);
@@ -298,7 +301,7 @@ sub getTurno {
 
 	$turno->{TANQUES_TURNO} = \@tanquesTurno;
 
-	$prepsMeans = "SELECT tm.*,m.NAME AS despachador,u.numero_empleado AS usuario_add,u2.numero_empleado AS usuario_rm " .
+	$prepsMeans = "SELECT tm.*,m.NAME AS despachador,u.numero_empleado AS usuario_add,u2.numero_empleado AS usuario_rm,CASE tm.status_mean_turno WHEN 2 THEN 1 ELSE 0 END AS activo  " .
 					" FROM turno_means tm LEFT JOIN means m ON tm.mean_id=m.id " .
 					" LEFT JOIN usuarios u ON tm.id_usuario_add = u.idusuarios " .
 					" LEFT JOIN usuarios u2 ON tm.id_usuario_rm = u2.idusuarios " .
