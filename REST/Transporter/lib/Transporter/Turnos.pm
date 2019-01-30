@@ -158,7 +158,8 @@ put '/shifts' => sub {
 		}
 		$omean->id($mean_turno->{MEAN_ID});
 		$omean->fillMeanFromId();
-		$mean_turno->{STATUS_MEAN_TURNO} eq 2 ? $omean->activarMean() : $omean->desactivarMean();
+
+		$mean_turno->{STATUS_MEAN_TURNO} eq 2 ? $omean->activarMean() : LOGGER->info("Mean no utilizado");
 	}
 	LOGGER->info("Agregando despachadores al turno");
 	$turno->insertOpenTotalizerReadings();
