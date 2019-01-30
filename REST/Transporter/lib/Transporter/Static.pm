@@ -132,7 +132,6 @@ get "/configuracion" => sub {
   if (Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0) { status 401; }
 };
 
-
 get "/components" => sub {
   if (Trate::Lib::Usuarios->verificaToken(request->headers->{token}) eq 0) {
     status 401;
