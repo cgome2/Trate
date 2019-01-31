@@ -219,7 +219,7 @@ get "/transacciones/form" => sub {
         label => "Camiones",
         type => "select",
         multiple => 1,
-        optionsSource => "/means/contingencia",
+        optionsSource => "/means",
         optionsKey => "id",
         optionsValue => "NAME"
       },
