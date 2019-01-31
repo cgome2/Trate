@@ -139,6 +139,8 @@ put '/usuarios/cambiarpassword' => sub {
 			status 401;
 			return {message => "Falla"};
 		}
+	} else {
+		status 401;
 		return {message => "Datos incorrectos"};
 	}
 };
