@@ -642,7 +642,7 @@ sub enviarTurnoTrate {
 	$corte->recibeTurno($self->{USUARIO_CIERRA});
 	$corte->fechaHoraRecep($self->{FECHA_ABIERTO});
 	$corte->inventarioRecibidoLts(@tt[0]->{volumen_inicial});
-	$corte->movtosTurnoLts(&getLitrosTurno($self));
+	$corte->movtosTurnoLts(&getLitrosRecibidos($self) - &getLitrosTurno($self));
 	$corte->inventarioEntregadoLts(@tt[0]->{volumen_final});
 	$corte->diferenciaLts($corte->inventarioRecibidoLts() + &getLitrosRecibidos($self) - $corte->inventarioEntregadoLts()  - $corte->movtosTurnoLts());
 	$corte->inventarioRecibidoCto(0);
