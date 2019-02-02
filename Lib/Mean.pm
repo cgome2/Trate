@@ -259,7 +259,14 @@ sub desactivarMean {
 sub getMeans{
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp FROM means"; 
+	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp " .
+	"FROM means WHERE " . 
+	"(TYPE=3 AND hardware_type=6 AND auttyp=1) OR " . 
+	"(TYPE=3 AND hardware_type=6 AND auttyp=23) OR" . 
+	"(TYPE=3 AND hardware_type=6 AND auttyp=26) OR" . 
+	"(TYPE=4 AND hardware_type=1 AND auttyp=6) OR" . 
+	"(TYPE=2 AND hardware_type=1 AND auttyp=6) OR" . 
+	"(TYPE=2 AND hardware_type=1 AND auttyp=21) "; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");

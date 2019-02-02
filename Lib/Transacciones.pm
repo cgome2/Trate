@@ -656,5 +656,62 @@ sub insertaTransaccionManual {
 	return $self;
 }
 
+sub getTransaccionesReporte($) {
+	my $self = shift;
+	my $filter = pop;
+
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT 
+					t.idtransacciones AS idtransaccion,
+					t.fecha AS fecha,
+					t.cantidad AS cantidad,
+					t.totalizador AS totalizador,
+					t.ppv AS ppv,
+					t.sale AS sale,
+					t.start_flow AS start_flow,
+					t.end_flow AS end_flow,
+					t.bomba AS bomba,
+					m.NAME AS mean,
+					CASE
+						WHEN m.auttyp = 1 AND m.hardware_type = 6 AND m.TYPE = 3 THEN 'camion - fuelopass'
+						WHEN m.auttyp = 23 AND m.hardware_type = 6 AND m.TYPE = 3 THEN 'camion - viu 35'
+						WHEN m.auttyp = 26 AND m.hardware_type = 6 AND m.TYPE = 3 THEN 'camion - Datapass'
+						WHEN m.auttyp = 6 AND m.hardware_type = 1 AND m.TYPE = 4 THEN 'camion - Despachador'
+						WHEN m.auttyp = 6 AND m.hardware_type = 1 AND m.TYPE = 2 THEN 'tag - Contingencia'
+						WHEN m.auttyp = 21 AND m.hardware_type = 1 AND m.TYPE = 2 THEN 'tag - Jarreo'
+					END AS tipo_mean,
+					t.pase AS pase,
+					CASE
+						WHEN cp.status = 'A' THEN 'Activo'
+						WHEN cp.status = 'D' THEN 'Despachado'
+						WHEN cp.status = 'T' THEN 'Reasignado a tag'
+						WHEN cp.status = 'R' THEN 'Reabierto'
+						WHEN cp.status = 'M' THEN 'Captura manual de transacción'
+						WHEN cp.status = 'C' THEN 'Despachado con tag de contingencia'
+						WHEN cp.status = 'X' THEN 'Cancelado por sistema'
+						ELSE 'NA'
+					END AS estatus_pase,
+					CASE 
+						WHEN cp.camion IS NULL THEN 'NA'
+						ELSE camion
+					END AS camion
+				FROM transacciones t LEFT JOIN ci_pases cp ON t.pase=cp.pase 
+				LEFT JOIN means m ON t.idvehiculos = m.id" .
+				$filter .
+				" ORDER BY t.idtransacciones DESC "; 
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my @transacciones;
+	while (my $ref = $sth->fetchrow_hashref()) {
+		LOGGER->debug(dump($ref));
+    	push @transacciones,$ref;
+	}
+	$sth->finish;
+	$connector->destroy();
+	return \@transacciones;
+}
+
 1;
 #EOF

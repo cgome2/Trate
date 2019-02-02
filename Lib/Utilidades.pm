@@ -48,5 +48,13 @@ sub getSha1($){
 	return sha1_hex($string);
 }
 
+sub getMariaDBDateFromJason {
+	my $date = pop;
+	$date = substr($date,0,19);
+	my $return = $date =~ s/T/ /r;
+	return $return;
+}
+
+
 1;
 #EOF
