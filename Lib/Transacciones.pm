@@ -21,6 +21,7 @@ use Trate::Lib::Turnos;
 use Trate::Lib::Index;
 use Try::Catch;
 use Data::Dump qw(dump);
+use utf8;
 
 
 # Librerias para tratamiento de archivo XML
@@ -668,8 +669,7 @@ sub getTransaccionesReporte($) {
 					t.totalizador AS totalizador,
 					t.ppv AS ppv,
 					t.sale AS sale,
-					t.start_flow AS start_flow,
-					t.end_flow AS end_flow,
+					TIMEDIFF(t.end_flow,t.start_flow) AS duration,
 					t.bomba AS bomba,
 					m.NAME AS mean,
 					CASE
@@ -686,7 +686,7 @@ sub getTransaccionesReporte($) {
 						WHEN cp.status = 'D' THEN 'Despachado'
 						WHEN cp.status = 'T' THEN 'Reasignado a tag'
 						WHEN cp.status = 'R' THEN 'Reabierto'
-						WHEN cp.status = 'M' THEN 'Captura manual de transacción'
+						WHEN cp.status = 'M' THEN 'Captura manual de transaccion'
 						WHEN cp.status = 'C' THEN 'Despachado con tag de contingencia'
 						WHEN cp.status = 'X' THEN 'Cancelado por sistema'
 						ELSE 'NA'
@@ -694,9 +694,12 @@ sub getTransaccionesReporte($) {
 					CASE 
 						WHEN cp.camion IS NULL THEN 'NA'
 						ELSE camion
-					END AS camion
+					END AS camion,
+					m2.NAME AS despachador
 				FROM transacciones t LEFT JOIN ci_pases cp ON t.pase=cp.pase 
-				LEFT JOIN means m ON t.idvehiculos = m.id" .
+				LEFT JOIN means m ON t.idvehiculos = m.id
+				LEFT JOIN means m2 ON t.iddespachadores = m2.id " .
+
 				$filter .
 				" ORDER BY t.idtransacciones DESC "; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
