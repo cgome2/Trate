@@ -177,12 +177,12 @@ get "/transacciones/form" => sub {
       {
         key => "date_from",
         label => "Fecha (desde)",
-        type => "date"
+        type => "datetime"
       },
       {
         key => "date_to",
         label => "Fecha (hasta)",
-        type => "date"
+        type => "datetime"
       },
       {
         key => "transaction_from",
@@ -216,7 +216,7 @@ get "/transacciones/form" => sub {
       },
       {
         key => "camiones",
-        label => "Camiones",
+        label => "Dispositivos",
         type => "select",
         multiple => 1,
         optionsSource => "/means",
@@ -248,6 +248,38 @@ get "/transacciones/form" => sub {
           { key => "C", value => "Despachado en contingencia" },
           { key => "M", value => "Despachado en manual" }
         ]
+      },
+      {
+        key => "group",
+        label => "Agrupar por",
+        type => "select",
+        options => [
+          { key => "", value => "Ninguno" },
+          { key => "dispositivo", value => "Dispositivo" },
+          { key => "estatus", value => "Estatus" },
+          { key => "bombas", value => "Bombas" },
+          { key => "fecha", value => "Fecha" },
+          { key => "hora", value => "Hora" },
+        ]
+      },
+      {
+        key => "order",
+        label => "Ordenar por",
+        type => "select",
+        value => "fecha",
+        options => [
+          { key => "dispositivo", value => "Dispositivo" },
+          { key => "estatus", value => "Estatus" },
+          { key => "bombas", value => "Bombas" },
+          { key => "fecha", value => "Fecha" },
+          { key => "hora", value => "Hora" },
+        ]
+      },
+      {
+        key => "detalle",
+        label => "Detalle",
+        type => "checkbox",
+        value => 1,
       }
     ]
   };
