@@ -700,8 +700,7 @@ sub getTransaccionesReporte($) {
 				LEFT JOIN means m ON t.idvehiculos = m.id
 				LEFT JOIN means m2 ON t.iddespachadores = m2.id " .
 
-				$filter .
-				" ORDER BY t.idtransacciones DESC "; 
+				$filter; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 
 	my $sth = $connector->dbh->prepare($preps);

@@ -146,6 +146,8 @@ post '/transacciones' => sub {
 
 	$filter =~ s/,''\)/\)/g;
 
+	$filter .= $post->{order} ne "" ? " ORDER BY " . $post->{order} . " " : "";
+
 	my @blocks;
 	my %block;
 
@@ -188,16 +190,18 @@ post '/transacciones' => sub {
 	);
 	push(@columns,\@columns_l4);
 
-	my @columns_l5 = (
-		{"key" => "idtransaccion", "label" => "Transacción", "type" => "string"},
-		{"key" => "fecha", "label" => "Fecha", "align" => "right", "type" => "string", "proportion" => 2},
-		{"key" => "cantidad", "label" => "Litros", "align" => "right", "type" => "number"},
-		{"key" => "totalizador", "label" => "Totalizador", "align" => "right", "type" => "number"},
-		{"key" => "ppv", "label" => "PPV", "align" => "right", "type" => "number"},
-		{"key" => "sale", "label" => "Total pesos", "align" => "right", "type" => "number"},
-		{"key" => "duration", "label" => "Duración", "align" => "right", "type" => "string"}
-	);
-	push(@columns,\@columns_l5);
+	if($post->{detalle} ne 0){
+		my @columns_l5 = (
+			{"key" => "idtransaccion", "label" => "Transacción", "type" => "string"},
+			{"key" => "fecha", "label" => "Fecha", "align" => "right", "type" => "string", "proportion" => 2},
+			{"key" => "cantidad", "label" => "Litros", "align" => "right", "type" => "number"},
+			{"key" => "totalizador", "label" => "Totalizador", "align" => "right", "type" => "number"},
+			{"key" => "ppv", "label" => "PPV", "align" => "right", "type" => "number"},
+			{"key" => "sale", "label" => "Total pesos", "align" => "right", "type" => "number"},
+			{"key" => "duration", "label" => "Duración", "align" => "right", "type" => "string"}
+		);
+		push(@columns,\@columns_l5);
+	}
 
 	$block{columns} = \@columns;
 	
@@ -221,11 +225,9 @@ post '/transacciones' => sub {
 	$block{excel} = \@block_excel;
 
 	# Campos de agrupamiento
+	
 	my @groupBy = (
-		"bomba",
-		"despachador",
-		"camion",
-		"pase"
+		$post->{group} ne "" ? $post->{group} : "bomba"
 	);
 	$block{groupBy} = \@groupBy;
 
