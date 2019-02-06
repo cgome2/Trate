@@ -316,9 +316,6 @@ get "/shifts/table" => sub {
       {
         icon => 'eye',
         label => 'Ver',
-        # condition => {
-        #   status => 1
-        # },
         action => {
           type => 'form',
           form => '/shifts/ver',
@@ -597,10 +594,6 @@ get "/shifts/ver/form" => sub {
         readonly => 1,
         columns => [
           {
-            key => "mean_id",
-            label => "Id"
-          },
-          {
             key => "despachador",
             label => "Despachador"
           },
@@ -615,7 +608,7 @@ get "/shifts/ver/form" => sub {
           {
             key => "usuario_rm",
             label => "Removido por"
-          },
+          }
         ]
       },
       {
@@ -624,8 +617,8 @@ get "/shifts/ver/form" => sub {
         readonly => 1,
         columns => [
           {
-            key => "id_bomba",
-            label => "Id"
+            key => "bomba",
+            label => "Bomba"
           },
           {
             key => "totalizador_al_abrir",
@@ -634,7 +627,7 @@ get "/shifts/ver/form" => sub {
           {
             key => "totalizador_al_cerrar",
             label => "Totalizador al cerrar"
-          },
+          }
         ]
       },
       {
@@ -642,10 +635,6 @@ get "/shifts/ver/form" => sub {
         label => "Tanques",
         readonly => 1,
         columns => [
-          {
-            key => "tank_id",
-            label => "Id"
-          },
           {
             key => "tank_name",
             label => "Tanque"
