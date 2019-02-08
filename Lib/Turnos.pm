@@ -265,7 +265,6 @@ sub getTurno {
 	my $prepsMeans;
 	my $sthMeans;
 
-	LOGGER->debug("RAMSES 1");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	my $turno = $sth->fetchrow_hashref();
@@ -277,9 +276,20 @@ sub getTurno {
 	my $tanqueTurno = Trate::Lib::TanqueTurno->new();
 	my $meanTurno = Trate::Lib::MeanTurno->new();
 
-	LOGGER->debug("RAMSES 2");
+	$prepsBombas = "SELECT " . 
+						"tb.id_turno," . 
+						"tb.id_bomba," . 
+						"tb.bomba," . 
+						"tb.totalizador_al_abrir," . 
+						"tb.totalizador_al_cerrar," . 
+						"tb.timestamp_abrir," . 
+						"tb.timestamp_cerrar," . 
+						"CASE  WHEN tb.totalizador_al_cerrar IS NULL THEN " . 
+						"(SELECT SUM(t.cantidad) FROM transacciones t WHERE t.idcortes = " . $turno->{id_turno} . " AND t.bomba=tb.bomba) " .
+						"ELSE tb.totalizador_al_cerrar - tb.totalizador_al_abrir END AS litros_despachados " .
+					"FROM turno_bombas tb " .
+					"WHERE id_turno = " . $turno->{id_turno};
 
-	$prepsBombas = "SELECT * FROM turno_bombas WHERE id_turno=" . $turno->{id_turno};
 	$sthBombas = $connector->dbh->prepare($prepsBombas);
 	$sthBombas->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsBombas");
 	my @bombasTurno = ();
@@ -301,11 +311,22 @@ sub getTurno {
 
 	$turno->{TANQUES_TURNO} = \@tanquesTurno;
 
-	$prepsMeans = "SELECT tm.*,m.NAME AS despachador,u.numero_empleado AS usuario_add,u2.numero_empleado AS usuario_rm,CASE tm.status_mean_turno WHEN 2 THEN 1 ELSE 0 END AS activo " .
-					" FROM turno_means tm LEFT JOIN means m ON tm.mean_id=m.id " .
-					" LEFT JOIN usuarios u ON tm.id_usuario_add = u.idusuarios " .
-					" LEFT JOIN usuarios u2 ON tm.id_usuario_rm = u2.idusuarios " .
-					" WHERE tm.id_turno=" . $turno->{id_turno};
+	$prepsMeans = "	SELECT " .
+				  "	tm.*, " .
+				  "	m.NAME AS despachador, " .
+				  "	u.numero_empleado AS usuario_add, " .
+				  "	u2.numero_empleado AS usuario_rm, " .
+				  "	CASE tm.status_mean_turno WHEN 2 THEN 1 ELSE 0 END AS activo, " .
+				  "	CASE WHEN (SELECT SUM(tt.cantidad) FROM transacciones tt WHERE tt.iddespachadores=tm.mean_id AND tt.idcortes= " . $turno->{id_turno} . ") IS NULL " . 
+				  " THEN 0 ELSE (SELECT SUM(tt.cantidad) FROM transacciones tt WHERE tt.iddespachadores=tm.mean_id AND tt.idcortes= " . $turno->{id_turno} . ") END AS litros_despachados " .
+				  " FROM " .
+				  " turno_means tm " .
+				  "	LEFT JOIN means m ON tm.mean_id=m.id  " .
+				  "	LEFT JOIN usuarios u ON tm.id_usuario_add = u.idusuarios " .
+				  "	LEFT JOIN usuarios u2 ON tm.id_usuario_rm = u2.idusuarios " .
+				  " WHERE " .
+				  " tm.id_turno= " . $turno->{id_turno};
+				  
 	LOGGER->debug("Ejecutando sql[ ", $prepsMeans, " ]");
 	$sthMeans = $connector->dbh->prepare($prepsMeans);
 	$sthMeans->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsMeans");
