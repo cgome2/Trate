@@ -255,11 +255,11 @@ get "/transacciones/form" => sub {
         type => "select",
         options => [
           { key => "", value => "Ninguno" },
-          { key => "dispositivo", value => "Dispositivo" },
-          { key => "estatus", value => "Estatus" },
-          { key => "bombas", value => "Bombas" },
+          { key => "despachador", value => "Despachador" },
+          { key => "camion", value => "Camión" },
+          { key => "estatus_pase", value => "Estatus de pase" },
+          { key => "bomba", value => "Bombas" },
           { key => "fecha", value => "Fecha" },
-          { key => "hora", value => "Hora" },
         ]
       },
       {
@@ -268,11 +268,11 @@ get "/transacciones/form" => sub {
         type => "select",
         value => "fecha",
         options => [
-          { key => "dispositivo", value => "Dispositivo" },
-          { key => "estatus", value => "Estatus" },
-          { key => "bombas", value => "Bombas" },
+          { key => "despachador", value => "Despachador" },
+          { key => "camion", value => "Camión" },
+          { key => "estatus_pase", value => "Estatus de pase" },
+          { key => "bomba", value => "Bomba" },
           { key => "fecha", value => "Fecha" },
-          { key => "hora", value => "Hora" },
         ]
       },
       {
