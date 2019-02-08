@@ -198,10 +198,19 @@ post '/transacciones' => sub {
 		push(@columns,\@columns_l4);
 	}
 
+	if($post->{group} eq "fecha"){
+		my @columns_l4 = (
+			{"key" => "fecha", "label" => "Fecha", "proportion" => 5, "type" => "string"},
+			{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
+			{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
+		);
+		push(@columns,\@columns_l4);
+	}
+
 	if($post->{detalle} ne 0 || $post->{group} eq ""){
 		my @columns_l5 = (
 			{"key" => "idtransaccion", "label" => "Transacción", "type" => "string"},
-			{"key" => "fecha", "label" => "Fecha", "align" => "right", "type" => "string", "proportion" => 2},
+			{"key" => "fecha_hora", "label" => "Fecha y hora", "align" => "right", "type" => "string", "proportion" => 2},
 			{"key" => "cantidad", "label" => "Litros", "align" => "right", "type" => "number"},
 			{"key" => "totalizador", "label" => "Totalizador", "align" => "right", "type" => "number"},
 			{"key" => "ppv", "label" => "PPV", "align" => "right", "type" => "number"},
@@ -223,7 +232,7 @@ post '/transacciones' => sub {
 		{"key" => "pase","label" => "Pase", "type" => "string"},
 		{"key" => "estatus_pase","label" => "Estatus pase", "type" => "string"},
 		{"key" => "idtransaccion", "label" => "Transacción", "type" => "string"},
-		{"key" => "fecha", "label" => "Fecha", "type" => "string"},
+		{"key" => "fecha_hora", "label" => "Fecha y hora", "type" => "string"},
 		{"key" => "cantidad", "label" => "Litros", "type" => "number"},
 		{"key" => "totalizador", "label" => "Totalizador", "type" => "number"},
 		{"key" => "ppv","label" => "Ppv","type" => "number"},

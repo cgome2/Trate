@@ -664,7 +664,8 @@ sub getTransaccionesReporte($) {
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT 
 					t.idtransacciones AS idtransaccion,
-					t.fecha AS fecha,
+					DATE(t.fecha) AS fecha,
+					t.fecha AS fecha_hora,
 					t.cantidad AS cantidad,
 					t.totalizador AS totalizador,
 					t.ppv AS ppv,
@@ -676,7 +677,7 @@ sub getTransaccionesReporte($) {
 						WHEN m.auttyp = 1 AND m.hardware_type = 6 AND m.TYPE = 3 THEN 'camion - fuelopass'
 						WHEN m.auttyp = 23 AND m.hardware_type = 6 AND m.TYPE = 3 THEN 'camion - viu 35'
 						WHEN m.auttyp = 26 AND m.hardware_type = 6 AND m.TYPE = 3 THEN 'camion - Datapass'
-						WHEN m.auttyp = 6 AND m.hardware_type = 1 AND m.TYPE = 4 THEN 'camion - Despachador'
+						WHEN m.auttyp = 6 AND m.hardware_type = 1 AND m.TYPE = 4 THEN 'tag - Despachador'
 						WHEN m.auttyp = 6 AND m.hardware_type = 1 AND m.TYPE = 2 THEN 'tag - Contingencia'
 						WHEN m.auttyp = 21 AND m.hardware_type = 1 AND m.TYPE = 2 THEN 'tag - Jarreo'
 					END AS tipo_mean,
