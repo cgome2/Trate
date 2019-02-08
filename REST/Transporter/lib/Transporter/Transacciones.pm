@@ -159,38 +159,46 @@ post '/transacciones' => sub {
 
 	# Columnas del bloque por nivel de agrupamiento
 	my @columns;
-	my @columns_l1 = (
-		{"key" => "bomba", "label" => "Bomba", "proportion" => 5, "type" => "string"},
-		{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
-		{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
-	);
-	push(@columns,\@columns_l1);
 
-	my @columns_l2 = (
-		{"key" => "despachador", "label" => "Despachador", "proportion" => 5, "type" => "string"},
-		{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
-		{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
-	);
-	push(@columns,\@columns_l2);
+	if($post->{group} eq "bomba" || $post->{group} eq ""){
+		my @columns_l1 = (
+			{"key" => "bomba", "label" => "Bomba", "proportion" => 5, "type" => "string"},
+			{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
+			{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
+		);
+		push(@columns,\@columns_l1);
+	}
 
-	my @columns_l3 = (
-		{"key" => "camion", "label" => "Camión", "type" => "string"},
-		{"key" => "mean", "label" => "Dispositivo", "type" => "string"},
-		{"key" => "tipo_mean", "label" => "Tipo de dispositivo", "type" => "string", "proportion" => 3},
-		{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
-		{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
-	);
-	push(@columns,\@columns_l3);
+	if($post->{group} eq "despachador"){
+		my @columns_l2 = (
+			{"key" => "despachador", "label" => "Despachador", "proportion" => 5, "type" => "string"},
+			{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
+			{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
+		);
+		push(@columns,\@columns_l2);
+	}
 
-	my @columns_l4 = (
-		{"key" => "pase", "label" => "Pase", "type" => "string"},
-		{"key" => "estatus_pase", "label" => "Estatus pase", "proportion" => 4, "type" => "string"},
-		{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
-		{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
-	);
-	push(@columns,\@columns_l4);
+	if($post->{group} eq "camion"){
+		my @columns_l3 = (
+			{"key" => "camion", "label" => "Camión", "type" => "string"},
+			{"key" => "mean", "label" => "Dispositivo", "type" => "string"},
+			{"key" => "tipo_mean", "label" => "Tipo de dispositivo", "type" => "string", "proportion" => 3},
+			{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
+			{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
+		);
+		push(@columns,\@columns_l3);
+	}
 
-	if($post->{detalle} ne 0){
+	if($post->{group} eq "estatus_pase"){
+		my @columns_l4 = (
+			{"key" => "estatus_pase", "label" => "Estatus pase", "proportion" => 5, "type" => "string"},
+			{"key" => "cantidad", "label" => "Litros", "align" => "right", "totalKey" => "True", "type" => "number"},
+			{"key" => "sale", "label" => "Total", "align" => "right", "totalKey" => "True", "type" => "number"}
+		);
+		push(@columns,\@columns_l4);
+	}
+
+	if($post->{detalle} ne 0 || $post->{group} eq ""){
 		my @columns_l5 = (
 			{"key" => "idtransaccion", "label" => "Transacción", "type" => "string"},
 			{"key" => "fecha", "label" => "Fecha", "align" => "right", "type" => "string", "proportion" => 2},

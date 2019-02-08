@@ -262,6 +262,10 @@ sub getTurno {
 	my $sthBombas;
 	my $prepsTanques;
 	my $sthTanques;
+	my $prepsJarreos;
+	my $sthJarreos;
+	my $prepsRecepcionesCombustible;
+	my $sthRecepcionesCombustible;
 	my $prepsMeans;
 	my $sthMeans;
 
@@ -336,7 +340,60 @@ sub getTurno {
 	}
 		
 	$turno->{MEANS_TURNO} = \@meansTurno;
+
+	$prepsJarreos =	"SELECT " .
+						" jt.transaction_id AS idtransacciones, " .
+						" jt.transaction_timestamp AS fecha, " .
+						" jt.transaction_dispensed_quantity AS cantidad, " .
+						" jt.transaction_pump_head_external_code AS bomba, " .
+						" jt.return_timestamp AS fecha_devolucion, " .
+						" CASE jt.status_code WHEN 1 THEN 'Devuelto' ELSE 'Pendiente de devolucion' END AS estatus " .
+						" FROM " .
+						" jarreos_t jt " .
+						" LEFT JOIN transacciones t ON t.idtransacciones=jt.transaction_id " .
+						" WHERE " .
+						" t.idcortes= " . $turno->{id_turno};
+	LOGGER->debug("Ejecutando sql[ ", $prepsJarreos, " ]");
+	$sthJarreos = $connector->dbh->prepare($prepsJarreos);
+	$sthJarreos->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsJarreos");
+	my @jarreosTurno = ();
+	while (my $m = $sthJarreos->fetchrow_hashref()){
+		push @jarreosTurno,$m;
+	}
 		
+	$turno->{JARREOS_TURNO} = \@jarreosTurno;
+
+	$prepsRecepcionesCombustible =	"" .
+			" SELECT " .
+			"	tdrt.start_delivery_timestamp AS inicio_descarga, " .
+			"	tdrt.end_delivery_timestamp AS fin_descarga, " .
+			"	tdrt.end_volume - tdrt.start_volume AS volumen_descarga, " .
+			"	tdrt.tank_name AS tanque, " .
+			"	tdrt.origen_registro AS tipo_registro, " .
+			"	CASE tdrt.status WHEN 1 THEN 'Documentado' ELSE 'Pendiente de documento' END AS status, " .
+			"	rc.folio_documento AS factura, " .
+			"	rc.empleado_captura AS supervisor " .
+			" FROM " .
+			"	tank_delivery_readings_t tdrt LEFT JOIN recepciones_combustible rc ON tdrt.id_recepcion=rc.id_recepcion " .
+			" WHERE " .
+			"	tdrt.end_delivery_timestamp >= (SELECT fecha_abierto FROM turnos WHERE id_turno=" . $turno->{id_turno} . ") " .
+			" AND " .
+			"	( " .
+			"	(tdrt.end_delivery_timestamp <= (SELECT fecha_cierre FROM turnos WHERE id_turno=" . $turno->{id_turno} . ") AND 1=(SELECT status FROM turnos WHERE id_turno=" . $turno->{id_turno} . ")) " .
+			"	OR " . 
+			"	((SELECT status FROM turnos WHERE id_turno=" . $turno->{id_turno} . ")=2) " .
+			"	)";
+
+	LOGGER->debug("Ejecutando sql[ ", $prepsRecepcionesCombustible, " ]");
+	$sthRecepcionesCombustible = $connector->dbh->prepare($prepsRecepcionesCombustible);
+	$sthRecepcionesCombustible->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsRecepcionesCombustible");
+	my @recepcionesCombustibleTurno = ();
+	while (my $m = $sthRecepcionesCombustible->fetchrow_hashref()){
+		push @recepcionesCombustibleTurno,$m;
+	}
+		
+	$turno->{RECEPCIONES_COMBUSTIBLE_TURNO} = \@recepcionesCombustibleTurno;
+
 	return $turno;
 }
 
