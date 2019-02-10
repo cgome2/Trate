@@ -172,7 +172,7 @@ sub getFromMean(){
 
 	my $id = 0;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT * FROM ci_pases WHERE (camion = '" . $mean . "' OR mean_contingencia = '" . $mean . "') AND fecha_solicitud < '" . $self->{FECHA_SOLICITUD} . "' AND status IN ('A','R','T') ORDER BY fecha_solicitud DESC LIMIT 1";
+	my $preps = "SELECT * FROM ci_pases WHERE (camion = '" . $mean . "' OR mean_contingencia = '" . $mean . "') AND status IN ('A','R','T') ORDER BY fecha_solicitud DESC LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
     $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
