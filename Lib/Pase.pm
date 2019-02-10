@@ -200,7 +200,7 @@ sub getFromMean(){
 	return $self;	
 }
 
-sub updatePase{
+sub updatePase {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps;
