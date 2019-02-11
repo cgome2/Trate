@@ -1,7 +1,7 @@
 package Transporter::Transacciones;
 
 use Dancer ':syntax';
-use Trate::Lib::Constants qw(LOGGER);
+use Trate::Lib::Constants qw(LOGGER ESTACION);
 use Trate::Lib::Bombas;
 use Trate::Lib::Mean;
 use Trate::Lib::Transacciones;
@@ -255,7 +255,7 @@ post '/transacciones' => sub {
 	# Encabezados del reporte
 	$responsepayload{title} = "Reporte de movimientos";
 	my @subtitle = (
-		"Estación: 1457",
+		"Estación: " . ESTACION,
 		"Periodo " .
 		($post->{date_from} ne "" ? (" desde: " . Trate::Lib::Utilidades->getMariaDBDateFromJason($post->{date_from}) . " ") : " desde inicio de operaciones ") .
 		($post->{date_to} ne "" ? (" hasta: " . Trate::Lib::Utilidades->getMariaDBDateFromJason($post->{date_to}) . " ") : " hasta " . Trate::Lib::Utilidades->getCurrentTimestampMariaDB()),
