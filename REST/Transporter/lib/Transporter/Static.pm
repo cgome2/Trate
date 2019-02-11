@@ -173,6 +173,7 @@ get "/transacciones/form" => sub {
   return {
     icon => "account-key",
     title => "Transacciones",
+    sqlDates => 1,
     fields => [
       {
         key => "date_from",
@@ -255,11 +256,11 @@ get "/transacciones/form" => sub {
         type => "select",
         options => [
           { key => "", value => "Ninguno" },
-          { key => "despachador", value => "Despachador" },
-          { key => "camion", value => "Camión" },
-          { key => "estatus_pase", value => "Estatus de pase" },
-          { key => "bomba", value => "Bombas" },
+          { key => "dispositivo", value => "Dispositivo" },
+          { key => "estatus", value => "Estatus" },
+          { key => "bombas", value => "Bombas" },
           { key => "fecha", value => "Fecha" },
+          { key => "hora", value => "Hora" },
         ]
       },
       {
@@ -268,11 +269,11 @@ get "/transacciones/form" => sub {
         type => "select",
         value => "fecha",
         options => [
-          { key => "despachador", value => "Despachador" },
-          { key => "camion", value => "Camión" },
-          { key => "estatus_pase", value => "Estatus de pase" },
-          { key => "bomba", value => "Bomba" },
+          { key => "dispositivo", value => "Dispositivo" },
+          { key => "estatus", value => "Estatus" },
+          { key => "bombas", value => "Bombas" },
           { key => "fecha", value => "Fecha" },
+          { key => "hora", value => "Hora" },
         ]
       },
       {
