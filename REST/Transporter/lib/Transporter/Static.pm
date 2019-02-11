@@ -609,6 +609,10 @@ get "/shifts/ver/form" => sub {
           {
             key => "usuario_rm",
             label => "Removido por"
+          },
+          {
+            key => "litros_despachados",
+            label => "Litros despachados"
           }
         ]
       },
@@ -628,6 +632,10 @@ get "/shifts/ver/form" => sub {
           {
             key => "totalizador_al_cerrar",
             label => "Totalizador al cerrar"
+          },
+          {
+            key => "litros_despachados",
+            label => "Litros despachados"
           }
         ]
       },
