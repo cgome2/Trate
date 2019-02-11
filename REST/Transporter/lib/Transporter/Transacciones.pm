@@ -89,8 +89,8 @@ post '/transacciones' => sub {
 	my $post = from_json( request->body );
 
 	my $filter = " WHERE 1=1 ";
-	$filter = $filter . ($post->{date_from} ne "" ? (" AND t.fecha >= '" . Trate::Lib::Utilidades->getMariaDBDateFromJason($post->{date_from}) . "' ") : "" );
-	$filter = $filter . ($post->{date_to} ne "" ? (" AND t.fecha <= '" . Trate::Lib::Utilidades->getMariaDBDateFromJason($post->{date_to}) . "' ") : "" );
+	$filter = $filter . ($post->{date_from} ne "" ? (" AND t.fecha >= '" . $post->{date_from} . "' ") : "" );
+	$filter = $filter . ($post->{date_to} ne "" ? (" AND t.fecha <= '" . $post->{date_to} . "' ") : "" );
 	$filter = $filter . ($post->{transaction_from} ne "" ? (" AND t.idtransacciones >= '" . $post->{transaction_from} . "' ") : "" );
 	$filter = $filter . ($post->{transaction_to} ne "" ? (" AND t.idtransacciones <= '" . $post->{transaction_to} . "' ") : "" );
 	$filter = $filter . ($post->{litros_desde} ne "" ? (" AND t.cantidad >= '" . $post->{litros_desde} . "' ") : "" );
@@ -136,8 +136,8 @@ post '/transacciones' => sub {
 			$filter .= "'') AND ";
 		}
 	}
-	$filter .= ($post->{pase_desde} ne "" ? (" t.pase >= '" . $post->{pase_desde} . "' ") : "1=1" );
-	$filter .= ($post->{pase_hasta} ne "" ? (" AND t.pase <= '" . $post->{pase_hasta} . "' ") : "1=1" );
+	$filter .= ($post->{pase_desde} ne "" ? (" t.pase >= '" . $post->{pase_desde} . "' ") : " 1=1 " );
+	$filter .= ($post->{pase_hasta} ne "" ? (" AND t.pase <= '" . $post->{pase_hasta} . "' ") : " AND 1=1 " );
 
 	$filter .= ") ";
 	$filter .= " OR (cp.status IS NULL and t.pase=0)";
@@ -212,6 +212,10 @@ post '/transacciones' => sub {
 			{"key" => "idtransaccion", "label" => "Transacción", "type" => "string"},
 			{"key" => "fecha_hora", "label" => "Fecha y hora", "align" => "right", "type" => "string", "proportion" => 2},
 			{"key" => "cantidad", "label" => "Litros", "align" => "right", "type" => "number"},
+			{"key" => "pase", "label" => "Pase", "align" => "right", "type" => "number"},
+			{"key" => "camion", "label" => "Camion", "align" => "right", "type" => "number"},
+			{"key" => "mean", "label" => "Dispositivo", "type" => "string"},
+			{"key" => "despachador", "label" => "Despachador", "align" => "right", "type" => "number"},
 			{"key" => "totalizador", "label" => "Totalizador", "align" => "right", "type" => "number"},
 			{"key" => "ppv", "label" => "PPV", "align" => "right", "type" => "number"},
 			{"key" => "sale", "label" => "Total pesos", "align" => "right", "type" => "number"},
@@ -257,8 +261,8 @@ post '/transacciones' => sub {
 	my @subtitle = (
 		"Estación: " . ESTACION,
 		"Periodo " .
-		($post->{date_from} ne "" ? (" desde: " . Trate::Lib::Utilidades->getMariaDBDateFromJason($post->{date_from}) . " ") : " desde inicio de operaciones ") .
-		($post->{date_to} ne "" ? (" hasta: " . Trate::Lib::Utilidades->getMariaDBDateFromJason($post->{date_to}) . " ") : " hasta " . Trate::Lib::Utilidades->getCurrentTimestampMariaDB()),
+		($post->{date_from} ne "" ? (" desde: " . $post->{date_from} . " ") : " desde inicio de operaciones ") .
+		($post->{date_to} ne "" ? (" hasta: " . $post->{date_to} . " ") : " hasta " . Trate::Lib::Utilidades->getCurrentTimestampMariaDB()),
 		"Pases " .
 		($post->{pase_desde} ne "" ? (" desde: " . $post->{pase_desde} . " ") : " desde inicio de operaciones ") .
 		($post->{pase_hasta} ne "" ? (" hasta: " . $post->{pase_hasta} . " ") : ""),

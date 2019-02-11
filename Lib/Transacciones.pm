@@ -182,18 +182,19 @@ sub procesaTransacciones($){
 		$self->{PPV} = $row->{'ppv'};
 		$self->{VENTA} = $row->{'total_price'};
 		try {
-			insertaTransaccion($self);
 			my $meanTransaction = Trate::Lib::Mean->new();
 			$meanTransaction->{ID} = $row->{'mean_id'};
 			LOGGER->debug(dump($meanTransaction));	
 			$meanTransaction->fillMeanFromId();
 			if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type() eq 2){
 				LOGGER->info("Transacción es jarreo: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+				insertaTransaccion($self);
 				insertaMovimientoJarreo($self);
 				insertaJarreo($self);
 			} else {
 				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
 				$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
+				insertaTransaccion($self);
 				insertaMovimiento($self);
 				actualizaPase($self);
 				limpiaReglaCarga($self);
@@ -247,18 +248,19 @@ sub procesaTransaccionesNuevas($){
 		$self->{START_FLOW} = $row->{'start_flow'};
 		$self->{END_FLOW} = $row->{'end_flow'};
 		try {
-			insertaTransaccion($self);
 			my $meanTransaction = Trate::Lib::Mean->new();
 			$meanTransaction->{ID} = $row->{'mean_id'};
 			LOGGER->debug(dump($meanTransaction));	
 			$meanTransaction->fillMeanFromId();
 			if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type() eq 2){
 				LOGGER->info("Transacción es jarreo: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+				insertaTransaccion($self);
 				insertaMovimientoJarreo($self);
 				insertaJarreo($self);
 			} else {
 				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
 				$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
+				insertaTransaccion($self);
 				insertaMovimiento($self);
 				actualizaPase($self);
 				limpiaReglaCarga($self);
@@ -378,7 +380,7 @@ sub insertaMovimiento {
 # Insert movimiento object locally and remotely at informix
 # @params: No params required
 # @return: Current object Trate::Lib::Transacciones
-sub insertaMovimientoJarreo{
+sub insertaMovimientoJarreo {
 	my $self = shift;
 	my $movimiento = Trate::Lib::Movimiento->new();
 	$movimiento->{FECHA_HORA} = $self->{FECHA};
@@ -408,7 +410,7 @@ sub insertaMovimientoJarreo{
 	return $self;
 }
 
-sub insertaMovimientoDevolucionJarreo(){
+sub insertaMovimientoDevolucionJarreo() {
 	my $self = shift;
 	my $usuarioDevolucion = pop;
 	my $movimiento = Trate::Lib::Movimiento->new();
@@ -444,7 +446,7 @@ sub insertaMovimientoDevolucionJarreo(){
 # Insert jarreo object locally
 # @params: No params required
 # @return: Current object Trate::Lib::Transacciones
-sub insertaJarreo{
+sub insertaJarreo {
 	my $self = shift;
 	my $jarreo = Trate::Lib::Jarreo->new();
 	$jarreo->{TRANSACTION_ID} = $self->{IDTRANSACCIONES};
@@ -460,7 +462,7 @@ sub insertaJarreo{
 	$jarreo->inserta();	
 }
 
-sub actualizaPase{
+sub actualizaPase {
 	my $self = shift;
 	LOGGER->info("Datos a procesar [ pase: " . $self->{PASE}->pase() . ", status actual: " . $self->{PASE}->status() . ", litros_real: " . $self->{CANTIDAD});
 	if($self->{PASE}->status() eq "T"){
@@ -498,7 +500,7 @@ sub setLastTransactionRetreived {
 	return $self;
 }
 
-sub limpiaReglaCarga{
+sub limpiaReglaCarga {
 	my $self = shift;
 	my $mean = Trate::Lib::Mean->new();
 	$mean->name($self->{IDVEHICULOS});
@@ -681,7 +683,7 @@ sub getTransaccionesReporte($) {
 						WHEN m.auttyp = 6 AND m.hardware_type = 1 AND m.TYPE = 2 THEN 'tag - Contingencia'
 						WHEN m.auttyp = 21 AND m.hardware_type = 1 AND m.TYPE = 2 THEN 'tag - Jarreo'
 					END AS tipo_mean,
-					t.pase AS pase,
+					cp.pase AS pase,
 					CASE
 						WHEN cp.status = 'A' THEN 'Activo'
 						WHEN cp.status = 'D' THEN 'Despachado'
@@ -694,12 +696,13 @@ sub getTransaccionesReporte($) {
 					END AS estatus_pase,
 					CASE 
 						WHEN cp.camion IS NULL THEN 'NA'
-						ELSE camion
+						ELSE cp.camion
 					END AS camion,
-					m2.NAME AS despachador
-				FROM transacciones t LEFT JOIN ci_pases cp ON t.pase=cp.pase 
-				LEFT JOIN means m ON t.idvehiculos = m.id
-				LEFT JOIN means m2 ON t.iddespachadores = m2.id " .
+					t.iddespachadores AS despachador
+				FROM transacciones t
+				LEFT JOIN ci_movimientos cm ON t.idtransacciones=cm.transaction_id
+				LEFT JOIN ci_pases cp ON cm.referencia=cp.pase
+				LEFT JOIN means m ON t.idvehiculos = m.id " .
 
 				$filter; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");

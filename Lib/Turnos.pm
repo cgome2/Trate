@@ -321,8 +321,8 @@ sub getTurno {
 				  "	u.numero_empleado AS usuario_add, " .
 				  "	u2.numero_empleado AS usuario_rm, " .
 				  "	CASE tm.status_mean_turno WHEN 2 THEN 1 ELSE 0 END AS activo, " .
-				  "	CASE WHEN (SELECT SUM(tt.cantidad) FROM transacciones tt WHERE tt.iddespachadores=tm.mean_id AND tt.idcortes= " . $turno->{id_turno} . ") IS NULL " . 
-				  " THEN 0 ELSE (SELECT SUM(tt.cantidad) FROM transacciones tt WHERE tt.iddespachadores=tm.mean_id AND tt.idcortes= " . $turno->{id_turno} . ") END AS litros_despachados " .
+				  "	CASE WHEN (SELECT SUM(tt.cantidad) FROM transacciones tt WHERE tt.iddespachadores=m.NAME AND tt.idcortes= " . $turno->{id_turno} . ") IS NULL " . 
+				  " THEN 0 ELSE (SELECT SUM(tt.cantidad) FROM transacciones tt WHERE tt.iddespachadores=m.NAME AND tt.idcortes= " . $turno->{id_turno} . ") END AS litros_despachados " .
 				  " FROM " .
 				  " turno_means tm " .
 				  "	LEFT JOIN means m ON tm.mean_id=m.id  " .
