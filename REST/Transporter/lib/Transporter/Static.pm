@@ -435,12 +435,12 @@ get "/shifts/form" => sub {
             type => "checkbox"
           },
           {
-            key => "mean_id",
-            label => "Id"
-          },
-          {
             key => "despachador",
             label => "Despachador"
+          },
+          {
+            key => "status",
+            label => "Estatus"
           },
           {
             key => "usuario_add",
@@ -450,6 +450,10 @@ get "/shifts/form" => sub {
             key => "usuario_rm",
             label => "Removido por"
           },
+          {
+            key => "litros_despachados",
+            label => "Litros despachados"
+          }
         ]
       },
       {
@@ -458,8 +462,8 @@ get "/shifts/form" => sub {
         readonly => 1,
         columns => [
           {
-            key => "id_bomba",
-            label => "Id"
+            key => "bomba",
+            label => "Bomba"
           },
           {
             key => "totalizador_al_abrir",
@@ -469,6 +473,10 @@ get "/shifts/form" => sub {
             key => "totalizador_al_cerrar",
             label => "Totalizador al cerrar"
           },
+          {
+            key => "litros_despachados",
+            label => "Litros despachados"
+          }
         ]
       },
       {
@@ -476,10 +484,6 @@ get "/shifts/form" => sub {
         label => "Tanques",
         readonly => 1,
         columns => [
-          {
-            key => "tank_id",
-            label => "Id"
-          },
           {
             key => "tank_name",
             label => "Tanque"
