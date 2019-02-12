@@ -149,7 +149,7 @@ sub inserta {
 	return $self;
 }
 
-sub getJarreos{
+sub getJarreos {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT 

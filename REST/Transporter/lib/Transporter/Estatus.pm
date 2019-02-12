@@ -10,7 +10,7 @@ use Data::Dump qw(dump);
 use List::Util qw(all);
 
 
-our $VERSION = '0.1';
+our $VERSION = '1.0';
 
 set serializer => 'JSON';
 
