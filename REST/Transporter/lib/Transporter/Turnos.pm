@@ -215,12 +215,12 @@ patch '/shifts' => sub {
 			return {message => "Existen bombas en uso"}; 
 		}
 		LOGGER->info("Verificando si existen bombas en uso");
-		if($turno->verificarRecepcionesDocumentos()){
-			status 400;
-			LOGGER->info("El turno no puede ser cerrado debido a que existen recepciones de combustible sin documentar");
-			return {message => "Existen recepciones de combustible sin documentar"}; 
-		}
-		LOGGER->info("Verificando si existen recepciones de combustible sin documentar");
+		#if($turno->verificarRecepcionesDocumentos()){
+		#	status 400;
+		#	LOGGER->info("El turno no puede ser cerrado debido a que existen recepciones de combustible sin documentar");
+		#	return {message => "Existen recepciones de combustible sin documentar"}; 
+		#}
+		#LOGGER->info("Verificando si existen recepciones de combustible sin documentar");
 		if($turno->cambiarEstatusFlota("INACTIVA")){
 			status 400;
 			LOGGER->info("El turno no puede ser cerrado debido a que no se han podido bloquear los dispositivos");
