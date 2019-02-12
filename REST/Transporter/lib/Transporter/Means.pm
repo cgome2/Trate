@@ -141,13 +141,23 @@ patch '/means' => sub {
 		$MEAN->{NAME} = $post->{NAME};
 		$MEAN->{STRING} = $post->{string};
 		$MEAN->{TYPE} = $post->{TYPE};
-		if($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 21){
+		if($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 21) {
 			$MEAN->{STATUS} = $post->{status};	
 		}
 		$MEAN->{HARDWARE_TYPE} = $post->{hardware_type};
 		$MEAN->{PLATE} = $post->{plate};
 		$MEAN->{AUTTYP} = $post->{auttyp};
 	
+		if($post->{status} eq 0) {
+			my $eliminacion = $MEAN->eliminarMean();
+			if($eliminacion eq 1){
+				return {message => "Dispositivo eliminado"};
+			} else {
+				status 405;
+				return {message => $eliminacion};
+			}
+		}
+
 		if($MEAN->updateMean() eq 1){
 			return {message => "OKComputer"};
 		} else {

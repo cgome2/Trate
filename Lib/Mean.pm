@@ -256,7 +256,47 @@ sub desactivarMean {
 	return $result;
 }
 
-sub getMeans{
+sub eliminarMean {
+	my $self = shift;
+	return "La eliminacion no es permitida en esta version";
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = " SELECT count(*) AS pases FROM ci_pases WHERE camion='" . $self->{NAME} . "' AND status IN('A','R','T')";
+	LOGGER->debug("Ejecutando en eliminarMean " . $preps);
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	LOGGER->debug(dump($row));
+	$sth->finish;
+	$connector->destroy();
+	if($row->{pases} gt 0){
+		return "El dispositivo no puede eliminarse porque tiene pases activos vinculados";
+	}
+	
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		mean_name => $self->{NAME},
+		new_state => 0,
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOUpdateMeanStatus");
+	$wsc->sessionId();
+	my $result = $wsc->execute(\%params);
+	if($result->{rc} eq 2){
+		LOGGER->info("El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser eliminado");	
+		return "El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser eliminado";
+	}
+	$connector = Trate::Lib::ConnectorMariaDB->new();
+	$preps = " UPDATE means SET status = 0 WHERE id='" . $self->{ID} . "' LIMIT 1";
+	$sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+	LOGGER->info("El dispositivo " . $self->{NAME} . " ha sido eliminado");
+	return 1;
+}
+
+sub getMeans {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp " .
@@ -282,7 +322,7 @@ sub getMeans{
 	return \@means;	
 }
 
-sub getMeansContingencia{
+sub getMeansContingencia {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp FROM means WHERE auttyp=6 AND hardware_type=1 AND TYPE=2";

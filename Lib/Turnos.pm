@@ -305,7 +305,16 @@ sub getTurno {
 	$turno->{BOMBAS_TURNO} = \@bombasTurno;
 
 
-	$prepsTanques = "SELECT * FROM turno_tanques WHERE id_turno=" . $turno->{id_turno};
+	$prepsTanques = "SELECT " . 
+					" id_turno, " .
+					" tank_id, " .
+					" tank_name, " .
+					" volumen_inicial, " .
+					" volumen_final, " .
+					" timestamp_inicial, " .
+					" timestamp_final, " .
+					" CASE WHEN timestamp_final IS NULL THEN '' ELSE volumen_final-volumen_inicial END AS volumen_diferencia " .
+					" FROM turno_tanques WHERE id_turno=" . $turno->{id_turno};
 	$sthTanques = $connector->dbh->prepare($prepsTanques);
 	$sthTanques->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $prepsTanques");
 	my @tanquesTurno = ();
@@ -398,7 +407,7 @@ sub getTurno {
 }
 
 # Al abrir inserta totalizadores de cada bomba en la tabla turno_bombas
-sub insertOpenTotalizerReadings{
+sub insertOpenTotalizerReadings {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $result = 0;
@@ -434,7 +443,7 @@ sub insertOpenTotalizerReadings{
 }
 
 # al abrir inserta las lecturas de los tanque en la tabla turno_tanques
-sub insertOpenTankReadings{
+sub insertOpenTankReadings {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $result = 0;
@@ -539,7 +548,7 @@ sub cambiarEstatusFlota($){
 }
 
 # verifica que sii existen jarreos sin devolución en el turno a fin de garantizar que no haya cierres inconsistentes
-sub verificarJarreosAbiertos{
+sub verificarJarreosAbiertos {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT count(*) AS jarreos FROM jarreos_t WHERE status_code = 2 AND transaction_timestamp>='" . $self->{FECHA_ABIERTO} . "'";
@@ -557,7 +566,7 @@ sub verificarJarreosAbiertos{
 }
 
 # verifica que todas las bombas tengan un estado 55 o 49 es decir IDLE o FUERA DE LINEA para poder realizar el corte
-sub verificarEstadosBombaIdle{
+sub verificarEstadosBombaIdle {
 	my $self = shift;
 	my $bombas = Trate::Lib::Bombas->new();
 	my @pumps = @{$bombas->getBombasEstatus()};
@@ -570,7 +579,7 @@ sub verificarEstadosBombaIdle{
 }
 
 # verifica que no existan lecturas de recepción de combustible que no hayan sido asigadas a un documento a fin de permitir el cierre de un corte
-sub verificarRecepcionesDocumentos{
+sub verificarRecepcionesDocumentos {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "SELECT count(*) AS recepciones FROM tank_delivery_readings_t WHERE status = 0 AND end_delivery_timestamp>='" . $self->{FECHA_ABIERTO} . "'";
@@ -588,7 +597,7 @@ sub verificarRecepcionesDocumentos{
 }
 
 # bloquea los means de los despachadores
-sub bloquearMeansDespachador{
+sub bloquearMeansDespachador {
 	my $self = shift;
 	my @despachadores = @{$self->{MEANS_TURNO}};
 	foreach my $despachador (@despachadores){
@@ -603,7 +612,7 @@ sub bloquearMeansDespachador{
 }
 
 # inseta lecturas de totalizadores por cada bomba al cierre del turno
-sub insertCloseTankReadings{
+sub insertCloseTankReadings {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $result = 0;
@@ -625,7 +634,7 @@ sub insertCloseTankReadings{
 }
 
 # inserta lectura de existencia en tanques al cierre del turno
-sub insertCloseTotalizerReadings{
+sub insertCloseTotalizerReadings {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $result = 0;

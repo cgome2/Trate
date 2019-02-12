@@ -12,7 +12,7 @@ use Data::Structure::Util qw( unbless );
 
 $ENV{INFORMIXSERVER} = INFORMIX_SERVER;
 
-our $VERSION = '0.1';
+our $VERSION = '1.0';
 
 set serializer => 'JSON';
 
@@ -24,15 +24,8 @@ get '/lecturas_tls' => sub {
 		Trate::Lib::Usuarios->renuevaToken(request->headers->{token});
 	}
 
-	#my $sort = length(params->{'sort'}) gt 0 ? params->{'sort'} : "";
-	#my $order = length(params->{order}) gt 0 ? params->{order} : "";
-	#my $page = length(params->{page}) gt 0 ? params->{page} : "";
-	#my $limit = length(params->{limit}) gt 0 ? params->{limit} :"";
-	#my $search = length(params->{'search'}) gt 0 ? params->{'search'} : "";
-		
 	my $LECTURAS_TLS = Trate::Lib::LecturasTLS->new();	
 	$LECTURAS_TLS->getLastLecturasTlsFromOrcu();
-	#my $lecturasTls = $LECTURAS_TLS->getLecturasTls($sort,$order,$page,$limit,$search);	
 	my $lecturasTls = $LECTURAS_TLS->getLecturasTls();
 	return $lecturasTls;
 };

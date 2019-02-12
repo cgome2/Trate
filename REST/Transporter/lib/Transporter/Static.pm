@@ -499,6 +499,53 @@ get "/shifts/form" => sub {
             key => "volumen_final",
             label => "Volumen final"
           },
+          {
+            key => "volumen_diferencia",
+            label => "Diferencia volumen"
+          },
+        ]
+      },
+      {
+        key => "RECEPCIONES_COMBUSTIBLE_TURNO",
+        label => "Recepciones",
+        readonly => 1,
+        columns => [
+          {
+            key => "id_recepecion",
+            label => "Número"
+          },
+          {
+            key => "inicio_descarga",
+            label => "Fecha inicio"
+          },
+          {
+            key => "fin_descarga",
+            label => "Fecha fin"
+          },
+          {
+            key => "volumen_descarga",
+            label => "Volumen"
+          },
+          {
+            key => "tanque",
+            label => "Tanque"
+          },
+          {
+            key => "tipo_registro",
+            label => "Tipo"
+          },
+          {
+            key => "status",
+            label => "Estatus"
+          },
+          {
+            key => "factura",
+            label => "Factura"
+          },
+          {
+            key => "supervisor",
+            label => "Registró"
+          },
         ]
       }
     ]
@@ -662,6 +709,53 @@ get "/shifts/ver/form" => sub {
           {
             key => "volumen_final",
             label => "Volumen final"
+          },
+          {
+            key => "volumen_diferencia",
+            label => "Diferencia volumen"
+          },
+        ]
+      },
+      {
+        key => "RECEPCIONES_COMBUSTIBLE_TURNO",
+        label => "Recepciones",
+        readonly => 1,
+        columns => [
+          {
+            key => "id_recepecion",
+            label => "Número"
+          },
+          {
+            key => "inicio_descarga",
+            label => "Fecha inicio"
+          },
+          {
+            key => "fin_descarga",
+            label => "Fecha fin"
+          },
+          {
+            key => "volumen_descarga",
+            label => "Volumen"
+          },
+          {
+            key => "tanque",
+            label => "Tanque"
+          },
+          {
+            key => "tipo_registro",
+            label => "Tipo"
+          },
+          {
+            key => "status",
+            label => "Estatus"
+          },
+          {
+            key => "factura",
+            label => "Factura"
+          },
+          {
+            key => "supervisor",
+            label => "Registró"
           },
         ]
       }
@@ -1640,6 +1734,16 @@ get "/means/table" => sub {
           endpoint => '/means',
           verb => 'patch',
           override => { status => 1 }
+        }
+      },
+      {
+        icon => 'close',
+        label => 'Eliminar',
+        action => {
+          type => 'http',
+          endpoint => '/means',
+          verb => 'patch',
+          override => { status => 0 }
         }
       }
     ],
