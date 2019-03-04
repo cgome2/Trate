@@ -180,15 +180,15 @@ sub insertaLecturaTLS{
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
 		INSERT INTO tank_delivery_readings_t VALUES(" . 
-			"NULL,"  .
-			"NULL,'" .
+			"NULL,'"  .
+		 	$self->{RECEPTION_UNIQUE_ID} . "','" .
 			$self->{TANK_ID} . "','" .
 			$self->{START_VOLUME} . "','" .
 			$self->{END_VOLUME} . "','" .
 			$self->{END_TEMP} . "','" .
 			$self->{START_DELIVERY_TIMESTAMP} . "','" .
-			$self->{END_DELIVERY_TIMESTAMP} . "'," .
-			"NULL,'" .
+			$self->{END_DELIVERY_TIMESTAMP} . "','" .
+			$self->{RUI} . "','" .
 			$self->{STATUS} . "','" .
 			$self->{START_TC_VOLUME} . "','" .
 			$self->{END_TC_VOLUME} . "','" .
@@ -257,7 +257,7 @@ sub getLecturasTls{
 	#	$where_stmt .= " LIMIT " . $page . "," . $limit;
 	#}	
 	
-	my $preps = "SELECT * FROM tank_delivery_readings_t WHERE status=0 AND id_recepcion IS NULL AND ci_movimientos IS NULL " . $where_stmt ; 
+	my $preps = "SELECT * FROM tank_delivery_readings_t WHERE status=0 AND id_recepcion IS NULL AND ci_movimientos IS NULL " . $where_stmt . " ORDER BY start_delivery_timestamp DESC "; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
