@@ -222,6 +222,7 @@ sub activarMean {
 	}
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = " UPDATE means SET status = 2 WHERE id='" . $self->{ID} . "' LIMIT 1";
+	LOGGER->info("Ejecutar query para actualizar estatus de mean en transporter " . $preps);
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	$sth->finish;
