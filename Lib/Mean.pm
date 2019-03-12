@@ -29,6 +29,7 @@ sub new
 	$self->{PROMPT_ALWAYS_FOR_VIU} = 1;			# 1. Requiere doble autorizacion 2. No requiere doble autorizacion
 	$self->{SHIFT_INSTANCE_ID} = 0;
 	$self->{NR_2STAGE_ELEMENTS}	= 1;
+	$self->{NUM_OF_STRINGS} = 1;
 	bless($self);
 	return $self;	
 }
@@ -129,12 +130,18 @@ sub nr2StageElements {
 	return $self->{NR_2STAGE_ELEMENTS};
 }
 
+sub numOfStrings {
+	my ($self) = shift;
+	if (@_) { $self->{NUM_OF_STRINGS} = shift }
+	return $self->{NUM_OF_STRINGS};
+}
+
 sub createMean {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $result = 0;
 	my $preps = "
-		INSERT INTO means (NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,employee_type,auttyp) VALUES ('" . 
+		INSERT INTO means (NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,employee_type,auttyp,num_of_strings) VALUES ('" . 
 			$self->{NAME} . "','" .
 			$self->{STRING} . "','" .
 			$self->{TYPE} . "'," .
@@ -146,7 +153,8 @@ sub createMean {
 			$self->{FLEET_ID} . "','" .
 			$self->{DEPT_ID} . "','" .
 			$self->{EMPLOYEE_TYPE} . "','" .
-			$self->{AUTTYP} . "')";
+			$self->{AUTTYP} . "','" .
+			$self->{NUM_OF_STRINGS} . "')";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	try {
 		my $sth = $connector->dbh->prepare($preps);
@@ -189,7 +197,8 @@ sub updateMean {
 		"odometer = '" . $self->{ODOMETER} . "'," .   
 		"plate = '" . $self->{PLATE} . "'," .   
 		"status = " . (length($self->{STATUS}) gt 0 ? $self->{STATUS} : "status") . "," .   
-		"string = '" . $self->{STRING} . "'," .   
+		"string = '" . $self->{STRING} . "'," .
+		"num_of_strings = '" . $self->{NUM_OF_STRINGS} . "'," .
 		"type = '" . $self->{TYPE} . "' WHERE id='" . $self->{ID} . "'";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
     try {
@@ -300,7 +309,7 @@ sub eliminarMean {
 sub getMeans {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp " .
+	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp,num_of_strings AS numero_strings " .
 	"FROM means WHERE " . 
 	"(TYPE=3 AND hardware_type=6 AND auttyp=1) OR " . 
 	"(TYPE=3 AND hardware_type=6 AND auttyp=23) OR" . 
@@ -343,7 +352,7 @@ sub getMeansContingencia {
 sub getMeanFromId {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
+	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp,num_of_strings AS numero_strings FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -398,7 +407,7 @@ sub getDespachadores {
 sub fillMeanFromId {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
+	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp,num_of_strings FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -415,6 +424,7 @@ sub fillMeanFromId {
 	$self->{FLEET_ID}=$row->{fleet_id};
 	$self->{DEPT_ID}=$row->{dept_id};
 	$self->{AUTTYP}=$row->{auttyp};
+	$self->{NUM_OF_STRINGS}=$row->{num_of_strings};
 	return $self;
 }
 
@@ -469,7 +479,7 @@ sub getTypeMeanForView ($){
 	my $mean = shift;
 	my $label = "";
 	#my %mean = %{$ref};
-	LOGGER->debug(dump($mean));
+	#LOGGER->debug(dump($mean));
 	
 	if($mean->{auttyp} eq 1 && $mean->{hardware_type} eq 6 && $mean->{TYPE} eq 3){
 		$label = "Fuelopass";

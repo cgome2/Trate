@@ -161,7 +161,7 @@ sub executeSOUpdateMeans{
 	$soMean{string} = $mean->{STRING};
 	$soMean{type} = $mean->{TYPE};
 	$soMean{driver_required} = 5;
-	#$soMean{nr_2stage_elements} = 1;
+	$soMean{num_of_strings} = $mean->{NUM_OF_STRINGS};
 	my @a_soMean;
 	$a_soMean[0] = SOAP::Data->name('soMean' => \%soMean);
 	$params[3] = SOAP::Data->name('a_soMean' => \$a_soMean[0]);

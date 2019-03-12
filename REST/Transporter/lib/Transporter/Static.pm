@@ -500,13 +500,14 @@ get "/shifts/form" => sub {
             key => "volumen_final",
             label => "Volumen final"
           },
+          {
             key => "volumen_final",
             label => "Volumen final"
           },
           {
             key => "volumen_diferencia",
             label => "Diferencia volumen"
-          },
+          }
         ]
       },
       {
