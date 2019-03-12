@@ -1811,7 +1811,8 @@ get "/means/form" => sub {
         type => "select",
         optionsSource => '/means/types/mono',
         optionsKey => 'value',
-        optionsValue => 'label'
+        optionsValue => 'label',
+        storeObject => 1
       },
       {
         required => 1,
@@ -1831,6 +1832,7 @@ get "/means/form" => sub {
           { key => "4", value => "4"},
           { key => "5", value => "5"}
         ],
+        enabledBinding => "typeee.value.TYPE=3,typeee.value.auttyp=1,typeee.value.hardware_type=6"
       }
     ]
   };
