@@ -313,7 +313,6 @@ get "/shifts/table" => sub {
   return {
     icon => "timetable",
     title => "Turnos",
-    id => "id_turno",
     byDate => 1,
     remote => 1,
     options => [
@@ -323,6 +322,7 @@ get "/shifts/table" => sub {
         action => {
           type => 'form',
           form => '/shifts/ver',
+          id => "id_turno",
           readonly => 1
         }
       },
@@ -334,7 +334,8 @@ get "/shifts/table" => sub {
         },
         action => {
           type => 'form',
-          form => '/shifts'
+          form => '/shifts',
+          id => "id_turno"
         }
       },
       {
@@ -496,6 +497,9 @@ get "/shifts/form" => sub {
             label => "Volumen inicial"
           },
           {
+            key => "volumen_final",
+            label => "Volumen final"
+          },
             key => "volumen_final",
             label => "Volumen final"
           },
@@ -767,14 +771,14 @@ get "/productos/table" => sub {
   return {
     icon => "currency-usd",
     title => "Precios",
-    id => "id",
     options => [
       {
         icon => 'currency-usd',
         label => 'Cambio de precio',
         action => {
           type => 'form',
-          form => '/productos'
+          form => '/productos',
+          id => "id",
         }
       }
     ],
@@ -852,7 +856,6 @@ get "/recepciones_combustible/table" => sub {
   return {
     icon => "file-document",
     title => "Documentos",
-    id => "id_recepcion",
     buttons => [
       {
         icon => 'receipt',
@@ -872,7 +875,8 @@ get "/recepciones_combustible/table" => sub {
         },
         action => {
           type => 'form',
-          form => '/recepciones_combustible'
+          form => '/recepciones_combustible',
+          id => "id_recepcion"
         }
       },
       {
@@ -883,7 +887,8 @@ get "/recepciones_combustible/table" => sub {
         },
         action => {
           type => 'form',
-          form => '/recepciones_combustible/tls'
+          form => '/recepciones_combustible/tls',
+          id => "id_recepcion"
         }
       }
     ],
@@ -1166,7 +1171,6 @@ get "/lecturas_tls/table" => sub {
   return {
     icon => "ruler",
     title => "Lecturas",
-    id => "id_tank_delivery_reading",
     columns => [
       {
         key => "id_tank_delivery_reading",
@@ -1219,7 +1223,8 @@ get "/lecturas_tls/table" => sub {
         label => 'Ver',
         action => {
           type => 'form',
-          form => '/lecturas_tls/ver'
+          form => '/lecturas_tls/ver',
+          id => "id_tank_delivery_reading"
         }
       },
       {
@@ -1230,7 +1235,8 @@ get "/lecturas_tls/table" => sub {
         },
         action => {
           type => 'form',
-          form => '/lecturas_tls'
+          form => '/lecturas_tls',
+          id => "id_tank_delivery_reading"
         }
       },
       {
@@ -1242,7 +1248,7 @@ get "/lecturas_tls/table" => sub {
         action => {
           type => 'http',
           verb => 'delete',
-          endpoint => '/lecturas_tls/:id:'
+          endpoint => '/lecturas_tls/:id_tank_delivery_reading:'
         }
       },
     ],
@@ -1436,7 +1442,6 @@ get "/pases/table" => sub {
   return {
     icon => "alarm-light",
     title => "Contingencias",
-    id => "pase_id",
     remote => 1,
     searchBy => [
       { key => 'pase', label => 'Buscar Pase' }, 
@@ -1477,7 +1482,8 @@ get "/pases/table" => sub {
         },
         action => {
           type => 'form',
-          form => '/pases/reabrir'
+          form => '/pases/reabrir',
+          id => "pase_id"
         }
       },
       {
@@ -1488,7 +1494,8 @@ get "/pases/table" => sub {
         },
         action => {
           type => 'form',
-          form => '/pases/reasignar'
+          form => '/pases/reasignar',
+          id => "pase_id"
         }
       },
       {
@@ -1499,7 +1506,8 @@ get "/pases/table" => sub {
         },
         action => {
           type => 'form',
-          form => '/pases/manual'
+          form => '/pases/manual',
+          id => "pase_id"
         }
       }
     ]
@@ -1693,15 +1701,15 @@ get "/pases/manual/form" => sub {
 get "/means/table" => sub {
   return {
     icon => "car",
-    title => "Vehículos",
-    id => "id",
+    title => "Vehiculos",
     options => [
       {
         icon => 'pencil',
         label => 'Editar',
         action => {
           type => 'form',
-          form => '/means'
+          form => '/means',
+          id => "id"
         }
       },
       {
@@ -1854,7 +1862,6 @@ get "/usuarios/table" => sub {
   return {
     icon => "account-multiple",
     title => 'Usuarios',
-    id => "idusuarios",
     columns => [
       {
         key => "usuario",
@@ -1885,7 +1892,8 @@ get "/usuarios/table" => sub {
         label => 'Editar',
         action => {
           type => 'form',
-          form => '/usuarios'
+          form => '/usuarios',
+          id => "idusuarios"
         }
       }
     ],
