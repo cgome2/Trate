@@ -1693,7 +1693,7 @@ get "/pases/manual/form" => sub {
 get "/means/table" => sub {
   return {
     icon => "car",
-    title => "Vehiculos",
+    title => "Vehículos",
     id => "id",
     options => [
       {
@@ -1789,7 +1789,7 @@ get "/means/table" => sub {
 get "/means/form" => sub {
   return {
     icon => "car",
-    title => "Vehiculo",
+    title => "Vehículo",
     transformer => { typeee => 'TYPE,hardware_type,auttyp' },
     fields => [
       {
@@ -1818,6 +1818,19 @@ get "/means/form" => sub {
         key => "string",
         label => "String",
         type => "text"
+      },
+      {
+        required => 1,
+        key => "numero_strings",
+        label => "Número de dispositivos asociados",
+        type => "select",
+        options => [
+          { key => "1", value => "1"},
+          { key => "2", value => "2"},
+          { key => "3", value => "3"},
+          { key => "4", value => "4"},
+          { key => "5", value => "5"}
+        ],
       }
     ]
   };
