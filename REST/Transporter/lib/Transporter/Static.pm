@@ -500,6 +500,7 @@ get "/shifts/form" => sub {
             key => "volumen_final",
             label => "Volumen final"
           },
+          {
             key => "volumen_final",
             label => "Volumen final"
           },
@@ -1708,7 +1709,7 @@ get "/means/table" => sub {
         label => 'Editar',
         action => {
           type => 'form',
-          form => '/means',
+          form => '/means/editar',
           id => "id"
         }
       },
@@ -1826,7 +1827,10 @@ get "/means/form" => sub {
         required => 1,
         key => "string",
         label => "String",
-        type => "text"
+        type => "text",
+        bindings => {
+          disable => "typeee.value.TYPE==3,typeee.value.auttyp==1,typeee.value.hardware_type==6"
+        }
       },
       {
         required => 1,
@@ -1840,7 +1844,69 @@ get "/means/form" => sub {
           { key => "4", value => "4"},
           { key => "5", value => "5"}
         ],
-        enabledBinding => "typeee.value.TYPE=3,typeee.value.auttyp=1,typeee.value.hardware_type=6"
+        bindings => {
+          enable => "typeee.value.TYPE==3,typeee.value.auttyp==1,typeee.value.hardware_type==6"
+        }
+      }
+    ]
+  };
+};
+
+get "/means/editar/form" => sub {
+  return {
+    icon => "car",
+    title => "Vehículo",
+    getFrom => "/means",
+    sendTo => "/means",
+    transformer => { typeee => 'TYPE,hardware_type,auttyp' },
+    fields => [
+      {
+        required => 1,
+        key => "NAME",
+        label => "Nombre",
+        type => "text"
+      },
+      {
+        required => 1,
+        key => "plate",
+        label => "Placa",
+        type => "text"
+      },
+      {
+        required => 1,
+        key => "typeee",
+        label => "Tipo de dispositivo",
+        type => "select",
+        readonly => 1,
+        optionsSource => '/means/types/mono',
+        optionsKey => 'value',
+        optionsValue => 'label',
+        storeObject => 1
+      },
+      {
+        required => 1,
+        key => "string",
+        label => "String",
+        type => "text",
+        bindings => {
+          disable => "typeee.value.TYPE==3,typeee.value.auttyp==1,typeee.value.hardware_type==6"
+        }
+      },
+      {
+        required => 1,
+        key => "numero_strings",
+        label => "Número de dispositivos asociados",
+        type => "select",
+        options => [
+          { key => "1", value => "1"},
+          { key => "2", value => "2"},
+          { key => "3", value => "3"},
+          { key => "4", value => "4"},
+          { key => "5", value => "5"}
+        ],
+        bindings => {
+          enable => "typeee.value.TYPE==3,typeee.value.auttyp==1,typeee.value.hardware_type==6"
+        }
       }
     ]
   };
