@@ -6,6 +6,7 @@ use SOAP::Lite +trace => 'debug';
 use SOAP::Lite;
 use XML::Twig;
 use Data::Dump qw(dump);
+use Trate::Lib::Utilidades;
 
 sub new 
 {
@@ -153,6 +154,19 @@ sub executeSOUpdateMeans{
 	$soMean{fleet_id} = $mean->{FLEET_ID};
 	$soMean{hardware_type} = $mean->{HARDWARE_TYPE};
 	$soMean{auttyp} = $mean->{AUTTYP};
+	$soMean{pin_code} = 0;
+	$soMean{year} = 0;
+
+	if($mean->{AUTTYP} eq 1 && $mean->{HARDWARE_TYPE} eq 6 && $mean->{TYPE} eq 3){
+		$soMean{auth_pin_from} = 2;
+		$soMean{is_burned} = 0;
+		$soMean{opos_plate_check_type} = 1;
+		$soMean{num_of_strings} = $mean->{NUM_OF_STRINGS};
+		$soMean{allow_id_replacement} = $mean->{NUM_OF_STRINGS};
+		$soMean{update_timestamp} = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+		$soMean{prompt_always_for_viu} = 1;
+	}
+
 	#$soMean{model_id} = $mean->{MODEL_ID};
 	$soMean{name} = $mean->{NAME};
 	#$soMean{odometer} = 0;
@@ -161,7 +175,6 @@ sub executeSOUpdateMeans{
 	$soMean{string} = $mean->{STRING};
 	$soMean{type} = $mean->{TYPE};
 	$soMean{driver_required} = 5;
-	#$soMean{nr_2stage_elements} = 1;
 	my @a_soMean;
 	$a_soMean[0] = SOAP::Data->name('soMean' => \%soMean);
 	$params[3] = SOAP::Data->name('a_soMean' => \$a_soMean[0]);

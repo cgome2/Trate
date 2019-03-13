@@ -97,13 +97,14 @@ put '/means' => sub {
 		($post->{TYPE} eq 2 && $post->{hardware_type} eq 1 && $post->{auttyp} eq 21)
 	){
 		my $MEAN = Trate::Lib::Mean->new();
-		LOGGER->debug(dump($MEAN));
 		$MEAN->name($post->{NAME});
 		$MEAN->string($post->{string});
 		$MEAN->type($post->{TYPE});
 		$MEAN->hardwareType($post->{hardware_type});
 		$MEAN->plate($post->{plate});
 		$MEAN->auttyp($post->{auttyp});
+		$MEAN->numOfStrings($post->{numero_strings});
+		LOGGER->debug(dump($MEAN));
 		if($MEAN->createMean() eq 1){
 			return {message => "OKComputer"};
 		} else {
@@ -147,7 +148,8 @@ patch '/means' => sub {
 		$MEAN->{HARDWARE_TYPE} = $post->{hardware_type};
 		$MEAN->{PLATE} = $post->{plate};
 		$MEAN->{AUTTYP} = $post->{auttyp};
-	
+		$MEAN->{NUM_OF_STRINGS} = $post->{numero_strings};
+
 		if($post->{status} eq 0) {
 			my $eliminacion = $MEAN->eliminarMean();
 			if($eliminacion eq 1){
