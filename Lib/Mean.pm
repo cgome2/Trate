@@ -352,7 +352,7 @@ sub getMeansContingencia {
 sub getMeanFromId {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type,plate,fleet_id,dept_id,auttyp,num_of_strings AS numero_strings FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
+	my $preps = "SELECT NAME,string,TYPE,id,status,rule,hardware_type*1 AS hardware_type,plate,fleet_id,dept_id,auttyp,num_of_strings AS numero_strings FROM means WHERE id='" . $self->{ID} . "' LIMIT 1"; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");

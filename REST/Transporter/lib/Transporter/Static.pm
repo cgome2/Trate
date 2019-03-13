@@ -1824,7 +1824,6 @@ get "/means/form" => sub {
         storeObject => 1
       },
       {
-        required => 1,
         key => "string",
         label => "String",
         type => "text"
