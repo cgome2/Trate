@@ -165,6 +165,14 @@ sub executeSOUpdateMeans{
 		$soMean{allow_id_replacement} = $mean->{NUM_OF_STRINGS};
 		$soMean{update_timestamp} = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
 		$soMean{prompt_always_for_viu} = 1;
+	} elsif ($mean->{TYPE} eq 3) {
+		$soMean{auth_pin_from} = 2;
+		$soMean{is_burned} = 0;
+		$soMean{opos_plate_check_type} = 1;
+		$soMean{num_of_strings} = 1;
+		$soMean{allow_id_replacement} = 0;
+		$soMean{update_timestamp} = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
+		$soMean{prompt_always_for_viu} = 1;
 	}
 
 	#$soMean{model_id} = $mean->{MODEL_ID};
