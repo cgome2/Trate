@@ -229,6 +229,10 @@ sub activarMean {
 		LOGGER->info("El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser activado");	
 		return 0;
 	}
+	if($result->{rc} ne 0){
+		LOGGER->info("El dispositivo " . $self->{NAME} . " NO puede ser activado");	
+		return 0;
+	}
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = " UPDATE means SET status = 2 WHERE id='" . $self->{ID} . "' LIMIT 1";
 	LOGGER->info("Ejecutar query para actualizar estatus de mean en transporter " . $preps);
@@ -256,6 +260,10 @@ sub desactivarMean {
 		LOGGER->info("El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser desactivado");	
 		return 0;
 	}
+	if($result->{rc} ne 0){
+		LOGGER->info("El dispositivo " . $self->{NAME} . " NO puede ser desactivado");	
+		return 0;
+	}
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = " UPDATE means SET status = 1 WHERE id='" . $self->{ID} . "' LIMIT 1";
 	my $sth = $connector->dbh->prepare($preps);
@@ -268,7 +276,7 @@ sub desactivarMean {
 
 sub eliminarMean {
 	my $self = shift;
-	return "La eliminacion no es permitida en esta version";
+	#return "La eliminacion no es permitida en esta version";
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = " SELECT count(*) AS pases FROM ci_pases WHERE camion='" . $self->{NAME} . "' AND status IN('A','R','T')";
 	LOGGER->debug("Ejecutando en eliminarMean " . $preps);
@@ -292,9 +300,9 @@ sub eliminarMean {
 	$wsc->callName("SOUpdateMeanStatus");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);
-	if($result->{rc} eq 2){
-		LOGGER->info("El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser eliminado");	
-		return "El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser eliminado";
+	if($result->{rc} ne 0){
+		LOGGER->info("El dispositivo " . $self->{NAME} . " no puede ser eliminado");	
+		return "El dispositivo " . $self->{NAME} . " no puede ser eliminado";
 	}
 	$connector = Trate::Lib::ConnectorMariaDB->new();
 	$preps = " UPDATE means SET status = 0 WHERE id='" . $self->{ID} . "' LIMIT 1";

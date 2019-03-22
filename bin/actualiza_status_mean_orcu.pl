@@ -21,11 +21,12 @@ my $mean = Trate::Lib::Mean->new();
 $mean->name($meanName);
 try{
 	my $resultado = ($status == 1 ? $mean->desactivarMean() : $mean->activarMean());	
-	print $resultado->{rc_desc} . "\n";
-	$exit = ($resultado->{rc} == 0 ? 1 : 0);
+	#print $resultado->{rc_desc} . "\n";
+	$exit = ($resultado->{rc} eq 0 ? 1 : 0);
 } catch {
-	exit $exit;
+	$exit = 0;
 } finally {
-	exit $exit;
+	$exit = $exit;
 };
-
+LOGGER->debug("El resultado del exec es: $exit");
+print $exit;
