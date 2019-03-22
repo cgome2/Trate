@@ -300,12 +300,12 @@ sub eliminarMean {
 	$wsc->callName("SOUpdateMeanStatus");
 	$wsc->sessionId();
 	my $result = $wsc->execute(\%params);
-	if($result->{rc} ne 0){
-		LOGGER->info("El dispositivo " . $self->{NAME} . " no puede ser eliminado");	
-		return "El dispositivo " . $self->{NAME} . " no puede ser eliminado";
+	if($result->{rc} ne 0 && $result->{rc} ne 2){
+		LOGGER->info("El dispositivo " . $self->{NAME} . " NO puede ser eliminado");	
+		return 0;
 	}
 	$connector = Trate::Lib::ConnectorMariaDB->new();
-	$preps = " UPDATE means SET status = 0 WHERE id='" . $self->{ID} . "' LIMIT 1";
+	$preps = " DELETE FROM means WHERE id='" . $self->{ID} . "' LIMIT 1";
 	$sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	$sth->finish;
