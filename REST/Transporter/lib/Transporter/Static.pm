@@ -1704,15 +1704,15 @@ get "/means/table" => sub {
     icon => "car",
     title => "Vehiculos",
     options => [
-#      {
-#       icon => 'pencil',
-#        label => 'Editar',
-#        action => {
-#          type => 'form',
-#          form => '/means/editar',
-#          id => "id"
-#        }
-#      },
+      {
+        icon => 'pencil',
+        label => 'Editar',
+        action => {
+          type => 'form',
+          form => '/means/editar',
+          id => "id"
+        }
+      },
       {
         icon => 'water',
         label => 'Activar',
