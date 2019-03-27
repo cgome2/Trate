@@ -187,7 +187,7 @@ patch '/recepciones_combustible' => sub {
 			
 
 			my $insertamovimiento = $RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->inserta();
-			$insertamovimiento = 1;
+			#$insertamovimiento = 1;
 			if($insertamovimiento eq 0){
 				status 401;
 				return {message => "Error al insertar el movimiento inventario se ejecuta un rollback"};

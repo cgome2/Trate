@@ -106,7 +106,7 @@ sub getLastTransactionsFromORCU{
 }
 
 
-sub getNewUpdatedTransactionsFromOrcu{
+sub getNewUpdatedTransactionsFromOrcu {
 	my $self = shift;
 	my %params = (
 		SessionID => "",
@@ -261,14 +261,20 @@ sub procesaTransaccionesNuevas($){
 				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
 				$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
 				insertaTransaccion($self);
-				insertaMovimiento($self);
-				actualizaPase($self);
-				limpiaReglaCarga($self);
-			}
+				if($self->{CANTIDAD} gt 0){
+					insertaMovimiento($self);
+					actualizaPase($self);
+					limpiaReglaCarga($self);
+				} else {
+					LOGGER->info("Transaccion en ceros, no se ejecutara ninguna modificacion en trate");
+				}	
+			} 
 			notifyTransactionLoaded($self);
 			$return = 1;
 		} catch {
-			$return = 0;			
+			$return = 0;
+			notifyTransactionLoaded($self);
+			return $return;		
 		} 
 		finally {
 			LOGGER->debug("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
@@ -282,7 +288,7 @@ sub procesaTransaccionesNuevas($){
 # Insert current object locally at transporter
 # @params: No params required
 # @return: current object
-sub insertaTransaccion{
+sub insertaTransaccion {
 	my $self = shift;
 	my $return = 0;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
@@ -523,7 +529,7 @@ sub getTurno {
 	return $turno;
 }
 
-sub getLastNTransactions{
+sub getLastNTransactions {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 
@@ -544,7 +550,7 @@ sub getLastNTransactions{
 	return \@transacciones;	
 }
 
-sub getTransaccionFromId{
+sub getTransaccionFromId {
 	my $self = shift;
 	my $id = pop;
 
@@ -564,7 +570,7 @@ sub getTransaccionFromId{
 	}
 }
 
-sub fillTransaccionFromId{
+sub fillTransaccionFromId {
 	my $self = shift;
 
 	my $connector = Trate::Lib::ConnectorMariaDB->new();

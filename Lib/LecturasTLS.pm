@@ -88,7 +88,7 @@ sub origenRegistro {
 # Método para notificar a Orcu que una entrega de combustible ya fue descargada en transporter
 # Autor: carlos gomez
 
-sub notificarDescargaLecturasTlsAOrcu{
+sub notificarDescargaLecturasTlsAOrcu {
 	my $self = shift;
 	my %params = (
 		SessionID => "",
@@ -116,7 +116,7 @@ sub notificarDescargaLecturasTlsAOrcu{
 # Método para descargar las últimas lecturas del TLS registradas en el Orcu
 # Autor: carlos gomez
 
-sub getLastLecturasTlsFromOrcu{
+sub getLastLecturasTlsFromOrcu {
 	my $self = shift;
 	#$self = getLastRetrievedLecturasTLS($self);	
 	my %params = (
@@ -175,7 +175,7 @@ sub procesaLecturasTLS($){
 	return 1;
 }
 
-sub insertaLecturaTLS{
+sub insertaLecturaTLS {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
@@ -331,7 +331,7 @@ sub deleteLecturaTls {
     }
 }
 
-sub quemarLecturas($$){
+sub quemarLecturas($$) {
 	my $id_recepcion = pop;
 	my $lecturas = pop;
 	my $in = join(",", @{$lecturas});

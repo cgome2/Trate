@@ -252,7 +252,7 @@ sub getRecepcionesCombustible {
 	}
 }
 
-sub getFromId{
+sub getFromId {
 	my $self = shift;
 	my $idRecepcion = pop;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
