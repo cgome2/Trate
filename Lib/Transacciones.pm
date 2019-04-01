@@ -261,7 +261,7 @@ sub procesaTransaccionesNuevas($){
 				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
 				$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
 				insertaTransaccion($self);
-				if($self->{CANTIDAD} gt 0){
+				if($self->{CANTIDAD} > 0){
 					insertaMovimiento($self);
 					actualizaPase($self);
 					limpiaReglaCarga($self);
