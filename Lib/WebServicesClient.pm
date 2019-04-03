@@ -7,6 +7,7 @@ use SOAP::Lite;
 use XML::Twig;
 use Data::Dump qw(dump);
 use Trate::Lib::Utilidades;
+use Trate::Lib::ConnectorMariaDB;
 
 sub new 
 {
@@ -33,42 +34,56 @@ sub params {
     return $self->{PARAMS};
 }
 
+sub setSessionId {
+	my $self = shift;
+	my $usuario = shift;
+	my $pass = shift;
+
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = "SELECT * FROM orcu_sessions WHERE usuario_orcu='" . $usuario . "' AND until>= NOW() LIMIT 1";
+	my $sth = $connector->dbh->prepare($preps);
+    $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	my $row = $sth->fetchrow_hashref();
+	$sth->finish;
+
+	if(defined($row)){
+		LOGGER->debug("Obeniendo SessionID from DB");
+		$self->{SESSIONID} = $row->{session_id};
+	} else {
+		LOGGER->debug("Obeniendo SessionID from ORCU");
+		my %parametros = (
+			"user" => $usuario,
+			"password" => $pass
+		);
+		
+		my $soap = $self->{SOAP};
+		my $method = SOAP::Data->name('ns1:SOLogin')->attr({'xmlns:ns1' => WSURI});
+		my @params;	
+		for my $parametro (keys %parametros) {
+			push @params, SOAP::Data->name($parametro => $parametros{$parametro});
+		}
+		my $xmlResponse = $soap->call($method => @params)->result;
+		$self->{SESSIONID} = $xmlResponse->{SessionID};
+		$preps = "DELETE FROM orcu_sessions WHERE usuario_orcu='" . $usuario . "'";
+		$sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+		$preps = "INSERT INTO orcu_sessions VALUES ('" . $usuario . "','" . $self->{SESSIONID} . "',NOW(),DATE_ADD(NOW(),INTERVAL 1 HOUR))";
+		$sth = $connector->dbh->prepare($preps);
+		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	}
+	$connector->destroy();
+}
+
 sub sessionId {
 	my $self = shift;
-	LOGGER->debug("Obeniendo SessionID");
-	my %parametros = (
-		"user" => WSUSER,
-		"password" => WSPASSWORD
-	);
-	
-	my $soap = $self->{SOAP};
-	my $method = SOAP::Data->name('ns1:SOLogin')->attr({'xmlns:ns1' => WSURI});
-	my @params;	
-	for my $parametro (keys %parametros) {
-		push @params, SOAP::Data->name($parametro => $parametros{$parametro});
-	}
-	my $xmlResponse = $soap->call($method => @params)->result;
-	$self->{SESSIONID} = $xmlResponse->{SessionID};
+	setSessionId($self,WSUSER,WSPASSWORD);
 	LOGGER->debug("SessionID: " . $self->{SESSIONID});
 	return $self->{SESSIONID};
 }
 
 sub sessionIdTransporter {
 	my $self = shift;
-	LOGGER->debug("Obeniendo SessionID");
-	my %parametros = (
-		"user" => USERHOCOMMUNICATOR,
-		"password" => PASSHOCUMMUNICATOR
-	);
-	
-	my $soap = $self->{SOAP};
-	my $method = SOAP::Data->name('ns1:SOLogin')->attr({'xmlns:ns1' => WSURI});
-	my @params;	
-	for my $parametro (keys %parametros) {
-		push @params, SOAP::Data->name($parametro => $parametros{$parametro});
-	}
-	my $xmlResponse = $soap->call($method => @params)->result;
-	$self->{SESSIONID} = $xmlResponse->{SessionID};
+	setSessionId($self,USERHOCOMMUNICATOR,PASSHOCUMMUNICATOR);
 	LOGGER->debug("SessionID: " . $self->{SESSIONID});
 	return $self->{SESSIONID};
 }
