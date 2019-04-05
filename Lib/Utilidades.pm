@@ -13,7 +13,7 @@ use strict;
 use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE);
 use Data::Dump qw(dump);
 use Digest::SHA1 qw(sha1_hex);
-
+use Trate::Lib::WebServicesClient;
 
 sub getCurrentTimestampMariaDB {
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
@@ -55,6 +55,39 @@ sub getMariaDBDateFromJason {
 	return $return;
 }
 
+sub getCurrentDate {
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	my $date = $year + 1900;
+	$date .= "-";
+	$date .= sprintf("%02d", $mon + 1);
+	$date .= "-";
+	$date .= sprintf("%02d", $mday);
+	return $date;
+}
 
+sub getCurrentTime {
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	my $time;
+	$time .= sprintf("%02d", $hour);
+	$time .= ":";
+	$time .= sprintf("%02d", $min);
+	$time .= ":";
+	$time .= sprintf("%02d", $sec);
+	return $time;
+}
+
+sub updateDateTimeOrcu {
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		Date => &getCurrentDate(),
+		Time => &getCurrentTime(),
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOHOBOSSetTimeDate");
+	$wsc->sessionId();
+	my $result = $wsc->execute(\%params);
+	return $result;
+}
 1;
 #EOF
