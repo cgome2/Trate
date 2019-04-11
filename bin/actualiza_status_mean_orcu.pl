@@ -21,12 +21,12 @@ my $mean = Trate::Lib::Mean->new();
 $mean->name($meanName);
 try{
 	my $resultado = ($status == 1 ? $mean->desactivarMean() : $mean->activarMean());	
-	#print $resultado->{rc_desc} . "\n";
+	LOGGER->debug($resultado->{rc_desc});
 	$exit = ($resultado->{rc} eq 0 ? 1 : 0);
 } catch {
 	$exit = 0;
 } finally {
 	$exit = $exit;
 };
-LOGGER->debug("El resultado del exec es: $exit");
+LOGGER->debug("El resultado del exec para el camion o tag [" . $meanName . "] es: $exit");
 print $exit;
