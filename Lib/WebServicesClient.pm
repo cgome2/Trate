@@ -67,7 +67,7 @@ sub setSessionId {
 		$preps = "DELETE FROM orcu_sessions WHERE usuario_orcu='" . $usuario . "'";
 		$sth = $connector->dbh->prepare($preps);
 		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
-		$preps = "INSERT INTO orcu_sessions VALUES ('" . $usuario . "','" . $self->{SESSIONID} . "',NOW(),DATE_ADD(NOW(),INTERVAL 5 MINUTE))";
+		$preps = "INSERT INTO orcu_sessions VALUES ('" . $usuario . "','" . $self->{SESSIONID} . "',NOW(),DATE_ADD(NOW(),INTERVAL 2 MINUTE))";
 		$sth = $connector->dbh->prepare($preps);
 		$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	}
