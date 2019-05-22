@@ -85,7 +85,7 @@ sub updateDateTimeOrcu {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOHOBOSSetTimeDate");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);
 	return $result;
 }

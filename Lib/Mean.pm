@@ -171,7 +171,7 @@ sub createMeanOrcu {
 	my $self = shift;
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOUpdateMeans");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	try {
 		my $result = $wsc->executeSOUpdateMeans($self);
 		($result->{rc} eq 0 ? return 1 : return 0);
@@ -223,7 +223,7 @@ sub activarMean {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOUpdateMeanStatus");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);
 	if($result->{rc} eq 2){
 		LOGGER->info("El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser activado");	
@@ -254,7 +254,7 @@ sub desactivarMean {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOUpdateMeanStatus");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);
 	if($result->{rc} eq 2){
 		LOGGER->info("El dispositivo " . $self->{NAME} . " no existe en el ORCU y por lo tanto no puede ser desactivado");	
@@ -298,7 +298,7 @@ sub eliminarMean {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOUpdateMeanStatus");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);
 	if($result->{rc} ne 0 && $result->{rc} ne 2){
 		LOGGER->info("El dispositivo " . $self->{NAME} . " NO puede ser eliminado");	
@@ -477,7 +477,7 @@ sub assignRuleToVehicleOrcu {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOUpdateMeans");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);
 	LOGGER->debug(dump($result));
 	return $result;	

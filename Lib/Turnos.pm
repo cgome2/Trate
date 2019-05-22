@@ -542,7 +542,7 @@ sub cambiarEstatusFlota($){
 	$paramsbody{a_soFleet} = \%soFleets;
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOUpdateFleets");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->executehb(\%paramsheader,\%paramsbody);
 	return $result->{rc};
 }

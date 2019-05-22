@@ -30,7 +30,7 @@ sub getBombas {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOGetStationSetup");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);	
 	my @bombas = @{$result->{SiteOmat}->{setup}->{pumps}->{pump}};
 	foreach (@bombas){

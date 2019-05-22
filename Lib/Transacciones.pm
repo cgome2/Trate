@@ -89,7 +89,7 @@ sub getLastTransactionsFromORCU{
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOHOGetTransactionsByRange");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);	
 	if ($result->{num_transactions} gt 1){
 		return procesaTransacciones($self,$result->{a_soTransaction}->{soTransaction});
@@ -169,7 +169,8 @@ sub procesaTransacciones($){
 		LOGGER->debug(dump($row));
 		$self->{IDTRANSACCIONES} = $row->{'id'};
 		$self->{IDPRODUCTOS} = $row->{'product_code'};
-		$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
+		#$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
+		$self->{FECHA} = $row->{'timestamp'};
 		$self->{TURNO} = getTurno($self->{'FECHA'});
 		$self->{IDCORTES} = $self->{TURNO}->idTurno();
 		$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
@@ -233,7 +234,8 @@ sub procesaTransaccionesNuevas($){
 		$self->{VENTA} = $row->{'total_price'};
 		$self->{CANTIDAD} = $row->{'quantity'};
 		$self->{PPV} = $row->{'ppv'};
-		$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
+		#$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
+		$self->{FECHA} = $row->{'timestamp'};
 		$self->{BOMBA} = $row->{'pump'};
 		$self->{MANGUERA} = $row->{'nozzle'};
 		$self->{PRODUCTO} = $row->{'product_name'};

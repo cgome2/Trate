@@ -31,7 +31,7 @@ sub getBombas {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOGetStationSetup");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);	
 	my @bombas = @{$result->{SiteOmat}->{setup}->{pumps}->{pump}};
 	my $bomba;
@@ -69,7 +69,7 @@ sub getBombaEstatus {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOGetPumpRunningData");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);
 	
 	return $result->{a_soPumpData}->{soPumpData};
@@ -84,7 +84,7 @@ sub getBombasEstatus {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOGetPumpRunningData");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);	
 	my @resultado = @{$result->{a_soPumpData}->{soPumpData}};
 	my @bombas;

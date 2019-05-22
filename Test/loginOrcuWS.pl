@@ -8,7 +8,7 @@ my %params = (
 );
 my $wsc = Trate::Lib::WebServicesClient->new();
 $wsc->callName("SOGetTankLevel");
-$wsc->sessionId();
+$wsc->sessionIdTransporter();
 my $result = $wsc->execute(\%params);
 print dump($result);
 print $result->{level};

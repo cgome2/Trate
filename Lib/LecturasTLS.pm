@@ -102,7 +102,7 @@ sub notificarDescargaLecturasTlsAOrcu {
 	LOGGER->debug("los parametros para procesar servicio web" . dump(%params));
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOHONotifyTankDeliveryLoaded");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);	
 	if ($result->{rc} eq 0){
 		LOGGER->info("Se notifico exitosamente al orcu sobre la descarga de la recepcion de combustible");
@@ -127,7 +127,7 @@ sub getLastLecturasTlsFromOrcu {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOHOGetNewUpdatedTankDelivery");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);	
 	LOGGER->info("Cantidad de recepciones [" . $result->{num_TankDelivery} . "]");
 	if ($result->{num_TankDelivery} gt 1){

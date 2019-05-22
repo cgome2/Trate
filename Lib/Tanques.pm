@@ -30,7 +30,7 @@ sub getTanques {
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOGetTankList");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);	
 
 	my $tanque = Trate::Lib::Tanque->new();
@@ -84,7 +84,7 @@ sub getTanqueEstatus {
 	my $tanque_name = shift;
 	my $tanque_capacity = shift;
 	my $wsc = Trate::Lib::WebServicesClient->new();
-	my $url = ORCUURL . "get_tls_wet_inventory.xml?ID=" . $wsc->sessionId() . "&tank_id=" . $tanque_id . "&tank_name=" . $tanque_name;
+	my $url = ORCUURL . "get_tls_wet_inventory.xml?ID=" . $wsc->sessionIdTransporter() . "&tank_id=" . $tanque_id . "&tank_name=" . $tanque_name;
 	my $contents = get($url);
 	my %tanque = ();
 

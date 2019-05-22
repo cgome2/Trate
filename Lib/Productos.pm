@@ -168,7 +168,7 @@ sub getProductos{
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOGetProductList");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);	
 
 	my @productos = ();
@@ -296,7 +296,7 @@ sub cambiarPrecioOrcu
 	);
 	my $wsc = Trate::Lib::WebServicesClient->new();
 	$wsc->callName("SOUpdatePrice");
-	$wsc->sessionId();
+	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);
 
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
