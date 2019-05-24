@@ -248,7 +248,7 @@ sub procesaTransaccionesNuevas($){
 		$self->{PLACA} = $row->{'plate'};
 		$self->{TOTALIZADOR} = $row->{'totalizer_vol'};
 		$self->{START_FLOW} = $row->{'start_flow'};
-		$self->{END_FLOW} = $row->{'end_flow'};
+		$self->{END_FLOW} = $row->{'timestamp'};
 		try {
 			my $meanTransaction = Trate::Lib::Mean->new();
 			$meanTransaction->{ID} = $row->{'mean_id'};
