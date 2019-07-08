@@ -707,7 +707,7 @@ sub getLitrosTurnoByPump($) {
 sub getLitrosRecibidos {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT sum(start_volume - end_volume) AS litros FROM tank_delivery_readings_t WHERE end_delivery_timestamp >='" . $self->{FECHA_ABIERTO} . "' AND end_delivery_timestamp <= '" . $self->{FECHA_CERRADO} . "'";
+	my $preps = "SELECT sum(end_volume - start_volume) AS litros FROM tank_delivery_readings_t WHERE end_delivery_timestamp >='" . $self->{FECHA_ABIERTO} . "' AND end_delivery_timestamp <= '" . $self->{FECHA_CERRADO} . "'";
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	my $row = $sth->fetchrow_hashref();
