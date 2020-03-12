@@ -7,7 +7,7 @@ my $driver = "Informix";
 my $database = "master";
 my $dsn = "DBI:$driver:$database";
 my $userid = "trateusr";
-my $password = "t1710e";
+my $password = "usrtrate";
 
 printf("dsn: [" . $dsn . "]\n");
 

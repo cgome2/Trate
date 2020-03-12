@@ -158,7 +158,7 @@ patch '/recepciones_combustible' => sub {
 				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->fechaHora($_->{start_delivery_timestamp});
 				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->dispensador('');
 				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->supervisor($usuario->{numero_empleado});
-				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->despachador('');
+				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->despachador($post->{numero_proveedor});
 				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->viaje('');
 				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->camion('');
 				$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_INVENTARIO}->chofer('');
@@ -198,7 +198,7 @@ patch '/recepciones_combustible' => sub {
 			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->fechaHora($RECEPCION_COMBUSTIBLE->fechaDocumento($datemovimiento));
 			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->dispensador(0);
 			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->supervisor($usuario->{numero_empleado});
-			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->despachador('');
+			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->despachador($post->{numero_proveedor});
 			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->viaje('');
 			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->camion('');
 			$RECEPCION_COMBUSTIBLE->{MOVIMIENTO_RECEPCION}->chofer('');

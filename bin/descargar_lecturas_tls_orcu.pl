@@ -12,7 +12,7 @@ use Trate::Lib::LecturasTLS;
 use Trate::Lib::Constants qw(LOGGER);
 
 my $lecturas_tls = Trate::Lib::LecturasTLS->new();
-my $message = $lecturas_tls->getLastLecturasTLSFromORCU();
+my $message = $lecturas_tls->getLastLecturasTlsFromOrcu();
 if(@$message>0){
 	$lecturas_tls->procesaLecturasTLS($message);
 } else {
