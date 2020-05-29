@@ -2,7 +2,7 @@ package Trate::Lib::Bombas;
 
 use strict;
 use Data::Dump qw(dump);
-use Trate::Lib::Constants qw(LOGGER ORCUURL);
+use Trate::Lib::Constants qw(LOGGER ORCUURL DELIVERY_PUMP_NUMBER);
 use Trate::Lib::WebServicesClient;
 use Trate::Lib::Bomba;
 use LWP::Simple;
@@ -36,15 +36,17 @@ sub getBombas {
 	my @bombas = @{$result->{SiteOmat}->{setup}->{pumps}->{pump}};
 	my $bomba;
 	foreach (@bombas){
-		$bomba = Trate::Lib::Bomba->new();
-		$bomba->id($_->{id});
-		$bomba->pumpHead($_->{pump_head});
-		$bomba->side($_->{side});
-		$bomba->nozzles($_->{nozzles});
-		$bomba->statusCode($_->{status_code});
-		$bomba->totalizador();
-		unbless($bomba);
-		push (@{$self->{BOMBAS}},$bomba);
+		if($_->{pump_head}!=DELIVERY_PUMP_NUMBER){
+			$bomba = Trate::Lib::Bomba->new();
+			$bomba->id($_->{id});
+			$bomba->pumpHead($_->{pump_head});
+			$bomba->side($_->{side});
+			$bomba->nozzles($_->{nozzles});
+			$bomba->statusCode($_->{status_code});
+			$bomba->totalizador();
+			unbless($bomba);
+			push (@{$self->{BOMBAS}},$bomba);
+		}
 	}	
 	#LOGGER->debug(dump(\@{$self->{BOMBAS}}));
 	return \@{$self->{BOMBAS}};	
@@ -89,10 +91,12 @@ sub getBombasEstatus {
 	my @resultado = @{$result->{a_soPumpData}->{soPumpData}};
 	my @bombas;
 	foreach my $b (@resultado){
-		my $bomba = Trate::Lib::Bomba->new();
-		$bomba->{PUMP_HEAD} = $b->{pump_num};
-		$b->{totalizador} = $bomba->totalizador();
-		push @bombas,$b;
+		if($b->{pump_num}!=DELIVERY_PUMP_NUMBER){
+			my $bomba = Trate::Lib::Bomba->new();
+			$bomba->{PUMP_HEAD} = $b->{pump_num};
+			$b->{totalizador} = $bomba->totalizador();
+			push @bombas,$b;
+		}
 	}
 	return \@bombas;
 }

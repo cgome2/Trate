@@ -293,7 +293,7 @@ sub updateLecturaTls {
 		"end_temp='" . $self->{END_TEMP} . "'," .
 		"start_delivery_timestamp='" . $self->{START_DELIVERY_TIMESTAMP} . "'," .
 		"end_delivery_timestamp='" . $self->{END_DELIVERY_TIMESTAMP} . "'," .
-		"status='" . $self->{STATUR} . "'," .
+		"status='" . $self->{STATUS} . "'," .
 		"start_height='" . $self->{START_HEIGHT} . "'," .
 		"end_height='" . $self->{END_HEIGHT} . "'," .
 		"start_temp='" . $self->{START_TEMP} . "'," .

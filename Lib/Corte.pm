@@ -162,7 +162,7 @@ sub procesada {
         return $self->{PROCESADA};
 }
 
-sub insertaMDB{
+sub insertaMDB {
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $preps = "
@@ -278,14 +278,14 @@ sub insertaInf {
 	return $self;		
 }
 
-sub inserta{
+sub inserta {
 	my $self = shift;
 	insertaMDB($self);
 	insertaInf($self);
 	return $self;	
 }
 
-sub getFromId(){
+sub getFromId() {
 	my $self = shift;
 	my $corte = shift;
 

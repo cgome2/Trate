@@ -25,7 +25,7 @@ get '/lecturas_tls' => sub {
 	}
 
 	my $LECTURAS_TLS = Trate::Lib::LecturasTLS->new();	
-	$LECTURAS_TLS->getLastLecturasTlsFromOrcu();
+	#$LECTURAS_TLS->getLastLecturasTlsFromOrcu(); # Esto solamente se usará cuando no haya bombas para contar el ingreso de una entrega de combustible
 	my $lecturasTls = $LECTURAS_TLS->getLecturasTls();
 	return $lecturasTls;
 };

@@ -110,10 +110,10 @@ patch '/recepciones_combustible' => sub {
     $FACTURA->factura($post->{folio_documento});
     $FACTURA->fserie($post->{serie_documento});
     $FACTURA->proveedor($post->{numero_proveedor});
-    if($FACTURA->existeFactura() eq 0){
-	    status 400;
-	    return {message => "Factura no existente en informix."};
-    }
+    #if($FACTURA->existeFactura() eq 0){
+	#    status 400;
+	#    return {message => "Factura no existente en informix."};
+    #}
 
 	my $RECEPCION_COMBUSTIBLE = Trate::Lib::RecepcionCombustible->new();
 

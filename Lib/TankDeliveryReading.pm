@@ -84,7 +84,7 @@ sub rui {
         return $self->{RUI};
 }
 
-sub statur {
+sub status {
         my ($self) = @_;
         return $self->{STATUS};
 }

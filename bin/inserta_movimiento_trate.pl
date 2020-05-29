@@ -53,11 +53,11 @@ $MOVIMIENTO->{PROCESADA} = $procesada;
 $MOVIMIENTO->{TRANSACTION_ID} = (length($transaction_id) gt 0 ? $transaction_id : "");
 LOGGER->debug("El movimiento para informix seria \n" . dump($MOVIMIENTO));
 try { 
-	if(WITHINFORMIX eq 1){
-		$return = $MOVIMIENTO->enviarMovimientoInformix() or die(LOGGER->fatal("ERROR AL ENVIAR MOVIMIENTO A INFORMIX"));
-	} else {
+	#if(WITHINFORMIX eq 1){
+	#	$return = $MOVIMIENTO->enviarMovimientoInformix() or die(LOGGER->fatal("ERROR AL ENVIAR MOVIMIENTO A INFORMIX"));
+	#} else {
 		$return = 1;
-	}
+	#}
 } catch {
 	$return = 0;
 } finally {

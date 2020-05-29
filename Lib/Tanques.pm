@@ -159,9 +159,53 @@ sub getTanqueEstatus {
 
 }
 
+sub getTanqueByName($) {
+	my $self = shift;
+	my $tank_name = shift;
+	LOGGER->debug("tank_name" . $tank_name);
+	my %params = (
+		SessionID => "",
+		site_code => ""
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOGetTankList");
+	$wsc->sessionIdTransporter();
+	my $result = $wsc->execute(\%params);	
 
-
-
+	my $tanque = Trate::Lib::Tanque->new();
+	
+	if($result->{num_of_tanks} eq 1) {
+		LOGGER->debug("Entra en el 1");
+		$tanque = Trate::Lib::Tanque->new();
+		my $tanke = $result->{a_soTank}->{soTank};
+		if($tanke->{name} eq $tank_name){
+                $tanque->id($tanke->{id});
+                $tanque->capacity($tanke->{capacity});
+                $tanque->name($tanke->{name});
+                $tanque->number($tanke->{number});
+                $tanque->productId($tanke->{product_id});
+                $tanque->status($tanke->{status});
+				return $tanque;
+		}		
+	} elsif($result->{num_of_tanks} gt 1){
+		$tanque = Trate::Lib::Tanque->new();		
+		my @tankes = @{$result->{a_soTank}->{soTank}};
+		foreach my $tanke (@tankes) {
+			LOGGER->debug("Entra en el 2 con " . $tanke->{'name'} . " y tanque_name: " . $tank_name);
+			$tanque = Trate::Lib::Tanque->new();
+			if($tanke->{name} eq $tank_name){
+				$tanque->id($tanke->{id});
+				$tanque->capacity($tanke->{capacity});
+				$tanque->name($tanke->{name});
+				$tanque->number($tanke->{number});
+				$tanque->productId($tanke->{product_id});
+				$tanque->status($tanke->{status});
+				return $tanque;
+			}
+		}
+	}
+	return $tanque;
+}
 
 1;
 #EOF

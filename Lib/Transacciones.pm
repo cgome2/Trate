@@ -8,17 +8,18 @@ package Trate::Lib::Transacciones;
 #                                                       #
 #########################################################
 
-use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE HO_ROLE);
-use Trate::Lib::WebServicesClient;
-use Trate::Lib::Utilidades;
-use Trate::Lib::RemoteExecutor;
 use Trate::Lib::ConnectorMariaDB;
+use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE HO_ROLE DELIVERY_PUMP_NUMBER);
+use Trate::Lib::Index;
+use Trate::Lib::Jarreo;
+use Trate::Lib::LecturasPump;
+use Trate::Lib::Mean;
 use Trate::Lib::Movimiento;
 use Trate::Lib::Pase;
-use Trate::Lib::Mean;
-use Trate::Lib::Jarreo;
+use Trate::Lib::RemoteExecutor;
 use Trate::Lib::Turnos;
-use Trate::Lib::Index;
+use Trate::Lib::Utilidades;
+use Trate::Lib::WebServicesClient;
 use Try::Catch;
 use Data::Dump qw(dump);
 use utf8;
@@ -229,58 +230,64 @@ sub procesaTransaccionesNuevas($){
 	LOGGER->info("transacciones a procesar [" . @$transaccionesarray . "]");
 	my @transacciones = @$transaccionesarray;
 	foreach my $row (@transacciones){
-		LOGGER->debug(dump($row));
-		$self->{IDTRANSACCIONES} = $row->{'id'};
-		$self->{VENTA} = $row->{'total_price'};
-		$self->{CANTIDAD} = $row->{'quantity'};
-		$self->{PPV} = $row->{'ppv'};
-		#$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
-		$self->{FECHA} = $row->{'timestamp'};
-		$self->{BOMBA} = $row->{'pump'};
-		$self->{MANGUERA} = $row->{'nozzle'};
-		$self->{PRODUCTO} = $row->{'product_name'};
-		$self->{IDPRODUCTOS} = $row->{'product_code'};
-		$self->{TURNO} = getTurno($self->{'FECHA'});
-		$self->{IDCORTES} = $self->{TURNO}->idTurno();
-		$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
-		$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
-		$self->{ODOMETRO} = $row->{'odometer'} eq "" ? 0 : $row->{'odometer'};
-		$self->{PLACA} = $row->{'plate'};
-		$self->{TOTALIZADOR} = $row->{'totalizer_vol'};
-		$self->{START_FLOW} = $row->{'start_flow'};
-		$self->{END_FLOW} = $row->{'timestamp'};
-		try {
-			my $meanTransaction = Trate::Lib::Mean->new();
-			$meanTransaction->{ID} = $row->{'mean_id'};
-			LOGGER->debug(dump($meanTransaction));	
-			$meanTransaction->fillMeanFromId();
-			if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type() eq 2){
-				LOGGER->info("Transacción es jarreo: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
-				insertaTransaccion($self);
-				insertaMovimientoJarreo($self);
-				insertaJarreo($self);
-			} else {
-				LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
-				$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
-				insertaTransaccion($self);
-				if($self->{CANTIDAD} > 0){
-					insertaMovimiento($self);
-					actualizaPase($self);
-					limpiaReglaCarga($self);
+		if($row->{'pump'} == DELIVERY_PUMP_NUMBER){
+			LOGGER->debug("Es la bomba " . $row->{'pump'});
+			$self->{IDTRANSACCIONES} = $row->{'id'};
+			return procesaTransaccionAsDeliveryReading($self,$row);
+		} else {
+			LOGGER->debug(dump($row));
+			$self->{IDTRANSACCIONES} = $row->{'id'};
+			$self->{VENTA} = $row->{'total_price'};
+			$self->{CANTIDAD} = $row->{'quantity'};
+			$self->{PPV} = $row->{'ppv'};
+			#$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
+			$self->{FECHA} = $row->{'timestamp'};
+			$self->{BOMBA} = $row->{'pump'};
+			$self->{MANGUERA} = $row->{'nozzle'};
+			$self->{PRODUCTO} = $row->{'product_name'};
+			$self->{IDPRODUCTOS} = $row->{'product_code'};
+			$self->{TURNO} = getTurno($self->{'FECHA'});
+			$self->{IDCORTES} = $self->{TURNO}->idTurno();
+			$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
+			$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
+			$self->{ODOMETRO} = $row->{'odometer'} eq "" ? 0 : $row->{'odometer'};
+			$self->{PLACA} = $row->{'plate'};
+			$self->{TOTALIZADOR} = $row->{'totalizer_vol'};
+			$self->{START_FLOW} = $row->{'start_flow'};
+			$self->{END_FLOW} = $row->{'timestamp'};
+			try {
+				my $meanTransaction = Trate::Lib::Mean->new();
+				$meanTransaction->{ID} = $row->{'mean_id'};
+				LOGGER->debug(dump($meanTransaction));	
+				$meanTransaction->fillMeanFromId();
+				if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type() eq 2){
+					LOGGER->info("Transacción es jarreo: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+					insertaTransaccion($self);
+					insertaMovimientoJarreo($self);
+					insertaJarreo($self);
 				} else {
-					LOGGER->info("Transaccion en ceros, no se ejecutara ninguna modificacion en trate");
-				}	
+					LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+					$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
+					insertaTransaccion($self);
+					if($self->{CANTIDAD} > 0){
+						insertaMovimiento($self);
+						actualizaPase($self);
+						limpiaReglaCarga($self);
+					} else {
+						LOGGER->info("Transaccion en ceros, no se ejecutara ninguna modificacion en trate");
+					}	
+				} 
+				notifyTransactionLoaded($self);
+				$return = 1;
+			} catch {
+				$return = 0;
+				notifyTransactionLoaded($self);
+				return $return;		
 			} 
-			notifyTransactionLoaded($self);
-			$return = 1;
-		} catch {
-			$return = 0;
-			notifyTransactionLoaded($self);
-			return $return;		
-		} 
-		finally {
-			LOGGER->debug("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
-		};
+			finally {
+				LOGGER->debug("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
+			};
+		}
 	}
 	return $return;
 }
@@ -725,6 +732,96 @@ sub getTransaccionesReporte($) {
 	$sth->finish;
 	$connector->destroy();
 	return \@transacciones;
+}
+
+sub procesaTransaccionAsDeliveryReading($) {
+	my $self = shift;
+	my $transaccion = shift;
+
+	my $LECTURASPUMP = Trate::Lib::LecturasPump->new();
+	$LECTURASPUMP->procesaLecturaPump($transaccion);
+	notifyTransactionLoaded($self);
+
+	return 1;
+#					if($self->{CANTIDAD} > 0){
+#						insertaMovimiento($self);
+#						actualizaPase($self);
+#						limpiaReglaCarga($self);
+#					} else {
+#						LOGGER->info("Transaccion en ceros, no se ejecutara ninguna modificacion en trate");
+#					}	
+#				} 
+#				notifyTransactionLoaded($self);
+
+#	LOGGER->debug(dump($row));
+#	$self->{IDTRANSACCIONES} = $row->{'id'};
+#	$self->{VENTA} = $row->{'total_price'};
+#	$self->{CANTIDAD} = $row->{'quantity'};
+#	$self->{PPV} = $row->{'ppv'};
+#	#$self->{FECHA} = $row->{'date'} . " " . $row->{'time'};
+#	$self->{FECHA} = $row->{'timestamp'};
+#	$self->{BOMBA} = $row->{'pump'};
+#	$self->{MANGUERA} = $row->{'nozzle'};
+#	$self->{PRODUCTO} = $row->{'product_name'};
+#	$self->{IDPRODUCTOS} = $row->{'product_code'};
+#	$self->{TURNO} = getTurno($self->{'FECHA'});
+#	$self->{IDCORTES} = $self->{TURNO}->idTurno();
+#	$self->{IDVEHICULOS} = $row->{'mean_id'} eq "" ? "" : $row->{'mean_id'};
+#	$self->{IDDESPACHADORES} = $row->{'driver_mean_plate'} eq "" ? 0 : $row->{'driver_mean_plate'};
+#	$self->{ODOMETRO} = $row->{'odometer'} eq "" ? 0 : $row->{'odometer'};
+#	$self->{PLACA} = $row->{'plate'};
+#	$self->{TOTALIZADOR} = $row->{'totalizer_vol'};
+#	$self->{START_FLOW} = $row->{'start_flow'};
+#	$self->{END_FLOW} = $row->{'timestamp'};
+#	try {
+#		my $meanTransaction = Trate::Lib::Mean->new();
+#		$meanTransaction->{ID} = $row->{'mean_id'};
+#		LOGGER->debug(dump($meanTransaction));	
+#		$meanTransaction->fillMeanFromId();
+#		if($meanTransaction->auttyp() eq 21 && $meanTransaction->hardwareType() eq 1 && $meanTransaction->type() eq 2){
+#			LOGGER->info("Transacción es jarreo: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+#			insertaTransaccion($self);
+#			insertaMovimientoJarreo($self);
+#			insertaJarreo($self);
+#		} else {
+#			LOGGER->info("Transacción es despacho: " . $meanTransaction->auttyp() . " - " . $meanTransaction->hardwareType() . " - " . $meanTransaction->type());
+#			$self->{PASE} = getPase($row->{'mean_name'},$self->{FECHA});
+#			insertaTransaccion($self);
+#			if($self->{CANTIDAD} > 0){
+#				insertaMovimiento($self);
+#				actualizaPase($self);
+#				limpiaReglaCarga($self);
+#			} else {
+#				LOGGER->info("Transaccion en ceros, no se ejecutara ninguna modificacion en trate");
+#			}	
+#		} 
+#		notifyTransactionLoaded($self);
+#		$return = 1;
+#	} catch {
+#		$return = 0;
+#		notifyTransactionLoaded($self);
+#		return $return;		
+#	} 
+#	finally {
+#		LOGGER->debug("Fin de la insercion de la transaccion [" . $self->{IDTRANSACCIONES} . "]");
+#	};
+#
+#
+#	id_pump_delivery_reading
+#	tank_id
+#	start_volume
+#	end_volume
+#	start_delivery_timestamp
+#	end_delivery_timestamp
+#	status
+#	tank_name
+#	tank_number
+#	quantity_tls
+#	quantity_tran
+#	ci_movimientos
+#	origen_registro
+#	id_recepcion
+#	ppv
 }
 
 1;
