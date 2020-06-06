@@ -1,36 +1,25 @@
 #!/usr/bin/perl
 
-use DBI;
-use strict;
+use Trate::Lib::Pase;
+use Try::Catch;
+use Trate::Lib::Mean;
+use Trate::Lib::Constants qw(LOGGER WITHINFORMIX INFORMIX_SERVER);
+use Data::Dump qw(dump);
+ 
+$ENV{INFORMIXSERVER} = INFORMIX_SERVER;
 
-my $driver = "Informix";
-my $database = "master";
-my $dsn = "DBI:$driver:$database";
-my $userid = "trateusr";
-my $password = "usrtrate";
+use warnings;
 
-printf("dsn: [" . $dsn . "]\n");
-
-
-
-
-my $dbh = DBI->connect($dsn, $userid, $password) or die $DBI::errstr;
-
-my $preps = "SELECT * FROM ci_movimientos";
-my $sth = $dbh->prepare($preps);
-$sth->execute() or die $DBI::errstr;
-print "Numero de registros: [" . $sth->rows . "]\n";
-
-my @results;
-my $count;
-while (@results = $sth->fetchrow()){
-	$count = 0;
-		my $stringtoprint = "|";
-		while ($count < @results) {
-			$stringtoprint = $stringtoprint.$results[$count]."\t|";
-				$count ++;
-		}
-	printf $stringtoprint . "\n";
+my $connector = Trate::Lib::ConnectorInformix->new();
+my $preps;
+$preps = sprintf " SELECT * from ci_movimientos ";    
+LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+try {
+	my $sth = $connector->{DBH}->prepare($preps) or die(LOGGER->fatal("Hacer el prepare" . $connector->{DBH}->errstr));
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en INFORMIX:orpak: $preps ");
+	$sth->finish;
+	$connector->destroy();
+	exit 1;
+} catch {
+	exit 0;
 }
-$dbh->disconnect;
-exit;

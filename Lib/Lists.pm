@@ -9,7 +9,7 @@
 
 package Trate::Lib::Lists;
 
-use Trate::Lib::Constants qw(LOGGER DELIVERY_PUMP_NUMBER);
+use Trate::Lib::Constants qw(LOGGER DELIVERY_PUMPS);
 use Data::Dump qw(dump);
 use XML::LibXML;
 
@@ -34,8 +34,21 @@ sub getBombas {
 	my $result = $wsc->execute(\%params);	
 	my @pumps = @{$result->{SiteOmat}->{setup}->{pumps}->{pump}};
 	my @bombas = ();
+
+	my $DPs = DELIVERY_PUMPS;
+	my @deliveryPumps = @$DPs;
+	my $esdelivery = 0;
+
 	foreach (@pumps){
-		if($_->{pump_head}!=DELIVERY_PUMP_NUMBER){
+		foreach my $dp (@deliveryPumps){
+			if($_->{pump_head}==$dp->{pump_number}){
+				$esdelivery = 1;
+				last;
+			} else {
+				$esdelivery = 0;
+			}
+		}
+		if($esdelivery == 0){
 			delete $_->{add_tot_to_txn};
 			delete $_->{auth_retry_interval};
 			delete $_->{auth_retry_num};
@@ -67,7 +80,7 @@ sub getBombas {
 			delete $_->{volume_factor};
 			push @bombas, $_;
 		}
-	}	
+	}
 	return \@bombas;	
 }
 

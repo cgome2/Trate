@@ -408,13 +408,14 @@ sub getTurno {
 
 # Al abrir inserta totalizadores de cada bomba en la tabla turno_bombas
 sub insertOpenTotalizerReadings {
+	LOGGER->debug("preparar inserción de lectura de totalizadores");
 	my $self = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
 	my $result = 0;
 	my $bombas = Trate::Lib::Bombas->new();
 	my $obombas = $bombas->getBombas();
 	my @pumps = @{$obombas};
-	#LOGGER->debug(dump(\@pumps));
+	LOGGER->debug(dump($obombas));
 	my %pumphash;
 	my $now = Trate::Lib::Utilidades->getCurrentTimestampMariaDB();
 	foreach my $pump (@pumps){

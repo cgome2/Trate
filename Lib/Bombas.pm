@@ -2,7 +2,7 @@ package Trate::Lib::Bombas;
 
 use strict;
 use Data::Dump qw(dump);
-use Trate::Lib::Constants qw(LOGGER ORCUURL DELIVERY_PUMP_NUMBER);
+use Trate::Lib::Constants qw(LOGGER ORCUURL DELIVERY_PUMPS);
 use Trate::Lib::WebServicesClient;
 use Trate::Lib::Bomba;
 use LWP::Simple;
@@ -35,8 +35,21 @@ sub getBombas {
 	my $result = $wsc->execute(\%params);	
 	my @bombas = @{$result->{SiteOmat}->{setup}->{pumps}->{pump}};
 	my $bomba;
+
+	my $DPs = DELIVERY_PUMPS;
+	my @deliveryPumps = @$DPs;
+	my $esdelivery = 0;
+
 	foreach (@bombas){
-		if($_->{pump_head}!=DELIVERY_PUMP_NUMBER){
+		foreach my $dp (@deliveryPumps){
+			if($_->{pump_head}==$dp->{pump_number}){
+				$esdelivery = 1;
+				last;
+			} else {
+				$esdelivery = 0;
+			}
+		}
+		if($esdelivery == 0){
 			$bomba = Trate::Lib::Bomba->new();
 			$bomba->id($_->{id});
 			$bomba->pumpHead($_->{pump_head});
@@ -47,20 +60,10 @@ sub getBombas {
 			unbless($bomba);
 			push (@{$self->{BOMBAS}},$bomba);
 		}
-	}	
+	}
 	#LOGGER->debug(dump(\@{$self->{BOMBAS}}));
 	return \@{$self->{BOMBAS}};	
 }
-
-#sub getBombasEstatus {
-#	my $self = shift;
-#	getBombas($self);
-#	my @bombas;
-#	foreach (@{$self->{BOMBAS}}){
-#		push @bombas, getBombaEstatus($_->pumpHead());
-#	}
-#	return @bombas;
-#}
 
 sub getBombaEstatus {
 	my $id = pop;
@@ -73,7 +76,7 @@ sub getBombaEstatus {
 	$wsc->callName("SOGetPumpRunningData");
 	$wsc->sessionIdTransporter();
 	my $result = $wsc->execute(\%params);
-	
+	LOGGER->debug(dump($result));
 	return $result->{a_soPumpData}->{soPumpData};
 }
 
@@ -90,8 +93,20 @@ sub getBombasEstatus {
 	my $result = $wsc->execute(\%params);	
 	my @resultado = @{$result->{a_soPumpData}->{soPumpData}};
 	my @bombas;
+	my $DPs = DELIVERY_PUMPS;
+	my @deliveryPumps = @$DPs;
+	my $esdelivery = 0;
+
 	foreach my $b (@resultado){
-		if($b->{pump_num}!=DELIVERY_PUMP_NUMBER){
+		foreach my $dp (@deliveryPumps){
+			if($b->{pump_num}==$dp->{pump_number}){
+				$esdelivery = 1;
+				last;
+			} else {
+				$esdelivery = 0;
+			}
+		}
+		if($esdelivery == 0){
 			my $bomba = Trate::Lib::Bomba->new();
 			$bomba->{PUMP_HEAD} = $b->{pump_num};
 			$b->{totalizador} = $bomba->totalizador();

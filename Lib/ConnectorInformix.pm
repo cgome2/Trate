@@ -34,7 +34,7 @@ sub dbh {
 	if(@_) { $self->{DBH} = shift }
 
 	try{
-		$self->{DBH} = DBI->connect($DSN, $USER, $PASSWORD) or warn LOGGER->fatal("Error fatal, no se pudo conectar con el servidor Informix" . $DBI::errstr);
+		$self->{DBH} = DBI->connect($DSN, $USER, $PASSWORD, { PrintError => 1 }) or warn LOGGER->fatal("Error fatal, no se pudo conectar con el servidor Informix" . DBI::errstr);
 	} catch {
 	    $self->{DBH} = 0;
 	} finally {

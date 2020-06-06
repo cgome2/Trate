@@ -125,16 +125,16 @@ put '/shifts' => sub {
 	LOGGER->info("Abriendo el turno");
 	my $allmeans = Trate::Lib::Mean->getDespachadores();
 	my @despachadores = @{$allmeans};
-	LOGGER->debug(dump($allmeans));
+	#LOGGER->debug(dump($allmeans));
 	my $mean_turno;
 	my $omean = Trate::Lib::Mean->new();
 	my $found = 0;
 	foreach my $despachador (@despachadores){
 		$found = 0;
 		foreach my $mean (@means){
-			LOGGER->debug($despachador->{id} . " vs " . $mean->{mean_id});
+			#LOGGER->debug($despachador->{id} . " vs " . $mean->{mean_id});
 			if($despachador->{id} eq $mean->{mean_id}) {
-				LOGGER->debug($despachador->{id} . " esta en el arreglo del post");
+				#LOGGER->debug($despachador->{id} . " esta en el arreglo del post");
 				$mean_turno = Trate::Lib::MeanTurno->new();
 				$mean_turno->{ID_TURNO} = $turno->idTurno();
 				$mean_turno->{MEAN_ID} = $mean->{mean_id};
