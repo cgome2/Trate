@@ -424,7 +424,7 @@ sub insertOpenTotalizerReadings {
 			" VALUES ('" .
 				$self->{ID_TURNO} . "','" .
 				$pump->{ID} . "','" .
-				$pump->{PUMP_HEAD} . "','" .
+				$pump->{SIDE} . "','" .
 				$pump->{TOTALIZADOR} . "','" .
 				$now . "')";
 		LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
@@ -437,7 +437,7 @@ sub insertOpenTotalizerReadings {
 		$pumphash{totalizador_al_cerrar} = undef;
 		$pumphash{timestamp_al_abrir} = $now;
 		$pumphash{timestamp_al_cerrar} = undef;
-		$pumphash{bomba} = $pump->{PUMP_HEAD};
+		$pumphash{bomba} = $pump->{SIDE};
 		$pumphash{id_turno} = $self->{ID_TURNO};
 		push @{$self->{BOMBAS_TURNO}},\%pumphash;
 	}

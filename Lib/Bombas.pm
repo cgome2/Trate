@@ -42,7 +42,7 @@ sub getBombas {
 
 	foreach (@bombas){
 		foreach my $dp (@deliveryPumps){
-			if($_->{pump_head}==$dp->{pump_number}){
+			if($_->{side}==$dp->{pump_number}){
 				$esdelivery = 1;
 				last;
 			} else {
@@ -52,7 +52,7 @@ sub getBombas {
 		if($esdelivery == 0){
 			$bomba = Trate::Lib::Bomba->new();
 			$bomba->id($_->{id});
-			$bomba->pumpHead($_->{pump_head});
+			$bomba->pumpHead($_->{side});
 			$bomba->side($_->{side});
 			$bomba->nozzles($_->{nozzles});
 			$bomba->statusCode($_->{status_code});

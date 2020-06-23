@@ -54,7 +54,7 @@ sub statusCode {
 sub totalizador {
         my ($self) = shift;
 	my $connector = Trate::Lib::ConnectorMariaDB->new();
-	my $preps = "SELECT totalizador FROM transacciones WHERE bomba= '" . $self->{PUMP_HEAD} . "' ORDER BY idtransacciones DESC LIMIT 1";
+	my $preps = "SELECT totalizador FROM transacciones WHERE bomba= '" . $self->{PUMP_HEAD} . "' ORDER BY fecha DESC LIMIT 1";
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
         $sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");

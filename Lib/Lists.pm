@@ -41,7 +41,7 @@ sub getBombas {
 
 	foreach (@pumps){
 		foreach my $dp (@deliveryPumps){
-			if($_->{pump_head}==$dp->{pump_number}){
+			if($_->{side}==$dp->{pump_number}){
 				$esdelivery = 1;
 				last;
 			} else {
