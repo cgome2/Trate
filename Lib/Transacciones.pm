@@ -13,6 +13,7 @@ use Trate::Lib::Constants qw(LOGGER ORCURETRIEVEFILE HO_ROLE DELIVERY_PUMPS);
 use Trate::Lib::Index;
 use Trate::Lib::Jarreo;
 use Trate::Lib::LecturasPump;
+use Trate::Lib::LecturasTLS;
 use Trate::Lib::Mean;
 use Trate::Lib::Movimiento;
 use Trate::Lib::Pase;
@@ -746,11 +747,25 @@ sub procesaTransaccionAsDeliveryReading($) {
 	my $self = shift;
 	my $transaccion = shift;
 
-	my $LECTURASPUMP = Trate::Lib::LecturasPump->new();
-	$LECTURASPUMP->procesaLecturaPump($transaccion);
-	notifyTransactionLoaded($self);
+	my $ltls = Trate::Lib::LecturasTLS->new();
+	if ($ltls->getLastLecturaTlsFromOrcu == 1){
+		my $LECTURASPUMP = Trate::Lib::LecturasPump->new();
+		$LECTURASPUMP->{START_VOLUME} = $ltls->{START_VOLUME};
+		$LECTURASPUMP->{START_TEMP} = $ltls->{START_TEMP};
+		$LECTURASPUMP->{END_TEMP} = $ltls->{END_TEMP}; 
+		$LECTURASPUMP->{START_TC_VOLUME} = $ltls->{START_TC_VOLUME};
+		$LECTURASPUMP->{END_TC_VOLUME} = $ltls->{END_TC_VOLUME};
+		$LECTURASPUMP->{START_HEIGHT} = $ltls->{START_HEIGHT};
+		$LECTURASPUMP->{END_HEIGHT} = $ltls->{END_HEIGHT};
+		$LECTURASPUMP->{START_WATER} = $ltls->{START_WATER};
+		$LECTURASPUMP->{END_WATER} = $ltls->{END_WATER};
+		$LECTURASPUMP->procesaLecturaPump($transaccion);
+		notifyTransactionLoaded($self);
+		return 1;
+	} else {
+		return 0;
+	}
 
-	return 1;
 }
 
 1;

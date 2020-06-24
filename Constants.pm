@@ -57,7 +57,7 @@ use constant PROVEEDOR => "15002";
 # Datos produccion
 #use constant ORCU_ADDRESS => "root\@10.100.60.196";
 # Datos pruebas
-use constant ORCU_ADDRESS => "gvr\@192.168.100.105";
+use constant ORCU_ADDRESS => "gvr\@172.25.246.70";
 ###################################################################
 
 use constant SQLITE_DATABASE => "/usr/local/orpak/BOS/DB/DATA.DB";
@@ -74,7 +74,7 @@ use constant PASSHOCUMMUNICATOR => "!Ortech1";
 #Datos produccion
 #use constant ORCUURL => "http://10.100.60.196:3443/";
 #DAtos pruebas
-use constant ORCUURL => "http://192.168.100.105:6003/";
+use constant ORCUURL => "http://172.25.246.70:6003/";
 ###################################################################
 
 use constant WSURI => ORCUURL . "SiteOmatService/";

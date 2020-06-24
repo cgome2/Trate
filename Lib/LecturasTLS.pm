@@ -257,7 +257,7 @@ sub getLecturasTls{
 	#	$where_stmt .= " LIMIT " . $page . "," . $limit;
 	#}	
 	
-	my $preps = "SELECT * FROM tank_delivery_readings_t WHERE status=0 AND id_recepcion IS NULL AND ci_movimientos IS NULL " . $where_stmt . " ORDER BY start_delivery_timestamp DESC "; 
+	my $preps = "SELECT * FROM tank_delivery_readings_t WHERE status=0 AND id_recepcion IS NULL AND ci_movimientos IS NULL AND origen_registro='PUMP' " . $where_stmt . " ORDER BY start_delivery_timestamp DESC "; 
 	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
 	my $sth = $connector->dbh->prepare($preps);
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
@@ -345,6 +345,45 @@ sub quemarLecturas($$) {
 	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
 	$sth->finish;
 	$connector->destroy();
+}
+
+sub getLastLecturaTlsFromOrcu {
+	my $self = shift;
+	my %params = (
+		SessionID => "",
+		site_code => "",
+		max_size => "1",
+		ho_role => HO_ROLE
+	);
+	my $wsc = Trate::Lib::WebServicesClient->new();
+	$wsc->callName("SOHOGetNewUpdatedTankDelivery");
+	$wsc->sessionIdTransporter();
+	my $result = $wsc->execute(\%params);	
+	LOGGER->info("Cantidad de recepciones [" . $result->{num_TankDelivery} . "]");
+	if ($result->{num_TankDelivery} eq 1){
+		my $lectura_tls = $result->{a_soTankDelivery}->{soTankDelivery};	
+		$self->{TANK_ID} = $lectura_tls->{'tank_id'};
+		$self->{START_VOLUME} = $lectura_tls->{'start_volume'};
+		$self->{END_VOLUME} = $lectura_tls->{'end_volume'}; 
+		$self->{END_TEMP} = $lectura_tls->{'end_temp'}; 
+		$self->{START_DELIVERY_TIMESTAMP} = $lectura_tls->{'start_delivery_timestamp'};
+		$self->{END_DELIVERY_TIMESTAMP} = $lectura_tls->{'end_delivery_timestamp'};
+		$self->{START_TC_VOLUME} = $lectura_tls->{'start_tc_volume'};
+		$self->{END_TC_VOLUME} = $lectura_tls->{'end_tc_volume'};
+		$self->{START_HEIGHT} = $lectura_tls->{'start_height'};
+		$self->{END_HEIGHT} = $lectura_tls->{'end_height'};
+		$self->{START_TEMP} = $lectura_tls->{'start_temp'};
+		$self->{START_WATER} = $lectura_tls->{'start_water'};
+		$self->{END_WATER} = $lectura_tls->{'end_water'};
+		$self->{TANK_NAME} = $lectura_tls->{'tank_name'};
+		$self->{TANK_NUMBER} = $lectura_tls->{'tank_number'};
+		$self->{QUANTITY_TLS} = $lectura_tls->{'quantity_tls'};
+		notificarDescargaLecturasTlsAOrcu($self);
+		return 1;
+	} else {
+		LOGGER->info("Ninguna recepcion por descargar");
+		return 0;
+	}
 }
 
 1;

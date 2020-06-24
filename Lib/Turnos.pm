@@ -765,7 +765,7 @@ sub enviarTurnoTrate {
 		$corte->autorizoDif(0);
 		$corte->contadorInicial("");
 		$corte->contadorFinal("");
-		$corte->diferenciaLts($corte->movtosTurnoLts() - $corte->contadorFinal() + $corte->contadorInicial());
+		$corte->diferenciaLts($corte->movtosTurnoLts() - $corte->inventarioEntregadoLts() + $corte->inventarioRecibidoLts());
 		$corte->vserie("");
 		$corte->procesada("");
 		$corte->folio("");
