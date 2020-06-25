@@ -91,7 +91,7 @@ sub procesaLecturaPump($) {
 		my $tanque = $tankes->getTanqueByName($transaccion->{'tank_name'});
 		$self->{RECEPTION_UNIQUE_ID} = $transaccion->{'id'}; 
 		$self->{TANK_ID} = $tanque->{ID};
-		$self->{END_VOLUME} = $transaccion->{'quantity'}; 
+		$self->{END_VOLUME} = $transaccion->{'quantity'} + $self->{START_VOLUME}; 
 		$self->{START_DELIVERY_TIMESTAMP} = $transaccion->{'start_flow'};
 		$self->{END_DELIVERY_TIMESTAMP} = $transaccion->{'timestamp'};
 		$self->{RUI} = $transaccion->{'id'};
