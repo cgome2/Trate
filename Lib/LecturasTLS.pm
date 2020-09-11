@@ -347,6 +347,20 @@ sub quemarLecturas($$) {
 	$connector->destroy();
 }
 
+sub quemarLectura($$) {
+	my $id_recepcion = pop;
+	my $lectura = pop;
+	my $connector = Trate::Lib::ConnectorMariaDB->new();
+	my $preps = " UPDATE tank_delivery_readings_t SET " .
+		"id_recepcion = '" . $id_recepcion . "'," .
+		"status = '" . 1 . "' WHERE id_tank_delivery_reading in(" . $lectura . ")";
+	LOGGER->debug("Ejecutando sql[ ", $preps, " ]");
+	my $sth = $connector->dbh->prepare($preps);
+	$sth->execute() or die LOGGER->fatal("NO PUDO EJECUTAR EL SIGUIENTE COMANDO en MARIADB:orpak: $preps");
+	$sth->finish;
+	$connector->destroy();
+}
+
 sub getLastLecturaTlsFromOrcu {
 	my $self = shift;
 	my %params = (
